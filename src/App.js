@@ -9,6 +9,7 @@ function App() {
         </p>
         <p style={{fontSize: '16px'}}>
           Website under construction.
+          Shoot me a message at <a href="mailto:hi@ihsan.cc" style={{color: '#d5e8ee'}}>hi@ihsan.cc</a>
         </p>
       </header>
     </div>
