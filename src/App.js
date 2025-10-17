@@ -131,8 +131,8 @@ function App() {
             <a href="#contact" className="quick-link">Contact</a>
           </div>
           <div className="pdf-buttons">
-            <a className="action-btn" href="/assets/Ihsan_Resume.pdf" target="_blank" rel="noopener noreferrer">View Résumé (PDF)</a>
-            <a className="action-btn" href="/assets/Ihsan_Portfolio.pdf" target="_blank" rel="noopener noreferrer">View Portfolio (PDF)</a>
+            <a className="action-btn" href="/images/Ihsan_Salari_Resume.pdf" target="_blank" rel="noopener noreferrer">View Résumé (PDF)</a>
+            <a className="action-btn" href="/images/Ihsan_Salari_Portfolio.pdf" target="_blank" rel="noopener noreferrer">View Portfolio (PDF)</a>
           </div>
         </section>
 
@@ -157,49 +157,7 @@ function App() {
           </div>
         </section>
 
-      <section id="skills" className="skills-section">
-        <h2>Skills</h2>
-        <div className="skills-grid">
-          {skills.map((skillCategory) => (
-            <div 
-              key={skillCategory.id} 
-              className={`skill-category ${activeSkills.has(skillCategory.id) ? 'active' : ''}`}
-            >
-              <div 
-                className="skill-header"
-                onClick={() => toggleSkill(skillCategory.id)}
-              >
-                <h3>{skillCategory.title}</h3>
-                <span className="skill-toggle">+</span>
-              </div>
-              <div className="skill-content">
-                <div className="skill-icons-grid">
-                  {skillCategory.skills.map((skill, index) => (
-                    <div key={index} className="skill-icon">
-                      <div className="skill-icon-image">
-                        {skill.logo ? (
-                          <img 
-                            src={skill.logo} 
-                            alt={`${skill.name} logo`}
-                            className="skill-icon-logo"
-                          />
-                        ) : (
-                          <div className="skill-icon-placeholder">
-                            {skill.name.charAt(0)}
-                          </div>
-                        )}
-                      </div>
-                      <span className="skill-icon-caption">{skill.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section id="experience" className="experience-section">
+          <section id="experience" className="experience-section">
         <h2>Experience</h2>
         {experiences.map((experience) => (
           <div key={experience.id} className={`experience-item ${openExperiences.has(experience.id) ? 'active' : ''}`}>
@@ -224,12 +182,54 @@ function App() {
               )}
             </div>
           </div>
-        ))}
-      </section>
+            ))}
+          </section>
 
-      <section id="projects" className="projects-section">
+          <section id="skills" className="skills-section">
+            <h2>Skills</h2>
+            <div className="skills-grid">
+              {skills.map((skillCategory) => (
+                <div 
+                  key={skillCategory.id} 
+                  className={`skill-category ${activeSkills.has(skillCategory.id) ? 'active' : ''}`}
+                >
+                  <div 
+                    className="skill-header"
+                    onClick={() => toggleSkill(skillCategory.id)}
+                  >
+                    <h3>{skillCategory.title}</h3>
+                    <span className="skill-toggle">+</span>
+                  </div>
+                  <div className="skill-content">
+                    <div className="skill-icons-grid">
+                      {skillCategory.skills.map((skill, index) => (
+                        <div key={index} className="skill-icon">
+                          <div className="skill-icon-image">
+                            {skill.logo ? (
+                              <img 
+                                src={skill.logo} 
+                                alt={`${skill.name} logo`}
+                                className="skill-icon-logo"
+                              />
+                            ) : (
+                              <div className="skill-icon-placeholder">
+                                {skill.name.charAt(0)}
+                              </div>
+                            )}
+                          </div>
+                          <span className="skill-icon-caption">{skill.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section id="projects" className="projects-section">
         <h2>Projects</h2>
-        <p className="section-note">Tip: <strong>Expand</strong> a tile for a quick <strong>summary.</strong> <strong>Click</strong> the tile to view <strong>full details.</strong></p>
+            <p className="section-note">Tip: <strong>Expand</strong> a tile for a quick <strong>summary</strong>. <strong>Click</strong> the tile to view <strong>full details</strong>.</p>
             <div className="projects-grid">
               {projects.map((project) => (
                 <div 
