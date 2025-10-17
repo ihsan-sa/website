@@ -7,7 +7,6 @@ function App() {
   const [activeSkills, setActiveSkills] = useState(new Set());
   const [openExperiences, setOpenExperiences] = useState(new Set());
   const [openProjects, setOpenProjects] = useState(new Set());
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,16 +17,8 @@ function App() {
       }
     };
 
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
     window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const toggleSkill = (skillId) => {
@@ -116,26 +107,21 @@ function App() {
               ))}
             </div>
         <div className="scroll-indicator">
-          <div className={`scroll-arrow ${hasScrolled ? 'stopped' : ''}`}></div>
+          <div 
+            className={`scroll-arrow ${hasScrolled ? 'stopped' : ''}`}
+            onClick={() => {
+              document.getElementById('quick-links').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
+              });
+            }}
+            style={{ cursor: 'pointer' }}
+          ></div>
         </div>
         
-        {/* Temporary width indicator - remove after testing */}
-        <div style={{
-          position: 'fixed',
-          top: '10px',
-          right: '10px',
-          background: 'rgba(0, 0, 0, 0.8)',
-          color: 'white',
-          padding: '5px 10px',
-          borderRadius: '5px',
-          fontSize: '12px',
-          zIndex: 1000
-        }}>
-          Width: {windowWidth}px
-        </div>
       </header>
 
-        <section className="quick-links-section">
+        <section id="quick-links" className="quick-links-section">
           <h2>Quick Links</h2>
           <div className="quick-links-grid">
             <a href="#about" className="quick-link">About</a>

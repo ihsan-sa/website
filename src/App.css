@@ -7,19 +7,6 @@
   font-family: 'Courier New', Courier, monospace;
 }
 
-/* Temporary width indicator - remove after testing */
-.App::after {
-  content: 'Width: ' attr(data-width);
-  position: fixed;
-  top: 10px;
-  right: 10px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 12px;
-  z-index: 1000;
-}
 
 .App::before {
   content: '';
@@ -1119,6 +1106,25 @@
   .thumbnail-8 {
     top: 75%;
     left: 20%;
+  }
+}
+
+/* Hide bottom icons when width goes below 700px */
+@media (max-width: 700px) {
+  .thumbnail-4, .thumbnail-8 {
+    display: none;
+  }
+  
+  /* Move arrow halfway between text and bottom on narrow screens */
+  .scroll-indicator {
+    bottom: 25vh;
+  }
+}
+
+/* Hide all icons when width goes below 360px */
+@media (max-width: 360px) {
+  .floating-thumbnails {
+    display: none;
   }
 }
 
