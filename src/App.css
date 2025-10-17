@@ -411,6 +411,19 @@
   border-bottom-color: #c3e88d;
 }
 
+.about-section a[href^="https://linkedin.com"],
+.about-section a[href^="mailto:"] {
+  color: #d06085;
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(208, 96, 133, 0.5);
+}
+
+.about-section a[href^="https://linkedin.com"]:hover,
+.about-section a[href^="mailto:"]:hover {
+  color: #82aaff;
+  border-bottom-color: #82aaff;
+}
+
 .experience-section,
 .projects-section,
 .skills-section {

@@ -12,15 +12,15 @@ export const aboutContent = {
     "I'm a native French, German, and English speaker, and a beginner in Spanish, which helps me collaborate across cultures and teams with ease."
   ],
   closing: "Would love to connect and chat about cutting edge engineering! :D",
-  contact: "Shoot me a message on LinkedIn or email hi@ihsan.cc"
+  contact: 'Shoot me a message on <a href="https://linkedin.com/in/ihsan-sa" target="_blank" rel="noopener noreferrer">LinkedIn</a> or email <a href="mailto:hi@ihsan.cc">hi@ihsan.cc</a>'
 };
 
 export const experiences = [
       {
         id: 1,
-        title: "Signal Integrity Engineer",
+        title: "Signal Integrity Engineering",
         company: "Arista Networks",
-        period: "Sep 2025 - Present",
+        period: "Internship • Sep 2025 - Present",
         logo: "/images/arista-logo.png",
         description: "Contributing to the development of ultra-high-speed, high bandwidth, and low-latency data-center switches for both conventional and AI data-center markets.",
         responsibilities: [
@@ -35,21 +35,9 @@ export const experiences = [
       },
   {
     id: 2,
-    title: "Electronics Designer",
-    company: "Waterloo Rocketry Design Team",
-    period: "Sep 2024 - Present",
-    logo: "/images/waterloo-rocketry-logo.png",
-    description: "Performed PCB design and review for rocket and ground-side electronics, including power distribution systems and embedded PIC18-based boards with custom MPLAB X firmware development.",
-    responsibilities: [
-      "Designed and implemented electronics and firmware/DSP pipeline for a Xilinx FPGA-based GNSS receiver from scratch",
-      "Collaborated with a team of students to coordinate the electrical design of the rocket and make effective executive decisions on projects"
-    ]
-  },
-  {
-    id: 3,
-    title: "Power Electronics Co-Op and then Electronics Contractor",
+    title: "Power Electronics Designer",
     company: "aiRadar Inc.",
-    period: "Jan 2025 - May 2025",
+    period: "Internship • Jan 2025 - May 2025",
     logo: "/images/airadar-logo.png",
     description: "Spearheaded end-to-end redesign of 3.5MHz GaN, wide input/output multi-stage dc-to-dc converter for advanced multi-beam sonar, including research, topology selection, simulation, firmware development and testing.",
     responsibilities: [
@@ -59,6 +47,18 @@ export const experiences = [
       "Authored extensive technical documentation in LaTeX detailing power electronics theory, designs tradeoffs, simulation, custom mathematical models, component selection, and embedded firmware architecture",
       "Developed and executed board bring-up and test plan; rapidly iterated on testing methodology based on real-time results",
       "Collaborated with a fast-paced engineering team and provided regular updates on design, timeline and executive decisions"
+    ]
+  },
+  {
+    id: 3,
+    title: "Electronics Designer",
+    company: "Waterloo Rocketry Design Team",
+    period: "Sep 2024 - Present",
+    logo: "/images/waterloo-rocketry-logo.png",
+    description: "Performed PCB design and review for rocket and ground-side electronics, including power distribution systems and embedded PIC18-based boards with custom MPLAB X firmware development.",
+    responsibilities: [
+      "Designed and implemented electronics and firmware/DSP pipeline for a Xilinx FPGA-based GNSS receiver from scratch",
+      "Collaborated with a team of students to coordinate the electrical design of the rocket and make effective executive decisions on projects"
     ]
   },
   {

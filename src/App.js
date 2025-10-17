@@ -153,7 +153,7 @@ function App() {
             
             <p>{aboutContent.closing}</p>
             
-            <p>{aboutContent.contact}</p>
+            <p dangerouslySetInnerHTML={{ __html: aboutContent.contact }}></p>
           </div>
         </section>
 
