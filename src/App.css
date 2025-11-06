@@ -248,6 +248,14 @@
   min-height: 280px;
 }
 
+@media (max-width: 768px) {
+  .full-width-projects-grid .project-tile {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+  }
+}
+
 .about-section {
   padding: 2.5rem 0.5rem 0.5rem 0.5rem;
   text-align: left;
@@ -1445,6 +1453,10 @@
     transition: none;
     box-shadow: none;
     font-family: 'Courier New', Courier, monospace;
+    width: 100% !important;
+    box-sizing: border-box;
+    max-width: 100% !important;
+    min-width: 0 !important;
   }
 
   .experience-item:hover {
@@ -1491,7 +1503,10 @@
   .three-column-container {
     grid-template-columns: 1fr;
     gap: 0.5rem; /* Drastically reduced spacing */
-    padding: 0 0.5rem; /* Halved from 1rem */
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
   }
 
   .projects-column {
@@ -1505,10 +1520,19 @@
     margin-top: 0;
     padding-top: 0.5rem; /* Reduced padding */
     padding-bottom: 0.5rem;
-    padding-left: 0.25rem; /* Halved from 0.5rem */
-    padding-right: 0.25rem; /* Halved from 0.5rem */
+    padding-left: 1rem;
+    padding-right: 1rem;
     margin-left: 0;
     margin-right: 0;
+    width: 100% !important;
+    box-sizing: border-box;
+    max-width: 100% !important;
+  }
+
+  .about-section .about-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
   }
 
   .App-header {
@@ -1519,6 +1543,10 @@
     order: 2;
     margin-top: 0.5rem; /* Drastically reduced spacing */
     margin-left: 0;
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
   }
 
   .full-width-projects-grid {
@@ -1531,6 +1559,7 @@
     width: 100%;
     box-sizing: border-box;
     display: grid;
+    max-width: 100%;
   }
 
   .contact-section {
@@ -1579,10 +1608,11 @@
   /* Combine all projects in order */
   .projects-column .project-tile,
   .full-width-projects-grid .project-tile {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
     justify-self: center;
+    box-sizing: border-box;
   }
 
   .projects-grid {
