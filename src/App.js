@@ -253,7 +253,7 @@ function App() {
             <p dangerouslySetInnerHTML={{ __html: aboutContent.contact }}></p>
             
             <div className="about-actions">
-              <a className="action-btn project-docs-btn" href={contactContent.website} target="_blank" rel="noopener noreferrer">Project Docs <span className="arrow-icon">
+              <a className="action-btn project-docs-btn" href={contactContent.website} target="_blank" rel="noopener noreferrer">{isMobile ? 'Docs' : 'Project Docs'} <span className="arrow-icon">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                   <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
