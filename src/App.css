@@ -60,6 +60,7 @@
   color: inherit;
   transition: transform 0.2s ease;
   vertical-align: middle;
+  flex-shrink: 0;
 }
 
 .arrow-icon svg {
@@ -67,6 +68,7 @@
   height: 12px;
   display: block;
 }
+
 
 .quick-link:hover .arrow-icon,
 .action-btn:hover .arrow-icon {
@@ -338,33 +340,52 @@
   gap: 0.75rem;
   margin-top: 1.5rem;
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.about-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.025rem;
+  padding: 0.405rem 0.81rem;
+  box-sizing: border-box;
+  line-height: 1;
+  font-size: 0.81rem;
+  font-family: 'Courier New', Courier, monospace;
+  text-decoration: none !important;
+  white-space: nowrap;
+  margin: 0;
+  border: 1px solid;
+  border-radius: 8px;
 }
 
 .about-actions .action-btn {
   background: #3A2F42;
-  border: 1px solid #E080A0;
+  border-color: #E080A0;
   color: #E080A0;
-  font-family: 'Courier New', Courier, monospace;
-  text-decoration: none;
 }
 
 .about-actions .project-docs-btn {
   background: rgba(45, 59, 83, 0.8);
-  border: 1px solid rgba(130, 170, 255, 0.4);
+  border-color: rgba(130, 170, 255, 0.4);
   color: #82aaff;
-  text-decoration: none;
 }
 
 .about-actions .project-docs-btn:hover {
   background: rgba(45, 59, 83, 1);
   border-color: rgba(130, 170, 255, 0.6);
   color: #82aaff;
-  text-decoration: none;
+  text-decoration: none !important;
 }
 
 .about-actions .action-btn:hover {
-  text-decoration: none;
+  text-decoration: none !important;
+}
+
+.about-actions a:hover {
+  text-decoration: none !important;
 }
 
 .experience-section {
@@ -1404,8 +1425,8 @@
     font-size: 0.9rem;
     color: #a5a9af;
     margin: 0;
-    font-family: 'Courier New', Courier, monospace;
-  }
+  font-family: 'Courier New', Courier, monospace;
+}
 
   .experience-content {
     display: none; /* Hide content in mobile mode */
@@ -1474,6 +1495,14 @@
     margin-top: 0;
     margin-bottom: 1rem;
   }
+
+  .about-actions a {
+    height: 2.025rem;
+    padding: 0.405rem 0.81rem;
+    font-size: 0.81rem;
+    line-height: 1;
+  }
+
 
   /* Reduce spacing between logos and experience */
   .mobile-logos {
