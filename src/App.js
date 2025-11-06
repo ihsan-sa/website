@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import emailjs from '@emailjs/browser';
 import './App.css';
 import { aboutContent, experiences, projects, heroContent, contactContent, footerContent, skills } from './data';
 
@@ -7,6 +8,18 @@ function App() {
   const [activeSkills, setActiveSkills] = useState(new Set());
   const [openExperiences, setOpenExperiences] = useState(new Set());
   const [openProjects, setOpenProjects] = useState(new Set());
+  const [formStatus, setFormStatus] = useState({ type: null, message: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    if (formStatus.type === 'success') {
+      const timer = setTimeout(() => {
+        setFormStatus({ type: null, message: '' });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [formStatus.type]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -21,24 +34,58 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Check on mount
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const toggleSkill = (skillId) => {
-    const newActiveSkills = new Set(activeSkills);
-    if (newActiveSkills.has(skillId)) {
-      newActiveSkills.delete(skillId);
+    if (skillId === 'all') {
+      // Toggle the section visibility only, don't auto-expand individual items
+      if (activeSkills.size > 0) {
+        setActiveSkills(new Set());
+      } else {
+        // Just show the container, but keep all items collapsed
+        setActiveSkills(new Set(['section-open']));
+      }
     } else {
-      newActiveSkills.add(skillId);
+      const newActiveSkills = new Set(activeSkills);
+      // Remove the section-open marker when toggling individual items
+      newActiveSkills.delete('section-open');
+      if (newActiveSkills.has(skillId)) {
+        newActiveSkills.delete(skillId);
+      } else {
+        newActiveSkills.add(skillId);
+      }
+      setActiveSkills(newActiveSkills);
     }
-    setActiveSkills(newActiveSkills);
   };
 
   const toggleExperience = (expId) => {
-    const next = new Set(openExperiences);
-    if (next.has(expId)) {
-      next.delete(expId);
+    if (expId === 'all') {
+      // Toggle the section visibility only, don't auto-expand individual items
+      if (openExperiences.size > 0) {
+        setOpenExperiences(new Set());
+      } else {
+        // Just show the container, but keep all items collapsed
+        setOpenExperiences(new Set(['section-open']));
+      }
     } else {
-      next.add(expId);
+      const next = new Set(openExperiences);
+      // Remove the section-open marker when toggling individual items
+      next.delete('section-open');
+      if (next.has(expId)) {
+        next.delete(expId);
+      } else {
+        next.add(expId);
+      }
+      setOpenExperiences(next);
     }
-    setOpenExperiences(next);
   };
 
   const toggleProject = (projectId) => {
@@ -52,193 +99,78 @@ function App() {
   };
   return (
     <div className={`App ${hasScrolled ? 'scrolled' : ''}`}>
+      <div className="top-nav-bar">
+        <div className="quick-links-bar">
+          <a href={contactContent.website} target="_blank" rel="noopener noreferrer" className="quick-link">Project Docs <span className="arrow-icon">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span></a>
+          <a href={`mailto:${contactContent.email}`} className="quick-link">Email <span className="arrow-icon">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span></a>
+          <a href="https://linkedin.com/in/ihsan-sa" target="_blank" rel="noopener noreferrer" className="quick-link">LinkedIn <span className="arrow-icon">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span></a>
+          <a href="https://github.com/ihsan-sa" target="_blank" rel="noopener noreferrer" className="quick-link">GitHub <span className="arrow-icon">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span></a>
+        </div>
+        <div className="pdf-buttons-bar">
+          <a className="action-btn" href="/images/Ihsan_Salari_Resume.pdf" target="_blank" rel="noopener noreferrer">Résumé <span className="arrow-icon">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span></a>
+          <a className="action-btn" href="/images/Ihsan_Salari_Portfolio.pdf" target="_blank" rel="noopener noreferrer">Portfolio <span className="arrow-icon">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span></a>
+        </div>
+      </div>
+
       <header className="App-header">
-            <div className="hero-section">
-        <p>
-                Hello, I'm <span style={{ color: heroContent.nameColor }}>{heroContent.name}</span>.
-        </p>
-        <p style={{fontSize: '17px'}}>
-                {heroContent.subtitle}
-              </p>
+        <div className="hero-section">
+          <p>
+            Hello, I'm <span style={{ color: heroContent.nameColor }}>{heroContent.name}</span>.
+          </p>
+          <p className="mobile-subtitle">EE @ UWaterloo | HW @ Arista</p>
+          {/* Subtitle temporarily hidden
+          <p style={{fontSize: '17px'}}>
+            {heroContent.subtitle}
+          </p>
+          {heroContent.secondarySubtitle && (
             <p style={{fontSize: '17px', marginTop: '0.5rem'}}> 
               {heroContent.secondarySubtitle}
             </p>
-            </div>
-            
-            {/* Floating project thumbnails */}
-            <div className="floating-thumbnails">
-              {projects.slice(0, 8).map((project, index) => (
-                <a 
-                  key={project.id} 
-                  href={`#project-${project.id}`}
-                  className={`floating-thumbnail thumbnail-${index + 1}`}
-                  style={{ 
-                    animationDelay: `${index * 0.3}s`,
-                    animationDuration: `${8 + index * 1.5}s`
-                  }}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const projectElement = document.getElementById(`project-${project.id}`);
-                    if (projectElement) {
-                      // Expand the project if it's not already open
-                      if (!openProjects.has(project.id)) {
-                        toggleProject(project.id);
-                      }
-                      // Scroll to the project
-                      projectElement.scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                      // Fallback to projects section if specific project not found
-                      document.getElementById('projects').scrollIntoView({ behavior: 'smooth' });
-                    }
-                  }}
-                >
-                  {project.image ? (
-                    <img 
-                      src={project.image} 
-                      alt={project.title}
-                      title={project.title}
-                    />
-                  ) : (
-                    <div className="thumbnail-placeholder">
-                      {project.title.charAt(0)}
-                    </div>
-                  )}
-                </a>
-              ))}
-            </div>
-        <div className="scroll-indicator">
-          <div 
-            className={`scroll-arrow ${hasScrolled ? 'stopped' : ''}`}
-            onClick={() => {
-              document.getElementById('quick-links').scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
-              });
-            }}
-            style={{ cursor: 'pointer' }}
-          ></div>
+          )}
+          */}
         </div>
-        
       </header>
 
-        <section id="quick-links" className="quick-links-section">
-          <h2>Quick Links</h2>
-          <div className="quick-links-grid">
-            <a href="#about" className="quick-link">About</a>
-            <a href="#skills" className="quick-link">Skills</a>
-            <a href="#experience" className="quick-link">Experience</a>
-            <a href="#projects" className="quick-link">Projects</a>
-            <a href="#contact" className="quick-link">Contact</a>
-          </div>
-          <div className="pdf-buttons">
-            <a className="action-btn" href="/images/Ihsan_Salari_Resume.pdf" target="_blank" rel="noopener noreferrer">View Résumé (PDF)</a>
-            <a className="action-btn" href="/images/Ihsan_Salari_Portfolio.pdf" target="_blank" rel="noopener noreferrer">View Portfolio (PDF)</a>
-          </div>
-        </section>
-
-        <section id="about" className="about-section">
-          <h2>{aboutContent.title}</h2>
-          <div className="about-content">
-            <p>{aboutContent.greeting}</p>
-            
-            <p>{aboutContent.description}</p>
-            
-            <p>A few things about me:</p>
-            
-            <ul>
-              {aboutContent.points.map((point, index) => (
-                <li key={index}>{point}</li>
-              ))}
-            </ul>
-            
-            <p>{aboutContent.closing}</p>
-            
-            <p dangerouslySetInnerHTML={{ __html: aboutContent.contact }}></p>
-          </div>
-        </section>
-
-          <section id="experience" className="experience-section">
-        <h2>Experience</h2>
-        {experiences.map((experience) => (
-          <div key={experience.id} className={`experience-item ${openExperiences.has(experience.id) ? 'active' : ''}`}>
-            <div className="experience-header" onClick={() => toggleExperience(experience.id)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleExperience(experience.id); }}>
-              <div className="experience-title">
-                <h3>{experience.title}</h3>
-                <p className="company">{experience.company} • {experience.period}</p>
-              </div>
-              <div className="company-logo">
-                <img src={experience.logo} alt={experience.company} />
-              </div>
-              <span className="experience-toggle" aria-hidden="true">{openExperiences.has(experience.id) ? '−' : '+'}</span>
-            </div>
-            <div className="experience-content">
-              <p>{experience.description}</p>
-              {experience.responsibilities.length > 0 && (
-                <ul>
-                  {experience.responsibilities.map((responsibility, index) => (
-                    <li key={index}>{responsibility}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-            ))}
-          </section>
-
-          <section id="skills" className="skills-section">
-            <h2>Skills</h2>
-            <div className="skills-grid">
-              {skills.map((skillCategory) => (
-                <div 
-                  key={skillCategory.id} 
-                  className={`skill-category ${activeSkills.has(skillCategory.id) ? 'active' : ''}`}
-                >
-                  <div 
-                    className="skill-header"
-                    onClick={() => toggleSkill(skillCategory.id)}
-                  >
-                    <h3>{skillCategory.title}</h3>
-                    <span className="skill-toggle">+</span>
-                  </div>
-                  <div className="skill-content">
-                    <div className="skill-icons-grid">
-                      {skillCategory.skills.map((skill, index) => (
-                        <div key={index} className="skill-icon">
-                          <div className="skill-icon-image">
-                            {skill.logo ? (
-                              <img 
-                                src={skill.logo} 
-                                alt={`${skill.name} logo`}
-                                className="skill-icon-logo"
-                              />
-                            ) : (
-                              <div className="skill-icon-placeholder">
-                                {skill.name.charAt(0)}
-                              </div>
-                            )}
-                          </div>
-                          <span className="skill-icon-caption">{skill.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section id="projects" className="projects-section">
-        <h2>Projects</h2>
-            <p className="section-note">Tip: <strong>Expand</strong> a tile for a quick <strong>summary</strong>. <strong>Click</strong> the tile to view <strong>full details</strong>.</p>
-            <div className="projects-grid">
-              {projects.map((project) => (
-                <div 
-                  key={project.id} 
-                  id={`project-${project.id}`}
-                  className={`project-tile ${openProjects.has(project.id) ? 'active' : ''}`}
-                  onClick={project.links.docs ? () => window.open(project.links.docs, '_blank') : undefined}
-                  style={{ cursor: project.links.docs ? 'pointer' : 'default' }}
-                >
+      <div className="three-column-container">
+        <div className="projects-column">
+          {projects.slice(0, 2).map((project) => (
+            <div 
+              key={project.id} 
+              id={`project-${project.id}`}
+              className={`project-tile ${openProjects.has(project.id) ? 'active' : ''}`}
+              onClick={() => toggleProject(project.id)}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="project-image">
                 {project.image ? (
                   <img src={project.image} alt={project.title} />
@@ -259,7 +191,280 @@ function App() {
                 )}
               </div>
               <div className="project-content">
-                <div className="project-header" onClick={(e) => { e.stopPropagation(); toggleProject(project.id); }} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); toggleProject(project.id); } }}>
+                <div className="project-header">
+                  <h3>{project.title}</h3>
+                  <span className="project-toggle" aria-hidden="true">{openProjects.has(project.id) ? '−' : '+'}</span>
+                </div>
+                <div className="project-collapsible">
+                  {Array.isArray(project.description) ? (
+                    <ul>
+                      {project.description.map((point, index) => (
+                        <li key={index}>{point}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>{project.description}</p>
+                  )}
+                  <div className="project-skills">
+                    {project.skills.map((skill, index) => (
+                      <span key={index} className="skill-tag">{skill}</span>
+                    ))}
+                  </div>
+                  {project.links.docs && (
+                    <div className="project-learn-more">
+                      <a href={project.links.docs} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                        Learn more
+                        <span className="arrow-icon">
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <section id="about" className="about-section">
+          <div className="about-content">
+            {aboutContent.greeting && <p>{aboutContent.greeting}</p>}
+            
+            <p>{aboutContent.description}</p>
+            
+            <p>{aboutContent.interests}</p>
+            
+            {aboutContent.points.length > 0 && (
+              <>
+                <p>A few things about me:</p>
+                <ul>
+                  {aboutContent.points.map((point, index) => (
+                    <li key={index}>{point}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            
+            <p>{aboutContent.closing}</p>
+            
+            <p dangerouslySetInnerHTML={{ __html: aboutContent.contact }}></p>
+            
+            <div className="about-actions">
+              <a className="action-btn project-docs-btn" href={contactContent.website} target="_blank" rel="noopener noreferrer">Project Docs <span className="arrow-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span></a>
+              <a className="action-btn" href="/images/Ihsan_Salari_Resume.pdf" target="_blank" rel="noopener noreferrer">Résumé <span className="arrow-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span></a>
+              <a className="action-btn" href="/images/Ihsan_Salari_Portfolio.pdf" target="_blank" rel="noopener noreferrer">Portfolio <span className="arrow-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span></a>
+            </div>
+          </div>
+        </section>
+
+        <section id="experience" className="experience-section">
+          <div className="company-logos mobile-logos">
+            {experiences
+              .filter(exp => exp.logo !== null && !exp.isEducation)
+              .map((experience) => (
+                <div key={`logo-${experience.id}`} className="company-logo-item">
+                  <img src={experience.logo} alt={experience.company} className="company-logo" />
+                </div>
+              ))}
+          </div>
+          <div className="experience-mobile-toggle" onClick={() => toggleExperience('all')} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleExperience('all'); } }} tabIndex={0}>
+            <h2>Experience</h2>
+            <span className="section-toggle" aria-hidden="true">{openExperiences.has('section-open') ? '−' : '+'}</span>
+          </div>
+          <div className={`experience-container ${openExperiences.has('section-open') ? 'active' : ''}`}>
+            {experiences.map((experience) => (
+              <div key={experience.id} className={`experience-item ${experience.isEducation ? 'education-item' : ''}`}>
+                <div className="experience-header">
+                  <div className="experience-title">
+                    <h3>{experience.title}</h3>
+                    <p className="company">{experience.company} • {experience.period}</p>
+                  </div>
+                </div>
+                {openExperiences.has('section-open') && experience.description && (
+                  <div className="experience-content">
+                    <p>{experience.description}</p>
+                    {experience.responsibilities && experience.responsibilities.length > 0 && (
+                      <ul>
+                        {experience.responsibilities.map((resp, index) => (
+                          <li key={index}>{resp}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <div className="full-width-projects-grid">
+        {(isMobile ? projects : projects.slice(2)).map((project) => (
+          <div 
+            key={project.id} 
+            id={`project-${project.id}`}
+            className={`project-tile ${openProjects.has(project.id) ? 'active' : ''}`}
+            onClick={() => toggleProject(project.id)}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="project-image">
+              {project.image ? (
+                <img src={project.image} alt={project.title} />
+              ) : (
+                <div style={{
+                  width: '100%',
+                  height: '200px',
+                  background: 'linear-gradient(135deg, #2d3b53, #1a2332)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#82aaff',
+                  fontSize: '1.2rem',
+                  fontFamily: 'Courier New, monospace'
+                }}>
+                  {project.title}
+                </div>
+              )}
+            </div>
+            <div className="project-content">
+              <div className="project-header">
+                <h3>{project.title}</h3>
+                <span className="project-toggle" aria-hidden="true">{openProjects.has(project.id) ? '−' : '+'}</span>
+              </div>
+              <div className="project-collapsible">
+                {Array.isArray(project.description) ? (
+                  <ul>
+                    {project.description.map((point, index) => (
+                      <li key={index}>{point}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>{project.description}</p>
+                )}
+                <div className="project-skills">
+                  {project.skills.map((skill, index) => (
+                    <span key={index} className="skill-tag">{skill}</span>
+                  ))}
+                </div>
+                {project.links.docs && (
+                  <div className="project-learn-more">
+                    <a href={project.links.docs} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                      Learn more
+                      <span className="arrow-icon">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                          <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </span>
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Skills section commented out for testing
+      <section id="skills" className="skills-section">
+        <div className="section-collapsible-header" onClick={() => toggleSkill('all')} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') toggleSkill('all'); }}>
+          <h2>Skills</h2>
+          <span className="section-toggle" aria-hidden="true">{(activeSkills.has('section-open') || activeSkills.size > 0) ? '−' : '+'}</span>
+        </div>
+        <div className={`skills-grid ${activeSkills.has('section-open') || activeSkills.size > 0 ? 'active' : ''}`}>
+          {skills.map((skillCategory) => (
+            <div 
+              key={skillCategory.id} 
+              className={`skill-category ${activeSkills.has(skillCategory.id) ? 'active' : ''}`}
+            >
+              <div 
+                className="skill-header"
+                onClick={() => toggleSkill(skillCategory.id)}
+              >
+                <h3>{skillCategory.title}</h3>
+                <span className="skill-toggle">{activeSkills.has(skillCategory.id) ? '−' : '+'}</span>
+              </div>
+              <div className="skill-content">
+                <div className="skill-icons-grid">
+                  {skillCategory.skills.map((skill, index) => (
+                    <div key={index} className="skill-icon">
+                      <div className="skill-icon-image">
+                        {skill.logo ? (
+                          <img 
+                            src={skill.logo} 
+                            alt={`${skill.name} logo`}
+                            className="skill-icon-logo"
+                          />
+                        ) : (
+                          <div className="skill-icon-placeholder">
+                            {skill.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <span className="skill-icon-caption">{skill.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      */}
+
+      {/* Projects section moved to left column in three-column-container */}
+      <section id="projects" className="projects-section" style={{ display: 'none' }}>
+        <h2>Projects</h2>
+        <p className="section-note">Tip: <strong>Expand</strong> a tile for a quick <strong>summary</strong>. <strong>Click</strong> the tile to view <strong>full details</strong>.</p>
+        <div className="projects-grid">
+          {/* Projects moved to left column */}
+          {false && projects.map((project) => (
+            <div 
+              key={project.id} 
+              id={`project-${project.id}`}
+              className={`project-tile ${openProjects.has(project.id) ? 'active' : ''}`}
+              onClick={project.links.docs ? () => window.open(project.links.docs, '_blank') : undefined}
+              style={{ cursor: project.links.docs ? 'pointer' : 'default' }}
+            >
+              <div className="project-image">
+                {project.image ? (
+                  <img src={project.image} alt={project.title} />
+                ) : (
+                  <div style={{
+                    width: '100%',
+                    height: '200px',
+                    background: 'linear-gradient(135deg, #2d3b53, #1a2332)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#82aaff',
+                    fontSize: '1.2rem',
+                    fontFamily: 'Courier New, monospace'
+                  }}>
+                    {project.title}
+                  </div>
+                )}
+              </div>
+              <div className="project-content">
+                <div className="project-header">
                   <h3>{project.title}</h3>
                   <span className="project-toggle" aria-hidden="true">{openProjects.has(project.id) ? '−' : '+'}</span>
                 </div>
@@ -285,12 +490,104 @@ function App() {
         </div>
       </section>
 
-      <footer id="contact" className="contact-section">
+      <section id="contact" className="contact-section">
+        <div className="contact-container">
+          <h2>Get in Touch</h2>
+          <form className="contact-form" onSubmit={async (e) => {
+            e.preventDefault();
+            setIsSubmitting(true);
+            setFormStatus({ type: null, message: '' });
+
+            const formData = new FormData(e.target);
+            const templateParams = {
+              from_name: formData.get('name'),
+              from_email: formData.get('email'),
+              title: formData.get('subject'),
+              message: formData.get('message'),
+              to_email: 'hi@ihsan.cc'
+            };
+
+            try {
+              await emailjs.send(
+                'service_1f58p8b',
+                'template_47yztik',
+                templateParams,
+                '8QkIGK2-gftBhvDGA'
+              );
+              
+              setFormStatus({ type: 'success', message: 'Message sent successfully! I\'ll get back to you soon.' });
+              e.target.reset();
+            } catch (error) {
+              console.error('EmailJS error:', error);
+              setFormStatus({ type: 'error', message: 'Failed to send message. Please try again or email me directly at hi@ihsan.cc' });
+            } finally {
+              setIsSubmitting(false);
+            }
+          }}>
+            <div className="form-group">
+              <input 
+                type="text" 
+                name="name" 
+                placeholder="Your Name" 
+                className="form-input"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input 
+                type="email" 
+                name="email" 
+                placeholder="Your Email" 
+                className="form-input"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <input 
+                type="text" 
+                name="subject" 
+                placeholder="Subject" 
+                className="form-input"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <textarea 
+                name="message" 
+                placeholder="Your Message" 
+                className="form-textarea"
+                rows="6"
+                required
+              ></textarea>
+            </div>
+            {formStatus.message && (
+              <div className={`form-message ${formStatus.type === 'success' ? 'form-success' : 'form-error'}`}>
+                {formStatus.message}
+              </div>
+            )}
+            <button type="submit" className="contact-submit-btn" disabled={isSubmitting}>
+              {isSubmitting ? 'Sending...' : 'Send Message'}
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <footer className="footer-section">
         <p>
-          Shoot me an email at <a href={`mailto:${contactContent.email}`} style={{color: '#d06085', textDecoration: 'none' }}>{contactContent.email}</a>
+          Or reach me directly at <a href={`mailto:${contactContent.email}`} style={{color: '#d06085', textDecoration: 'none' }}>{contactContent.email} <span className="arrow-icon">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span></a>
         </p>
         <p>
-          Learn more about my projects: <a href={contactContent.website} style={{color: '#d06085', textDecoration: 'none' }}>{contactContent.website}</a>
+          Learn more about my projects: <a href={contactContent.website} target="_blank" rel="noopener noreferrer" style={{color: '#d06085', textDecoration: 'none' }}>{contactContent.website} <span className="arrow-icon">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span></a>
         </p>
       </footer>
 

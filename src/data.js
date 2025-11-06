@@ -2,20 +2,25 @@
 
 export const aboutContent = {
   title: "About Me",
-  greeting: "Hi, I'm Ihsan! :)",
-  description: "I'm a fast learner who thrives on tackling ambitious technical challenges, from nuclear fusion and advanced power electronics to electrohydrodynamics, PCB design, and FPGA systems.",
-  points: [
-    "I pick things up quickly and bring a broad, hands-on skill set to the table, helping me approach problems from multiple perspectives and move projects forward efficiently.",
-    "I thrive in fast-paced environments where I can make thoughtful, high-impact decisions and take ownership of key initiatives.",
-    "My curiosity and ambition push me to pursue a wide range of projects, each deepening my understanding and expanding my capabilities.",
-    "I care deeply about sustainability and social impact, a focus that often drives my engineering work, like building an ionic thruster for eco-conscious propulsion.",
-    "I'm a native French, German, and English speaker, and a beginner in Spanish, which helps me collaborate across cultures and teams with ease."
-  ],
-  closing: "Would love to connect and chat about cutting edge engineering! :D",
-  contact: 'Shoot me a message on <a href="https://linkedin.com/in/ihsan-sa" target="_blank" rel="noopener noreferrer">LinkedIn</a> or email <a href="mailto:hi@ihsan.cc">hi@ihsan.cc</a>'
+  greeting: "",
+  description: "I'm a fast learner who thrives on tackling ambitious technical challenges, from nuclear fusion and electrodynamics, to ultra-high-speed PCB design, RADAR systems, and FPGA projects.",
+  interests: "I am interested in hardware design, ASIC and digital design, signal integrity, firmware and software roles. I also love skiing, mountain biking and adventures.",
+  points: [],
+  closing: "I care deeply about the social impact of my projects and work, and hope that through engineering, we can work towards solving climate change and global injustices.",
+  contact: 'Shoot me a message in the <a href="#contact" class="about-link">contact section below</a>, on <a href="https://linkedin.com/in/ihsan-sa" target="_blank" rel="noopener noreferrer" class="about-link">LinkedIn <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-left: 0.25rem;"><path d="M2 10L10 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2L10 2L10 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>, or email <a href="mailto:hi@ihsan.cc" class="about-link">hi@ihsan.cc <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; vertical-align: middle; margin-left: 0.25rem;"><path d="M2 10L10 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2L10 2L10 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></a>'
 };
 
 export const experiences = [
+  {
+    id: 0,
+    title: "BASc Electrical Engineering",
+    company: "University of Waterloo",
+    period: "2024 - 2029",
+    logo: "/images/uwaterloo.png",
+    description: "",
+    responsibilities: [],
+    isEducation: true
+  },
       {
         id: 1,
         title: "Signal Integrity Engineering",
@@ -212,7 +217,7 @@ export const heroContent = {
   name: "Ihsan",
   nameColor: "#82aaff",
   subtitle: "Hardware design, signal integrity, firmware, digital design, and ethics.",
-  secondarySubtitle: "Signal Integrity @ Arista | EE @ UWaterloo"
+  secondarySubtitle: ""
 };
 
 export const contactContent = {
