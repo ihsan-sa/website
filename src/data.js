@@ -3,7 +3,7 @@
 export const aboutContent = {
   title: "About Me",
   greeting: "",
-  description: "I'm a fast learner who thrives on tackling ambitious technical challenges, from nuclear fusion and electrodynamics, to ultra-high-speed PCB design, RADAR systems, and FPGA projects.",
+  description: "I'm a fast learner who thrives on tackling ambitious technical challenges, from nuclear fusion and electrohydrodynamics, to ultra-high-speed PCB design, RADAR systems, and FPGA projects.",
   interests: "I am interested in hardware design, ASIC and digital design, signal integrity, firmware and software roles. I also love skiing, mountain biking and adventures.",
   points: [],
   closing: "I care deeply about the social impact of my projects and work, and hope that through engineering, we can work towards solving climate change and global injustices.",

@@ -1535,6 +1535,24 @@
     box-sizing: border-box;
   }
 
+  .about-see-more {
+    background: transparent;
+    border: 1px solid #82aaff;
+    color: #82aaff;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: all 0.2s ease;
+  }
+
+  .about-see-more:hover {
+    background: rgba(130, 170, 255, 0.1);
+    border-color: #82aaff;
+  }
+
   .App-header {
     margin-bottom: 0.5rem; /* Reduced spacing from header to about */
   }

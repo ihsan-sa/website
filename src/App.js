@@ -11,6 +11,7 @@ function App() {
   const [formStatus, setFormStatus] = useState({ type: null, message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [aboutExpanded, setAboutExpanded] = useState(false);
 
   useEffect(() => {
     if (formStatus.type === 'success') {
@@ -235,22 +236,38 @@ function App() {
             
             <p>{aboutContent.description}</p>
             
-            <p>{aboutContent.interests}</p>
-            
-            {aboutContent.points.length > 0 && (
+            {(!isMobile || aboutExpanded) && (
               <>
-                <p>A few things about me:</p>
-                <ul>
-                  {aboutContent.points.map((point, index) => (
-                    <li key={index}>{point}</li>
-                  ))}
-                </ul>
+                <p>{aboutContent.interests}</p>
+                
+                {aboutContent.points.length > 0 && (
+                  <>
+                    <p>A few things about me:</p>
+                    <ul>
+                      {aboutContent.points.map((point, index) => (
+                        <li key={index}>{point}</li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                
+                <p>{aboutContent.closing}</p>
+                
+                <p dangerouslySetInnerHTML={{ __html: aboutContent.contact }}></p>
               </>
             )}
             
-            <p>{aboutContent.closing}</p>
+            {isMobile && !aboutExpanded && (
+              <button className="about-see-more" onClick={() => setAboutExpanded(true)}>
+                See more
+              </button>
+            )}
             
-            <p dangerouslySetInnerHTML={{ __html: aboutContent.contact }}></p>
+            {isMobile && aboutExpanded && (
+              <button className="about-see-more" onClick={() => setAboutExpanded(false)}>
+                See less
+              </button>
+            )}
             
             <div className="about-actions">
               <a className="action-btn project-docs-btn" href={contactContent.website} target="_blank" rel="noopener noreferrer">{isMobile ? 'Docs' : 'Project Docs'} <span className="arrow-icon">
