@@ -1313,7 +1313,7 @@
   .experience-mobile-toggle {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     cursor: pointer;
     padding: 1.5rem 1.25rem;
     background: transparent;
@@ -1325,6 +1325,7 @@
     margin-top: 0.75rem;
     padding-left: 0;
     padding-right: 1.25rem;
+    position: relative;
   }
 
   /* Remove bottom border from toggle when section is expanded */
@@ -1345,6 +1346,58 @@
     font-size: 1.4rem;
     font-weight: 600;
     font-family: 'Courier New', Courier, monospace;
+    text-align: center;
+    width: 100%;
+    position: relative;
+  }
+
+  .experience-mobile-toggle h2::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: #d06085;
+  }
+
+  .projects-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 1.25rem;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    margin-bottom: 0;
+    margin-top: -1.5rem;
+    padding-left: 0;
+    padding-right: 1.25rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .projects-mobile-header h2 {
+    margin: 0;
+    color: #82aaff;
+    font-size: 1.4rem;
+    font-weight: 600;
+    font-family: 'Courier New', Courier, monospace;
+    width: 100%;
+    text-align: center;
+    position: relative;
+  }
+
+  .projects-mobile-header h2::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: #d06085;
   }
 
   .experience-mobile-toggle .section-toggle {
@@ -1352,6 +1405,8 @@
     font-weight: 700;
     font-size: 1.5rem;
     transition: transform 0.3s ease;
+    position: absolute;
+    right: 1.25rem;
   }
 
   .experience-container {
@@ -1473,6 +1528,9 @@
     order: 3; /* Projects grid appears after experience */
     padding: 1rem 1rem;
     justify-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    display: grid;
   }
 
   .contact-section {
@@ -1521,9 +1579,10 @@
   /* Combine all projects in order */
   .projects-column .project-tile,
   .full-width-projects-grid .project-tile {
-    width: calc(100% - 2rem);
-    max-width: calc(100% - 2rem);
-    min-width: calc(100% - 2rem);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    justify-self: center;
   }
 
   .projects-grid {

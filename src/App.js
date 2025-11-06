@@ -316,6 +316,12 @@ function App() {
         </section>
       </div>
 
+      {isMobile && (
+        <div className="projects-mobile-header">
+          <h2>Projects</h2>
+        </div>
+      )}
+
       <div className="full-width-projects-grid">
         {(isMobile ? projects : projects.slice(2)).map((project) => (
           <div 
