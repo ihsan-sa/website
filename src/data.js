@@ -107,9 +107,20 @@ export const projects = [
           github: "https://github.com/ihsan/gan-dc-dc-converter"
         }
   },
+  {
+    id: 14,
+    title: "70GHz mmWave Radar",
+    image: "/images/FMCW_Radar.png",
+    description: "Designed complete system architecture including RFIC, Kria SoM, I/O and memory selection for automotive and robotics sensing applications. Developing hardware design for Kria K26 SOM, IWR1443 mmWave RFIC, SSD and I/O interfaces including 1G PoE, USB-C PD, JTAG and SD card. Designed custom PCB stackup optimized for crosstalk reduction with impedance control for 77GHz RF, CSI2 and 1G Ethernet signals. Designed custom mmWave patch antennas and simulated using HFSS to ensure matched resonance and impedance. Implemented low-cost layout techniques for digital signals and 77GHz RF by reducing stubs, via-shielding, and incorporating co-planar waveguides.",
+    skills: ["RFIC", "Kria SoM", "Hardware Design", "PCB Design", "Antenna Design", "HFSS", "Signal Integrity", "mmWave"],
+    links: {
+      docs: "https://docs.ihsan.cc/Projects/FMCW_Radar/overview/",
+      github: "https://github.com/ihsan-sa"
+    }
+  },
       {
         id: 3,
-        title: "Lorentz Solver",
+        title: "Lorentz E&M Solver",
         image: "/images/solverImage1.png",
         description: [
           "Computes and subsequently animates particle paths in 3D through complex user-defined electromagnetic spaces which include current carrying coils, uniform E and B fields, charged particles and more for nuclear fusion reactor simulations",
@@ -133,6 +144,28 @@ export const projects = [
           docs: "https://docs.ihsan.cc/Projects/USB-CTriggerBoards/Rev1/overview/",
           github: "https://github.com/ihsan/usb-c-trigger"
         }
+  },
+  {
+    id: 13,
+    title: "Quad LED High Power Floodlight",
+    image: "/images/quad_high_power_floodlight.jpg",
+    description: "High-performance LED floodlight featuring a wide input voltage range of 5-30V with buck-boost topology for efficient power conversion. Designed with a cost-effective PCB incorporating extensive thermal via stitching to manage heat from four XHP50.3 LEDs. Integrated 18W 40mm cooling fan with strategically placed heatsinks attached to thermal pads on the board's bottom side. USB-C powered design delivers theoretical output of 8000 lumens at 90W maximum power.",
+    skills: ["Power Electronics", "PCB Design", "Thermal Design", "Buck-Boost", "USB-C"],
+    links: {
+      docs: "https://docs.ihsan.cc/Projects/LEDLightPanels/WIWO_Light/overview/",
+      github: "https://github.com/ihsan-sa"
+    }
+  },
+  {
+    id: 12,
+    title: "RP2040 Business Card",
+    image: "/images/usb_business_card.jpg",
+    description: "Interactive USB business card that plugs directly into USB-A ports, functioning as a portable storage device containing my resume and portfolio. Features an LED matrix display that shows an ASCII-encoded message when connected. The displayed sequence serves as a secret password to unlock a protected PDF document stored on the device, combining practical utility with an engaging interactive element.",
+    skills: ["RP2040", "USB", "Embedded Systems", "PCB Design"],
+    links: {
+      docs: "https://docs.ihsan.cc/Projects/BusinessCard/Rev2/overview/",
+      github: "https://github.com/ihsan-sa"
+    }
   },
   {
     id: 5,

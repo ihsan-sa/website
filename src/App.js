@@ -12,6 +12,9 @@ function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [aboutExpanded, setAboutExpanded] = useState(false);
+  const [numProjectColumns, setNumProjectColumns] = useState(1);
+  const [numLeftColumns, setNumLeftColumns] = useState(1);
+  const [numRightColumns, setNumRightColumns] = useState(0);
 
   useEffect(() => {
     if (formStatus.type === 'success') {
@@ -37,7 +40,39 @@ function App() {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
+      const width = window.innerWidth;
+      setIsMobile(width <= 768);
+      
+      // Calculate number of project columns based on screen width
+      // The center group: [Top 2 Projects (465px)] [About (1.5fr)] [Experience (0.9fr)]
+      // This stays centered and tightly grouped with original sizes
+      // Additional projects fill space on left and right ONLY
+      if (width > 768) {
+        const projectColWidth = 465;
+        const gap = 24; // 1.5rem
+        const padding = 32; // 1rem on each side
+        
+        // Original center group: 465px (projects) + 1.5fr (about) + 0.9fr (experience) + gaps
+        // We need to estimate the fr values - about is roughly 600px, experience is roughly 400px
+        const estimatedAboutWidth = 600;
+        const estimatedExperienceWidth = 400;
+        const centerGroupWidth = projectColWidth + gap + estimatedAboutWidth + gap + estimatedExperienceWidth;
+        
+        // Calculate available space on each side
+        const availableSpace = width - centerGroupWidth - (padding * 2);
+        const spacePerSide = Math.max(0, availableSpace / 2);
+        
+        // Calculate how many columns fit on each side
+        const columnsPerSide = Math.floor(spacePerSide / (projectColWidth + gap));
+        
+        setNumLeftColumns(Math.max(0, columnsPerSide));
+        setNumRightColumns(Math.max(0, columnsPerSide));
+        setNumProjectColumns(Math.max(0, columnsPerSide * 2));
+      } else {
+        setNumLeftColumns(0);
+        setNumRightColumns(0);
+        setNumProjectColumns(0);
+      }
     };
 
     window.addEventListener('resize', handleResize);
@@ -148,7 +183,11 @@ function App() {
           <p>
             Hello, I'm <span style={{ color: heroContent.nameColor }}>{heroContent.name}</span>.
           </p>
-          <p className="mobile-subtitle">EE @ UWaterloo | HW @ Arista</p>
+          <p className="mobile-subtitle">
+            <span className="subtitle-part">EE @ UWaterloo</span>
+            <span className="subtitle-separator"> | </span>
+            <span className="subtitle-part">HW @ Arista</span>
+          </p>
           {/* Subtitle temporarily hidden
           <p style={{fontSize: '17px'}}>
             {heroContent.subtitle}
@@ -162,7 +201,91 @@ function App() {
         </div>
       </header>
 
-      <div className="three-column-container">
+      <div 
+        className="three-column-container"
+        style={{
+          gridTemplateColumns: `${numLeftColumns > 0 ? Array(numLeftColumns).fill('465px').join(' ') + ' ' : ''}465px 1.5fr 0.9fr${numRightColumns > 0 ? ' ' + Array(numRightColumns).fill('465px').join(' ') : ''}`
+        }}
+      >
+        {/* Render left project columns (before center group) */}
+        {Array.from({ length: numLeftColumns }).map((_, colIndex) => {
+          const projectsPerColumn = 2;
+          // Skip the first 2 projects (they're in the center group)
+          const startIndex = 2 + (colIndex * projectsPerColumn);
+          const endIndex = startIndex + projectsPerColumn;
+          const columnProjects = projects.slice(startIndex, endIndex);
+          
+          return (
+            <div key={`left-${colIndex}`} className="projects-column">
+              {columnProjects.map((project) => (
+            <div 
+              key={project.id} 
+              id={`project-${project.id}`}
+              className={`project-tile ${openProjects.has(project.id) ? 'active' : ''}`}
+              onClick={() => toggleProject(project.id)}
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="project-image">
+                {project.image ? (
+                  <img src={project.image} alt={project.title} />
+                ) : (
+                  <div style={{
+                    width: '100%',
+                    height: '200px',
+                    background: 'linear-gradient(135deg, #2d3b53, #1a2332)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#82aaff',
+                    fontSize: '1.2rem',
+                    fontFamily: 'Courier New, monospace'
+                  }}>
+                    {project.title}
+                  </div>
+                )}
+              </div>
+              <div className="project-content">
+                <div className="project-header">
+                  <h3>{project.title}</h3>
+                  <span className="project-toggle" aria-hidden="true">{openProjects.has(project.id) ? '−' : '+'}</span>
+                </div>
+                <div className="project-collapsible">
+                  {Array.isArray(project.description) ? (
+                    <ul>
+                      {project.description.map((point, index) => (
+                        <li key={index}>{point}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>{project.description}</p>
+                  )}
+                  <div className="project-skills">
+                    {project.skills.map((skill, index) => (
+                      <span key={index} className="skill-tag">{skill}</span>
+                    ))}
+                  </div>
+                  {project.links.docs && (
+                    <div className="project-learn-more">
+                      <a href={project.links.docs} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                        Learn more
+                        <span className="arrow-icon">
+                          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                          </svg>
+                        </span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+              ))}
+            </div>
+          );
+        })}
+
+        {/* Top 2 Projects - always shown, part of center group */}
         <div className="projects-column">
           {projects.slice(0, 2).map((project) => (
             <div 
@@ -185,7 +308,7 @@ function App() {
                     justifyContent: 'center',
                     color: '#82aaff',
                     fontSize: '1.2rem',
-                    fontFamily: 'Courier New, monospace'
+                    fontFamily: "'Courier New', Courier, monospace"
                   }}>
                     {project.title}
                   </div>
@@ -331,6 +454,84 @@ function App() {
             ))}
           </div>
         </section>
+
+        {/* Render right project columns (after center group) */}
+        {Array.from({ length: numRightColumns }).map((_, colIndex) => {
+          const projectsPerColumn = 2;
+          // Start after the top 2 projects + left columns
+          const startIndex = 2 + (numLeftColumns * projectsPerColumn) + (colIndex * projectsPerColumn);
+          const endIndex = startIndex + projectsPerColumn;
+          const columnProjects = projects.slice(startIndex, endIndex);
+          
+          return (
+            <div key={`right-${colIndex}`} className="projects-column">
+              {columnProjects.map((project) => (
+                <div 
+                  key={project.id} 
+                  id={`project-${project.id}`}
+                  className={`project-tile ${openProjects.has(project.id) ? 'active' : ''}`}
+                  onClick={() => toggleProject(project.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="project-image">
+                    {project.image ? (
+                      <img src={project.image} alt={project.title} />
+                    ) : (
+                      <div style={{
+                        width: '100%',
+                        height: '200px',
+                        background: 'linear-gradient(135deg, #2d3b53, #1a2332)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#82aaff',
+                        fontSize: '1.2rem',
+                        fontFamily: "'Courier New', Courier, monospace"
+                      }}>
+                        {project.title}
+                      </div>
+                    )}
+                  </div>
+                  <div className="project-content">
+                    <div className="project-header">
+                      <h3>{project.title}</h3>
+                      <span className="project-toggle" aria-hidden="true">{openProjects.has(project.id) ? '−' : '+'}</span>
+                    </div>
+                    <div className="project-collapsible">
+                      {Array.isArray(project.description) ? (
+                        <ul>
+                          {project.description.map((point, index) => (
+                            <li key={index}>{point}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>{project.description}</p>
+                      )}
+                      <div className="project-skills">
+                        {project.skills.map((skill, index) => (
+                          <span key={index} className="skill-tag">{skill}</span>
+                        ))}
+                      </div>
+                      {project.links.docs && (
+                        <div className="project-learn-more">
+                          <a href={project.links.docs} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                            Learn more
+                            <span className="arrow-icon">
+                              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </span>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          );
+        })}
       </div>
 
       {isMobile && (
@@ -340,7 +541,7 @@ function App() {
       )}
 
       <div className="full-width-projects-grid">
-        {(isMobile ? projects : projects.slice(2)).map((project) => (
+        {(isMobile ? projects : projects.slice(2 + (numLeftColumns + numRightColumns) * 2)).map((project) => (
           <div 
             key={project.id} 
             id={`project-${project.id}`}
