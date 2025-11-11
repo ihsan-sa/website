@@ -1642,19 +1642,17 @@
   }
 
   .full-width-projects-grid {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 1.5rem;
     margin-top: 0.5rem;
     margin-left: auto;
     margin-right: auto;
     order: 3;
     padding: 1rem 0.5rem;
-    justify-items: center;
     width: calc(100% - 1rem);
     max-width: 100%;
     box-sizing: border-box;
-    display: grid;
-    row-gap: 1.5rem;
   }
 
   .contact-section {
@@ -1706,24 +1704,30 @@
     margin-bottom: 0.5rem; /* Drastically reduced */
   }
 
-  /* Show all projects in the full-width grid on mobile */
-  .full-width-projects-grid {
-    display: grid;
-  }
-
-  /* Combine all projects in order */
+  /* Combine all projects in order - single column layout */
   .projects-column .project-tile,
   .full-width-projects-grid .project-tile {
-    width: calc(100% - 2rem);
+    width: 100%;
     max-width: 100%;
     min-width: 0;
-    margin: 0 auto 1.5rem auto;
-    justify-self: center;
+    margin: 0 auto;
     box-sizing: border-box;
+    flex-shrink: 0;
   }
 
-  .full-width-projects-grid .project-tile:last-child {
-    margin-bottom: 0;
+  /* Remove grid-specific properties in mobile - use flexbox instead */
+  .full-width-projects-grid .project-tile {
+    grid-row: auto !important;
+    grid-column: auto !important;
+    position: relative;
+    min-height: 280px;
+  }
+
+  /* Ensure expanded projects push down content below */
+  .full-width-projects-grid .project-tile.active {
+    grid-row: auto !important;
+    position: relative;
+    z-index: 1;
   }
 
   .projects-grid {
