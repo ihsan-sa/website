@@ -169,6 +169,12 @@ function App() {
               <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </span></a>
+          <a className="action-btn" href="https://ihsan.cc/resume" target="_blank" rel="noopener noreferrer">Résumé (Web) <span className="arrow-icon">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span></a>
           <a className="action-btn" href="/images/Ihsan_Salari_Portfolio.pdf" target="_blank" rel="noopener noreferrer">Portfolio <span className="arrow-icon">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -400,6 +406,12 @@ function App() {
                 </svg>
               </span></a>
               <a className="action-btn" href="/images/Ihsan_Salari_Resume.pdf" target="_blank" rel="noopener noreferrer">Résumé <span className="arrow-icon">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                  <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span></a>
+              <a className="action-btn" href="https://ihsan.cc/resume" target="_blank" rel="noopener noreferrer">Résumé (Web) <span className="arrow-icon">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                   <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
