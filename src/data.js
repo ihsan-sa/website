@@ -25,7 +25,7 @@ export const experiences = [
         id: 1,
         title: "Signal Integrity Engineering",
         company: "Arista Networks",
-        period: "Internship • Sep 2025 - Present",
+        period: "Internship • Sep 2025 - Dec 2025",
         logo: "/images/arista-logo.png",
         description: "Contributing to the development of ultra-high-speed, high bandwidth, and low-latency data-center switches for both conventional and AI data-center markets.",
         responsibilities: [
@@ -111,7 +111,7 @@ export const projects = [
     id: 14,
     title: "70GHz mmWave Radar",
     image: "/images/FMCW_Radar.png",
-    description: "Designed complete system architecture including RFIC, Kria SoM, I/O and memory selection for automotive and robotics sensing applications. Developing hardware design for Kria K26 SOM, IWR1443 mmWave RFIC, SSD and I/O interfaces including 1G PoE, USB-C PD, JTAG and SD card. Designed custom PCB stackup optimized for crosstalk reduction with impedance control for 77GHz RF, CSI2 and 1G Ethernet signals. Designed custom mmWave patch antennas and simulated using HFSS to ensure matched resonance and impedance. Implemented low-cost layout techniques for digital signals and 77GHz RF by reducing stubs, via-shielding, and incorporating co-planar waveguides.",
+    description: "Designed complete system architecture including RFIC, Kria SoM, I/O and memory selection for automotive and robotics sensing applications. Developing hardware design for Kria K26 SOM, IWR1443 mmWave RFIC, SSD and I/O interfaces including 1G PoE, USB-C PD, JTAG and SD card. Designing custom PCB stackup optimized for crosstalk reduction with impedance control for 77GHz RF, CSI2 and 1G Ethernet signals. Designing custom mmWave patch antennas and simulated using HFSS to ensure matched resonance and impedance. Implementing low-cost layout techniques for digital signals and 77GHz RF by reducing stubs, via-shielding, and incorporating co-planar waveguides.",
     skills: ["RFIC", "Kria SoM", "Hardware Design", "PCB Design", "Antenna Design", "HFSS", "Signal Integrity", "mmWave"],
     links: {
       docs: "https://docs.ihsan.cc/Projects/FMCW_Radar/overview/",
