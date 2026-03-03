@@ -186,7 +186,8 @@ function App() {
           <p className="mobile-subtitle">
             <span className="subtitle-part">EE @ UWaterloo</span>
             <span className="subtitle-separator"> | </span>
-            <span className="subtitle-part">HW @ Arista</span>
+            <span className="subtitle-part">Incoming EE @ Atomic Semi</span>
+            <span className="subtitle-part">Prev HW @ Arista</span>
           </p>
           {/* Subtitle temporarily hidden
           <p style={{fontSize: '17px'}}>
