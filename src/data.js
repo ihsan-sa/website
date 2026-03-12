@@ -23,7 +23,7 @@ export const experiences = [
   },
       {
         id: 1,
-        title: "Signal Integrity Engineering",
+        title: "SI and Optics HW",
         company: "Arista Networks",
         period: "Internship • Sep 2025 - Dec 2025",
         logo: "/images/arista-logo.png",
