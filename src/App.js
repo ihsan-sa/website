@@ -184,10 +184,9 @@ function App() {
             Hello, I'm <span style={{ color: heroContent.nameColor }}>{heroContent.name}</span>.
           </p>
           <p className="mobile-subtitle">
-            <span className="subtitle-part">EE @ UWaterloo</span>
-            {/* <span className="subtitle-separator"> | </span> */}
-            <span className="subtitle-part" style={isMobile ? {display: 'block', marginTop: '0.3rem'} : {}}>Incoming @ Atomic Semi</span>
-            <span className="subtitle-part" style={isMobile ? {display: 'block'} : {}}>Prev @ Arista</span>
+            <span className="subtitle-part" style={isMobile ? {display: 'block'} : {}}>Incoming @ Atomic Semi</span>
+            <span className="subtitle-part" style={isMobile ? {display: 'block'} : {}}>Prev Optics/SI @ Arista</span>
+            <span className="subtitle-part" style={isMobile ? {display: 'block', marginTop: '0.3rem'} : {}}>EE @ UWaterloo</span>  
             <a href="mailto:hi@ihsan.cc" className="subtitle-part" style={isMobile ? {textDecoration: 'none', color: 'inherit', display: 'block', marginTop: '0.3rem'} : {textDecoration: 'none', color: 'inherit'}}>hi@ihsan.cc</a>
           </p>
           {/* Subtitle temporarily hidden
