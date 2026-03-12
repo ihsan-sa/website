@@ -188,7 +188,8 @@ function App() {
             <span className="subtitle-separator"> | </span>
             <span className="subtitle-part">Incoming @ Atomic Semi</span>
             <span className="subtitle-part">Prev @ Arista</span>
-            <span className="subtitle-part">hi@ihsan.cc</span>
+            {isMobile && <br />}
+            <a href="mailto:hi@ihsan.cc" className="subtitle-part" style={isMobile ? {textDecoration: 'none', color: 'inherit', display: 'block', marginTop: '1rem'} : {textDecoration: 'none', color: 'inherit'}}>hi@ihsan.cc</a>
           </p>
           {/* Subtitle temporarily hidden
           <p style={{fontSize: '17px'}}>
@@ -397,12 +398,21 @@ function App() {
             )}
             
             <div className="about-actions">
-              <a className="action-btn project-docs-btn" href={isMobile ? "https://linkedin.com/in/ihsan-sa" : contactContent.website} target="_blank" rel="noopener noreferrer">{isMobile ? 'LinkedIn' : 'Project Docs'} <span className="arrow-icon">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </span></a>
+              {isMobile ? (
+                <a className="action-btn" href="https://linkedin.com/in/ihsan-sa" target="_blank" rel="noopener noreferrer">LinkedIn <span className="arrow-icon">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span></a>
+              ) : (
+                <a className="action-btn project-docs-btn" href={contactContent.website} target="_blank" rel="noopener noreferrer">Project Docs <span className="arrow-icon">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span></a>
+              )}
               <a className="action-btn" href="/images/Ihsan_Salari_Resume.pdf" target="_blank" rel="noopener noreferrer">Résumé <span className="arrow-icon">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
