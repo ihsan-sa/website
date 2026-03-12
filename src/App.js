@@ -362,7 +362,9 @@ function App() {
             
             {(!isMobile || aboutExpanded) && (
               <>
-                <p>{aboutContent.interests}</p>
+                {aboutContent.interests.split('\n\n').map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
                 
                 {aboutContent.points.length > 0 && (
                   <>
@@ -377,7 +379,7 @@ function App() {
                 
                 <p>{aboutContent.closing}</p>
                 
-                <p dangerouslySetInnerHTML={{ __html: aboutContent.contact }}></p>
+                {/* <p dangerouslySetInnerHTML={{ __html: aboutContent.contact }}></p> */}
               </>
             )}
             
@@ -715,7 +717,7 @@ function App() {
         </div>
       </section>
 
-      <section id="contact" className="contact-section">
+      {/* <section id="contact" className="contact-section">
         <div className="contact-container">
           <h2>Get in Touch</h2>
           <form className="contact-form" onSubmit={async (e) => {
@@ -795,7 +797,7 @@ function App() {
             </button>
           </form>
         </div>
-      </section>
+      </section> */}
 
       <footer className="footer-section">
         <p>
