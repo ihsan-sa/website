@@ -185,11 +185,10 @@ function App() {
           </p>
           <p className="mobile-subtitle">
             <span className="subtitle-part">EE @ UWaterloo</span>
-            <span className="subtitle-separator"> | </span>
-            <span className="subtitle-part">Incoming @ Atomic Semi</span>
-            <span className="subtitle-part">Prev @ Arista</span>
-            {isMobile && <br />}
-            <a href="mailto:hi@ihsan.cc" className="subtitle-part" style={isMobile ? {textDecoration: 'none', color: 'inherit', display: 'block', marginTop: '1rem'} : {textDecoration: 'none', color: 'inherit'}}>hi@ihsan.cc</a>
+            {/* <span className="subtitle-separator"> | </span> */}
+            <span className="subtitle-part" style={isMobile ? {display: 'block', marginTop: '0.3rem'} : {}}>Incoming @ Atomic Semi</span>
+            <span className="subtitle-part" style={isMobile ? {display: 'block'} : {}}>Prev @ Arista</span>
+            <a href="mailto:hi@ihsan.cc" className="subtitle-part" style={isMobile ? {textDecoration: 'none', color: 'inherit', display: 'block', marginTop: '0.3rem'} : {textDecoration: 'none', color: 'inherit'}}>hi@ihsan.cc</a>
           </p>
           {/* Subtitle temporarily hidden
           <p style={{fontSize: '17px'}}>
