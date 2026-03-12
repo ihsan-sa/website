@@ -358,7 +358,9 @@ function App() {
           <div className="about-content">
             {aboutContent.greeting && <p>{aboutContent.greeting}</p>}
             
-            <p>{aboutContent.description}</p>
+            {aboutContent.description.split('\n\n').map((paragraph, index) => (
+              <p key={index}>{paragraph}</p>
+            ))}
             
             {(!isMobile || aboutExpanded) && (
               <>
