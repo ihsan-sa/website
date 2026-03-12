@@ -3,7 +3,7 @@
 export const aboutContent = {
   title: "About Me",
   greeting: "",
-  description: "I specialize in high-speed hardware design, datacenter optical interconnects, and signal integrity. I rampp-up fast. Every role I've held has been in a domain I was new to, and in each I was owning critical deliverables within weeks.",
+  description: "I specialize in high-speed hardware design, datacenter optical interconnects, and signal integrity. I ramp-up fast. Every role I've held has been in a domain I was new to, and in each I was owning critical deliverables within weeks.",
   interests: "At Arista, I worked on next-gen optics for AI — 12.8T XPO, CPO/NPO, and 1.6T modules — and ensured signal integrity on PCIe Gen 5 and 224G links using Hyperlynx, HFSS, and 70GHz VNAs.\n\nThis summer I'm joining Atomic Semi, focusing on RF amplifier and power systems for plasma generation. I want to deepen my understanding of chip manufacturing and eventually move into chip design.\n\nI'm actively building toward that and am working on RISC-V based accelerator projects to develop experience in computer architecture and RTL.",
   points: [],
   closing: "I see nuclear fusion as indispensable to a sustainable future, and I care about directing engineering work toward climate change and global equity.",
