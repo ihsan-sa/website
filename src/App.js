@@ -379,7 +379,9 @@ function App() {
                   </>
                 )}
                 
-                <p>{aboutContent.closing}</p>
+                {aboutContent.closing.split('\n\n').map((paragraph, index) => (
+                  <p key={index} dangerouslySetInnerHTML={{ __html: paragraph }} />
+                ))}
                 
                 {/* <p dangerouslySetInnerHTML={{ __html: aboutContent.contact }}></p> */}
               </>
