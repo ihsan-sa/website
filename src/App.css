@@ -412,24 +412,13 @@
   border-radius: 8px;
 }
 
-.about-actions .action-btn {
+.about-actions a.action-btn {
   background: #3A2F42;
-  border-color: #E080A0;
+  border: 1px solid #E080A0;
+  border-radius: 8px;
   color: #E080A0;
 }
 
-.about-actions .project-docs-btn {
-  background: rgba(45, 59, 83, 0.8);
-  border-color: rgba(130, 170, 255, 0.4);
-  color: #82aaff;
-}
-
-.about-actions .project-docs-btn:hover {
-  background: rgba(45, 59, 83, 1);
-  border-color: rgba(130, 170, 255, 0.6);
-  color: #82aaff;
-  text-decoration: none !important;
-}
 
 .about-actions .action-btn:hover {
   text-decoration: none !important;
