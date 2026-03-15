@@ -400,33 +400,43 @@ function App() {
             )}
             
             <div className="about-actions">
-              {isMobile ? (
-                <a className="action-btn" href="https://linkedin.com/in/ihsan-sa" target="_blank" rel="noopener noreferrer">LinkedIn <span className="arrow-icon">
+              <div className="about-actions-row">
+                {isMobile ? (
+                  <a className="action-btn" href="https://linkedin.com/in/ihsan-sa" target="_blank" rel="noopener noreferrer">LinkedIn <span className="arrow-icon">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span></a>
+                ) : (
+                  <a className="action-btn" href={contactContent.website} target="_blank" rel="noopener noreferrer">Project Docs <span className="arrow-icon">
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                      <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </span></a>
+                )}
+                <a className="action-btn" href="/images/Salari_Ihsan_Contact_Card.vcf" download>Contact Card <span className="arrow-icon">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </span></a>
-              ) : (
-                <a className="action-btn" href={contactContent.website} target="_blank" rel="noopener noreferrer">Project Docs <span className="arrow-icon">
+              </div>
+              <div className="about-actions-row">
+                <a className="action-btn" href="/images/Ihsan_Salari_Resume.pdf" target="_blank" rel="noopener noreferrer">Résumé <span className="arrow-icon">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </span></a>
-              )}
-              <a className="action-btn" href="/images/Ihsan_Salari_Resume.pdf" target="_blank" rel="noopener noreferrer">Résumé <span className="arrow-icon">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </span></a>
-              <a className="action-btn" href="/images/contact_card.vcf" download>Contact Card <span className="arrow-icon">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </span></a>
+                <a className="action-btn" href="/images/Ihsan_Salari_Portfolio.pdf" target="_blank" rel="noopener noreferrer">Portfolio <span className="arrow-icon">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 10L10 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M6 2L10 2L10 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span></a>
+              </div>
             </div>
           </div>
         </section>

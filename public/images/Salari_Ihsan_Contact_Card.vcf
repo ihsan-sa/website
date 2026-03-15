@@ -1,16 +1,20 @@
 BEGIN:VCARD
 VERSION:3.0
-PRODID:-//Apple Inc.//iPhone OS 26.3//EN
+PRODID:-//Apple Inc.//iPhone OS 26.3.1//EN
 N:Salari;Ihsan;;;
 FN:Ihsan Salari
 ORG:EE @ UWaterloo;
-EMAIL;type=INTERNET;type=HOME;type=pref:hi@ihsan.cc
+EMAIL;type=INTERNET;type=WORK;type=pref:hi@ihsan.cc
 TEL;type=CELL;type=VOICE;type=pref:(236) 996-7441
 X-SOCIALPROFILE;type=GitHub;x-user=ihsan-sa:x-apple:ihsan-sa
 X-SOCIALPROFILE;type=linkedin:http://www.linkedin.com/in/ihsan-sa
 NOTE:EE @ UWaterloo\nHW\, ASIC\, FW\, SI\, Photonics
-item1.URL;type=pref:https://www.ihsan.cc
-item1.X-ABLabel:_$!<HomePage>!$_
+item1.URL;type=pref:https://ihsan.cc/images/Ihsan_Salari_Portfolio.pdf
+item1.X-ABLabel:Portfolio
+item2.URL:https://ihsan.cc/images/Ihsan_Salari_Resume.pdf
+item2.X-ABLabel:Resume
+item3.URL:https://www.ihsan.cc
+item3.X-ABLabel:Website
 PHOTO;ENCODING=b:AAAAJGZ0eXBoZWljAAAAAG1pZjFNaVBybWlhZk1pSEJoZWljAAADlW1ldG
  EAAAAAAAAAIWhkbHIAAAAAAAAAAHBpY3QAAAAAAAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAA
  AAAAAAABAAAADHVybCAAAAABAAAADnBpdG0AAAAAAAEAAAAjaWluZgAAAAAAAQAAABVpbmZlAg
