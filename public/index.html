@@ -4,11 +4,30 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#faf7f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#15140f" media="(prefers-color-scheme: dark)" />
     <meta
       name="description"
-      content="Ihsan Salari"
+      content="UWaterloo EE student building AI systems, with experience in signal integrity, datacenter optics, and RF for chip manufacturing."
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <!--
+      Apply the saved theme before first paint, or dark-mode visitors get a
+      white flash. Must stay inline and blocking, and must run before React
+      mounts — useTheme() in App.js reads the attribute this sets.
+    -->
+    <script>
+      try {
+        var t = localStorage.getItem('ihsan-theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    </script>
     <!-- <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" /> -->
     <!--
       manifest.json provides metadata used when your web app is installed on a
