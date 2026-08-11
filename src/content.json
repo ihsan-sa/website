@@ -1,0 +1,148 @@
+{
+  "_readme": [
+    "EVERY piece of text on the site lives in this file. Edit it here, save, done —",
+    "you never need to open App.js. `npm start` hot-reloads your changes.",
+    "",
+    "Rules, because JSON is picky:",
+    "  - Wrap all text in \"double quotes\". Single quotes are not valid JSON.",
+    "  - Put a comma between items, but NEVER after the last one in a list or block.",
+    "  - A literal double quote inside text must be escaped: \\\" ",
+    "  - No comments allowed. This _readme block is the workaround; the site ignores it.",
+    "  - Accents and symbols (é — · ≥) can be typed directly. The file is UTF-8.",
+    "",
+    "Adding or removing an entry: copy an existing { ... } block, comma-separate it",
+    "from its neighbour, and edit the values. Order in the file = order on the page.",
+    "",
+    "The three tiers of text under your name, largest to smallest:",
+    "  1. `name`     — just your name.",
+    "  2. `subtitle` — the one-line 'who I am'. Big and dark, reads as part of the name.",
+    "  3. `bio`      — the paragraphs below the hairline. Smaller and softer.",
+    "",
+    "Two things are NOT here, because search engines and link previews read them",
+    "before the page runs: the browser-tab title and the description that shows up",
+    "when you paste the URL into Slack/LinkedIn. Both are in public/index.html.",
+    "",
+    "Images live in public/images/. A path of \"/images/foo.jpg\" means the file",
+    "public/images/foo.jpg. Project thumbnails render at roughly 380x238, so ship",
+    "them around 760x476 and 16:10 — anything else gets cropped from the centre."
+  ],
+
+  "name": "Ihsan Salari",
+
+  "subtitle": "UWaterloo EE student building AI systems informed by experience in signal integrity, datacenter optics, and RF for chip manufacturing.",
+
+  "bio": {
+    "_note": "One string per paragraph. `fold` = how many paragraphs stay visible before the 'See more' button; the rest are hidden until it is clicked. Set fold to the number of paragraphs to disable the button entirely.",
+    "fold": 2,
+    "moreLabel": "See more",
+    "lessLabel": "See less",
+    "paragraphs": [
+      "Ethics and social impact are far too often overlooked in engineering. These, along with environmental sustainability, are core to my work. With the advent of AI, it is increasingly important that we act with morality and worldly impact in mind.",
+      "Every role I've held has been in a domain I was new to, and every time I was owning critical deliverables within weeks.",
+      "At Arista, I worked on next-gen optics for AI (12.8T XPO, CPO/NPO, and 1.6T modules) and ensured signal integrity on PCIe Gen 5 and 224G links.",
+      "Currently, I'm at Fab2 (Atomic Semi), focusing on RF inverters and power systems for plasma generation within a chip manufacturing context."
+    ]
+  },
+
+  "email": "hi@ihsan.cc",
+
+  "theme": {
+    "_note": "The light/dark toggle in the top-right. The label names where you are going, not where you are — it reads \"Dark\" while the site is light.",
+    "toDark": "Dark",
+    "toLight": "Light"
+  },
+
+  "links": {
+    "_note": "The row of links in the top-right corner. Add \"download\": true to save the file instead of opening it in a new tab.",
+    "items": [
+      { "label": "GitHub", "href": "https://github.com/ihsan-sa" },
+      { "label": "LinkedIn", "href": "https://linkedin.com/in/ihsan-sa" },
+      { "label": "Résumé", "href": "/images/Ihsan_Salari_Resume.pdf" },
+      { "label": "Portfolio", "href": "/images/Ihsan_Salari_Portfolio.pdf" },
+      { "label": "Contact card", "href": "/images/Salari_Ihsan_Contact_Card.vcf", "download": true }
+    ]
+  },
+
+  "experience": {
+    "_note": "Click a row on the site to expand it. `when` is the small grey column on the left — give it one or two short pieces (\"Summer\" and \"'26\" stack on two lines). `org` and `role` are the always-visible lines. `points`, `tags` and `href` only appear once the row is expanded, and all three are optional: delete any you don't want.",
+    "heading": "Experience",
+    "readMoreLabel": "Read more ↗",
+    "entries": [
+      {
+        "when": ["Summer", "'26"],
+        "org": "Fab2 (Atomic Semi)",
+        "role": "RF for plasma generation",
+        "tags": ["RF", "Power", "Plasma"]
+      },
+      {
+        "when": ["Fall", "'25"],
+        "org": "Arista Networks",
+        "role": "SI and optics for AI datacenters",
+        "tags": ["Signal integrity", "Optics", "224G"]
+      },
+      {
+        "when": ["Winter", "'25"],
+        "org": "aiRadar",
+        "role": "Power electronics for multi-beam sonar",
+        "tags": ["Power electronics", "GaN", "STM32"],
+        "href": "https://docs.ihsan.cc/Projects/GaN_DCDC_Converter/overview/"
+      },
+      {
+        "when": ["Education"],
+        "org": "University of Waterloo",
+        "role": "BASc Electrical Engineering, 2024–2029",
+        "tags": ["PCB design", "FPGA", "Firmware"]
+      }
+    ]
+  },
+
+  "projects": {
+    "_note": "`meta` is the small grey line under the title — a couple of keywords, not a sentence. `link` is the one at the top-right of the section.",
+    "heading": "Projects",
+    "link": { "label": "Docs ↗", "href": "https://docs.ihsan.cc" },
+    "items": [
+      {
+        "title": "Ionic thruster",
+        "meta": "High voltage · plasma",
+        "href": "https://docs.ihsan.cc/Projects/IonicThruster/overview/",
+        "image": "/images/ionic.jpg"
+      },
+      {
+        "title": "3.5 MHz GaN DC‑DC converter",
+        "meta": "Power electronics",
+        "href": "https://docs.ihsan.cc/Projects/GaN_DCDC_Converter/overview/",
+        "image": "/images/dcdc3500KHz.png"
+      },
+      {
+        "title": "70 GHz mmWave radar",
+        "meta": "Kria K26 · IWR1443",
+        "href": "https://docs.ihsan.cc/Projects/FMCW_Radar/overview/",
+        "image": "/images/FMCW_Radar.png"
+      },
+      {
+        "title": "Lorentz E&M solver",
+        "meta": "Simulation",
+        "href": "https://docs.ihsan.cc/Projects/LorentzSolver/overview/",
+        "image": "/images/solverImage1.png"
+      },
+      {
+        "title": "USB‑C trigger board",
+        "meta": "USB PD",
+        "href": "https://docs.ihsan.cc/Projects/USB-CTriggerBoards/Rev1/overview/",
+        "image": "/images/usb_c_trigger_board.jpg"
+      },
+      {
+        "title": "Quad LED floodlight",
+        "meta": "LED driver · thermals",
+        "href": "https://docs.ihsan.cc/Projects/LEDLightPanels/WIWO_Light/overview/",
+        "image": "/images/quad_high_power_floodlight.jpg"
+      },
+      {
+        "title": "RP2040 business card",
+        "meta": "PCB art · firmware",
+        "href": "https://docs.ihsan.cc/Projects/BusinessCard/Rev2/overview/",
+        "image": "/images/usb_business_card.jpg"
+      }
+    ]
+  }
+}

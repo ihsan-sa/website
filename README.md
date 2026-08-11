@@ -1,6 +1,56 @@
-# Getting Started with Create React App
+# ihsan.cc
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Single-page personal index. Built with [Create React App](https://github.com/facebook/create-react-app).
+
+## Editing the content
+
+**All the text on the site is in [`src/content.json`](src/content.json).** Name, bio,
+about paragraphs, the link row, experience entries, project titles and captions — edit
+that one file and you are done. You never need to touch `App.js`.
+
+The file opens with a `_readme` block explaining the JSON rules (quotes, commas) and how
+to add or remove an entry. Every `_note` and `_readme` key is documentation only; the site
+ignores them.
+
+Two exceptions, both in [`public/index.html`](public/index.html):
+
+- the **browser-tab title**
+- the **description shown when you paste the link** into Slack, LinkedIn, iMessage, etc.
+
+Those have to be plain HTML because link-preview bots read the page without running it.
+
+Images go in `public/images/`. A path of `/images/foo.jpg` in the JSON means
+`public/images/foo.jpg`. Project thumbnails render at about 380×238, so export them
+around 760×476 at 16:10 — other ratios get cropped from the centre.
+
+To see your changes: `npm start`, then open http://localhost:3000. The page reloads as you
+save. To publish them you still need `npm run build`.
+
+## Where everything else lives
+
+| File | What's in it |
+|---|---|
+| `src/content.json` | all copy and links |
+| `src/App.js` | page structure and the theme toggle — rarely needs changing |
+| `src/App.css` | layout and component styling |
+| `src/index.css` | colours (light **and** dark), fonts, spacing — the design tokens |
+| `public/index.html` | tab title, link-preview description, web fonts, analytics, theme pre-paint script |
+
+## Dark mode
+
+Light and dark, warm in both. Two rules:
+
+1. An explicit click on the toggle wins and persists in `localStorage['ihsan-theme']`,
+   applied as `data-theme` on `<html>`.
+2. With no stored choice, the OS preference decides — handled purely in CSS, so it works
+   before any JavaScript runs.
+
+Both palettes are token blocks at the top of `src/index.css`; the dark values appear twice
+(once for the explicit choice, once for the OS default) and **must be kept in sync**.
+
+The small inline `<script>` in `public/index.html` applies the stored theme *before first
+paint*. Without it, dark-mode visitors get a white flash on every load. Don't move it into
+a component, and don't make it `defer`/`async`.
 
 ## Available Scripts
 
