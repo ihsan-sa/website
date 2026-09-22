@@ -121,6 +121,12 @@
         ]
       },
       {
+        "title": "Chip design flow",
+        "meta": "Proposal · Verilog · analog · mixed-signal",
+        "blurb": "A proposal for three design skills that work the way hwde does: one designs digital blocks in Verilog, one designs analog blocks, and one takes a mixed-signal task, splits it and drives the other two. Nothing is built yet.",
+        "href": "/docs/chip-design-flow.pdf"
+      },
+      {
         "title": "lesson-builder",
         "meta": "React · LaTeX · AI tutor",
         "blurb": "A Claude Code skill that turns course material into interactive lesson apps with math, graphs, animations and a built-in AI tutor.",
