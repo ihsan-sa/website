@@ -96,6 +96,44 @@
     ]
   },
 
+  "ai": {
+    "_note": "AI work, one row per project. Only the hidden preview path renders it for now (see README). `blurb` is the one sentence under the title; `meta` is the small grey tag line; `href` is where the row links. `link` is the one at the top-right of the section.",
+    "heading": "AI work",
+    "link": { "label": "GitHub ↗", "href": "https://github.com/ihsan-sa" },
+    "items": [
+      {
+        "title": "autobox",
+        "meta": "Claude Code · orchestration · sandboxing",
+        "blurb": "Runs Claude Code as an always-on agent box I drive from Slack and my phone: headless workers end in pull requests, hooks keep each agent in its lane, and a sandbox holds the unrestricted ones.",
+        "href": "https://github.com/ihsan-sa/autobox"
+      },
+      {
+        "title": "hwde",
+        "meta": "KiCad · JLCPCB · PCB design",
+        "blurb": "An AI PCB engineer for KiCad and JLCPCB that takes a board from brief to order, and boards designed with it have been fabricated.",
+        "href": "https://github.com/ihsan-sa/hwde"
+      },
+      {
+        "title": "lesson-builder",
+        "meta": "React · LaTeX · AI tutor",
+        "blurb": "A Claude Code skill that turns course material into interactive lesson apps with math, graphs, animations and a built-in AI tutor.",
+        "href": "https://github.com/ihsan-sa/lesson-builder"
+      },
+      {
+        "title": "pdf-material-builder",
+        "meta": "LaTeX · Claude Code skill",
+        "blurb": "A Claude Code skill that writes study material and technical docs as LaTeX PDFs, from a one-page cheat sheet to full course notes, in one house style.",
+        "href": "https://github.com/ihsan-sa/pdf-material-builder"
+      },
+      {
+        "title": "spikelab",
+        "meta": "Spiking neural networks · PyTorch",
+        "blurb": "A small workbench for spiking neural networks where the neuron, synapse, topology and learning rule all swap from one config file or a local web page.",
+        "href": "https://github.com/ihsan-sa/spikelab"
+      }
+    ]
+  },
+
   "projects": {
     "_note": "`meta` is the small grey line under the title — a couple of keywords, not a sentence. `link` is the one at the top-right of the section.",
     "heading": "Projects",

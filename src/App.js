@@ -3,7 +3,12 @@ import './App.css';
 import content from './content.json';
 
 // All copy lives in content.json — edit there, not here.
-const { name, subtitle, bio, email, theme, links, experience, projects } = content;
+const { name, subtitle, bio, email, theme, links, experience, ai, projects } = content;
+
+// Hidden preview of the next version of the page, for review on the live site.
+// Nothing links here; public/_redirects serves index.html at this path.
+// Everything else renders exactly what renders today.
+export const PREVIEW_PATH = '/exzmkculs1gj2fdzj01zwef439r7sb1p';
 
 const THEME_KEY = 'ihsan-theme';
 const DARK_QUERY = '(prefers-color-scheme: dark)';
@@ -46,11 +51,53 @@ function useTheme() {
   return [isDark, toggle];
 }
 
+// Keep the preview out of search results. Added at mount rather than listed in
+// robots.txt, because listing the path there would publish it.
+function useNoindex(active) {
+  useEffect(() => {
+    if (!active) return undefined;
+    const meta = document.createElement('meta');
+    meta.name = 'robots';
+    meta.content = 'noindex';
+    document.head.appendChild(meta);
+    return () => meta.remove();
+  }, [active]);
+}
+
+// AI work: one link row per project, in the style of the Experience rows.
+function AiWork() {
+  return (
+    <section className="ai">
+      <div className="section-head">
+        <h2 className="label">{ai.heading}</h2>
+        <a href={ai.link.href} target="_blank" rel="noopener noreferrer">
+          {ai.link.label}
+        </a>
+      </div>
+
+      <ul className="ai__list">
+        {ai.items.map(({ title, meta, blurb, href }) => (
+          <li key={title}>
+            <a className="ai__row" href={href} target="_blank" rel="noopener noreferrer">
+              <span className="ai__title">{title}</span>
+              <span className="ai__blurb">{blurb}</span>
+              <span className="ai__meta">{meta}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 // Layout: masthead (contact) → identity + experience | projects.
 // Source order is deliberate — contact first. See the design handoff.
 function App() {
   const [isDark, toggleTheme] = useTheme();
   const [bioExpanded, setBioExpanded] = useState(false);
+  // Read at render, not at import, so a test can pushState before rendering.
+  const isPreview = window.location.pathname === PREVIEW_PATH;
+  useNoindex(isPreview);
 
   const visibleBio = bio.paragraphs.slice(0, bio.fold);
   const foldedBio = bio.paragraphs.slice(bio.fold);
@@ -186,6 +233,8 @@ function App() {
         </section>
 
         <section className="showcase">
+          {isPreview && <AiWork />}
+
           <div className="section-head">
             <h2 className="label">{projects.heading}</h2>
             <a href={projects.link.href} target="_blank" rel="noopener noreferrer">

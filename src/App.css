@@ -331,6 +331,59 @@
   to   { opacity: 1; transform: none; }
 }
 
+/* ── AI work: link rows, same hairlines and type as Experience ────── */
+
+/* 14px + the showcase's 18px gap = 32px above Projects, as in the identity column. */
+.ai { display: flex; flex-direction: column; gap: 14px; margin-bottom: 14px; }
+
+.ai__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai__list li { border-top: 1px solid var(--rule); }
+.ai__list li:last-child { border-bottom: 1px solid var(--rule); }
+
+.ai__row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 8px;
+  margin: 0 -8px;
+  border-radius: 2px;
+  text-decoration: none;
+  color: inherit;
+  min-height: 44px;
+}
+
+.ai__row:hover { background: var(--tint); }
+
+.ai__title { font-size: 19px; line-height: 1.25; color: var(--ink); }
+.ai__title::after { content: " ↗"; font-size: 14px; color: var(--muted); }
+
+.ai__blurb {
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+  text-wrap: pretty;
+}
+
+.ai__meta {
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ai__row { transition: background-color 120ms ease; }
+}
+
 /* ── projects ──────────────────────────────────────────────────────── */
 
 .showcase { display: flex; flex-direction: column; gap: 18px; }
@@ -427,6 +480,9 @@
   .exp__org { font-size: 18px; }
   .exp__role { font-size: 15px; }
   .exp__detail { padding-left: 0; }
+
+  .ai__title { font-size: 18px; }
+  .ai__blurb { font-size: 15px; }
 
   .projects { grid-template-columns: minmax(0, 1fr); gap: 14px; }
 

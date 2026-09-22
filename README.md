@@ -26,6 +26,12 @@ around 760×476 at 16:10 — other ratios get cropped from the centre.
 To see your changes: `npm start`, then open http://localhost:3000. The page reloads as you
 save. To publish them you still need `npm run build`.
 
+## Hidden preview
+
+`/exzmkculs1gj2fdzj01zwef439r7sb1p` renders the next version of the page (today: the index plus the AI work
+section from `content.json`'s `ai` block) with a `noindex` tag; every other path renders the index as before.
+The slug is `PREVIEW_PATH` in `App.js`, and `public/_redirects` is the one Netlify rule that serves `index.html` there.
+
 ## Where everything else lives
 
 | File | What's in it |
