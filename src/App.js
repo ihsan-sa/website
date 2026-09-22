@@ -76,13 +76,31 @@ function AiWork() {
       </div>
 
       <ul className="ai__list">
-        {ai.items.map(({ title, meta, blurb, href }) => (
+        {ai.items.map(({ title, meta, blurb, href, docs }) => (
           <li key={title}>
             <a className="ai__row" href={href} target="_blank" rel="noopener noreferrer">
               <span className="ai__title">{title}</span>
               <span className="ai__blurb">{blurb}</span>
               <span className="ai__meta">{meta}</span>
             </a>
+
+            {/* Outside the row link: a link cannot sit inside another link. */}
+            {docs && docs.length > 0 && (
+              <div className="ai__docs">
+                {docs.map(({ label, href: docHref }) => (
+                  <a
+                    key={label}
+                    className="exp__link"
+                    href={docHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {label}
+                    <span aria-hidden="true"> ↗</span>
+                  </a>
+                ))}
+              </div>
+            )}
           </li>
         ))}
       </ul>

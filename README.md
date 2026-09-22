@@ -22,6 +22,7 @@ Those have to be plain HTML because link-preview bots read the page without runn
 Images go in `public/images/`. A path of `/images/foo.jpg` in the JSON means
 `public/images/foo.jpg`. Project thumbnails render at about 380×238, so export them
 around 760×476 at 16:10 — other ratios get cropped from the centre.
+PDFs go in `public/docs/`: `/docs/foo.pdf` in the JSON means `public/docs/foo.pdf`.
 
 To see your changes: `npm start`, then open http://localhost:3000. The page reloads as you
 save. To publish them you still need `npm run build`.
@@ -37,6 +38,7 @@ The slug is `PREVIEW_PATH` in `App.js`, and `public/_redirects` is the one Netli
 | File | What's in it |
 |---|---|
 | `src/content.json` | all copy and links |
+| `src/content.shelved.json` | AI work rows taken off the site; nothing imports it, so none of it ships |
 | `src/App.js` | page structure and the theme toggle — rarely needs changing |
 | `src/App.css` | layout and component styling |
 | `src/index.css` | colours (light **and** dark), fonts, spacing — the design tokens |

@@ -97,7 +97,7 @@
   },
 
   "ai": {
-    "_note": "AI work, one row per project. Only the hidden preview path renders it for now (see README). `blurb` is the one sentence under the title; `meta` is the small grey tag line; `href` is where the row links. `link` is the one at the top-right of the section.",
+    "_note": "AI work, one row per project. Only the hidden preview path renders it for now (see README). `blurb` is the one sentence under the title; `meta` is the small grey tag line; `href` is where the row links. `docs` is optional: small links under the row, one { \"label\", \"href\" } per file; PDFs live in public/docs/, so \"/docs/foo.pdf\" means public/docs/foo.pdf. Delete it for a row with none. `link` is the one at the top-right of the section. Shelved rows (not on the site) are in content.shelved.json.",
     "heading": "AI work",
     "link": { "label": "GitHub ↗", "href": "https://github.com/ihsan-sa" },
     "items": [
@@ -105,13 +105,20 @@
         "title": "autobox",
         "meta": "Claude Code · orchestration · sandboxing",
         "blurb": "Runs Claude Code as an always-on agent box I drive from Slack and my phone: headless workers end in pull requests, hooks keep each agent in its lane, and a sandbox holds the unrestricted ones.",
-        "href": "https://github.com/ihsan-sa/autobox"
+        "href": "https://github.com/ihsan-sa/autobox",
+        "docs": [
+          { "label": "Pitch", "href": "/docs/autobox-pitch.pdf" },
+          { "label": "A deeper look", "href": "/docs/autobox-deeper-look.pdf" }
+        ]
       },
       {
         "title": "hwde",
         "meta": "KiCad · JLCPCB · PCB design",
         "blurb": "An AI PCB engineer for KiCad and JLCPCB that takes a board from brief to order, and boards designed with it have been fabricated.",
-        "href": "https://github.com/ihsan-sa/hwde"
+        "href": "https://github.com/ihsan-sa/hwde",
+        "docs": [
+          { "label": "Showcase", "href": "/docs/hwde-showcase.pdf" }
+        ]
       },
       {
         "title": "lesson-builder",
@@ -124,12 +131,6 @@
         "meta": "LaTeX · Claude Code skill",
         "blurb": "A Claude Code skill that writes study material and technical docs as LaTeX PDFs, from a one-page cheat sheet to full course notes, in one house style.",
         "href": "https://github.com/ihsan-sa/pdf-material-builder"
-      },
-      {
-        "title": "spikelab",
-        "meta": "Spiking neural networks · PyTorch",
-        "blurb": "A small workbench for spiking neural networks where the neuron, synapse, topology and learning rule all swap from one config file or a local web page.",
-        "href": "https://github.com/ihsan-sa/spikelab"
       }
     ]
   },

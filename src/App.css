@@ -380,6 +380,15 @@
   color: var(--muted);
 }
 
+/* PDFs under a row, styled as the Experience "Read more ↗" link (.exp__link). */
+.ai__docs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin-top: -6px;
+  padding-bottom: 14px;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .ai__row { transition: background-color 120ms ease; }
 }
