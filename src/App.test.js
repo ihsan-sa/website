@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import App, { PREVIEW_PATH } from './App';
 import content from './content.json';
+import shelved from './content.shelved.json';
 
 beforeEach(() => {
   document.documentElement.removeAttribute('data-theme');
@@ -138,4 +139,45 @@ test('the preview path renders the AI section with every link opening in a new t
   expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
   unmount();
   expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
+});
+
+// Every { label, href } listed under an AI row's optional `docs`.
+const aiDocs = content.ai.items.flatMap(({ docs }) => docs || []);
+
+test('the preview path renders every AI row doc link, opening in a new tab', () => {
+  expect(aiDocs.length).toBeGreaterThan(0);
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+
+  aiDocs.forEach(({ label, href }) => {
+    const link = screen.getByRole('link', { name: label });
+    expect(link).toHaveAttribute('href', href);
+    expect(link).toHaveAttribute('target', '_blank');
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+});
+
+test('the index at / renders none of the AI row doc links', () => {
+  render(<App />);
+  aiDocs.forEach(({ label, href }) => {
+    expect(screen.queryByRole('link', { name: label })).not.toBeInTheDocument();
+    expect(document.querySelector(`a[href="${href}"]`)).toBeNull();
+  });
+});
+
+test('shelved AI rows render on neither path', () => {
+  expect(shelved.ai.length).toBeGreaterThan(0);
+  [PREVIEW_PATH, '/'].forEach((path) => {
+    window.history.pushState({}, '', path);
+    const { unmount } = render(<App />);
+    // The live rows do render on the preview, so the check below is not vacuous there.
+    if (path === PREVIEW_PATH) {
+      content.ai.items.forEach(({ title }) => expect(screen.getByText(title)).toBeInTheDocument());
+    }
+    shelved.ai.forEach(({ title, href }) => {
+      expect(screen.queryByText(title)).not.toBeInTheDocument();
+      expect(document.querySelector(`a[href="${href}"]`)).toBeNull();
+    });
+    unmount();
+  });
 });
