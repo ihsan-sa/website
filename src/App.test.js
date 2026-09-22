@@ -141,6 +141,23 @@ test('the preview path renders the AI section with every link opening in a new t
   expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
 });
 
+test('the chip design flow row links its own PDF in a new tab, on the preview only', () => {
+  const row = content.ai.items.find(({ title }) => title === 'Chip design flow');
+  expect(row.href).toBe('/docs/chip-design-flow.pdf');
+
+  window.history.pushState({}, '', PREVIEW_PATH);
+  const { unmount } = render(<App />);
+  const link = screen.getByText(row.title).closest('a');
+  expect(link).toHaveAttribute('href', '/docs/chip-design-flow.pdf');
+  expect(link).toHaveAttribute('target', '_blank');
+  expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  unmount();
+
+  window.history.pushState({}, '', '/');
+  render(<App />);
+  expect(document.querySelector('a[href="/docs/chip-design-flow.pdf"]')).toBeNull();
+});
+
 // Every { label, href } listed under an AI row's optional `docs`.
 const aiDocs = content.ai.items.flatMap(({ docs }) => docs || []);
 
