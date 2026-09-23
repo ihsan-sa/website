@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import './App.css';
+import './Preview.css';
 import content from './content.json';
 
 // All copy lives in content.json — edit there, not here.
-const { name, subtitle, bio, email, theme, links, experience, ai, projects } = content;
+const { name, subtitle, bio, email, theme, links, experience, projects, preview } = content;
 
-// Hidden preview of the next version of the page, for review on the live site.
-// Nothing links here; public/_redirects serves index.html at this path.
+// Hidden preview of the next version of the page, for review on the live site:
+// the single-column page built from content.json's `preview` block. Nothing
+// links here; public/_redirects serves index.html at this path.
 // Everything else renders exactly what renders today.
 export const PREVIEW_PATH = '/exzmkculs1gj2fdzj01zwef439r7sb1p';
 
@@ -64,58 +66,115 @@ function useNoindex(active) {
   }, [active]);
 }
 
-// AI work: one link row per project, in the style of the Experience rows.
-function AiWork() {
+// The preview's headings and names are Newsreader 600, a weight the index does
+// not use, so only the preview asks Google Fonts for it.
+const PREVIEW_FONT =
+  'https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap';
+
+function usePreviewFont() {
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = PREVIEW_FONT;
+    document.head.appendChild(link);
+    return () => link.remove();
+  }, []);
+}
+
+const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
+
+// One sentence: bold name (linked when it has an href), then text, then any PDFs.
+function Entry({ name: entryName, text, href, docs }) {
   return (
-    <section className="ai">
-      <div className="section-head">
-        <h2 className="label">{ai.heading}</h2>
-        <a href={ai.link.href} target="_blank" rel="noopener noreferrer">
-          {ai.link.label}
+    <p>
+      {href ? (
+        <a className="pv-strong" href={href} {...NEW_TAB}>
+          {entryName}
         </a>
-      </div>
-
-      <ul className="ai__list">
-        {ai.items.map(({ title, meta, blurb, href, docs }) => (
-          <li key={title}>
-            <a className="ai__row" href={href} target="_blank" rel="noopener noreferrer">
-              <span className="ai__title">{title}</span>
-              <span className="ai__blurb">{blurb}</span>
-              <span className="ai__meta">{meta}</span>
+      ) : (
+        <strong className="pv-strong">{entryName}</strong>
+      )}
+      , {text}
+      {docs &&
+        docs.map(({ label, href: docHref }, i) => (
+          <span key={label}>
+            {i === 0 ? ' ' : ' · '}
+            <a className="pv-link" href={docHref} {...NEW_TAB}>
+              {label}
             </a>
-
-            {/* Outside the row link: a link cannot sit inside another link. */}
-            {docs && docs.length > 0 && (
-              <div className="ai__docs">
-                {docs.map(({ label, href: docHref }) => (
-                  <a
-                    key={label}
-                    className="exp__link"
-                    href={docHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {label}
-                    <span aria-hidden="true"> ↗</span>
-                  </a>
-                ))}
-              </div>
-            )}
-          </li>
+          </span>
         ))}
-      </ul>
-    </section>
+    </p>
+  );
+}
+
+// Order is fixed by the design: links → name + intro → Experience → AI work → Hardware.
+function Preview() {
+  const [isDark, toggleTheme] = useTheme();
+  useNoindex(true);
+  usePreviewFont();
+
+  const sections = [preview.experience, preview.aiWork];
+
+  return (
+    <main className="pv">
+      <nav className="pv-links" aria-label="Contact and profiles">
+        <a className="pv-link" href={`mailto:${preview.email}`}>{preview.email}</a>
+        {preview.links.map(({ label, href, download }) => (
+          <a key={label} className="pv-link" href={href} {...(download ? { download: true } : NEW_TAB)}>
+            {label}
+          </a>
+        ))}
+        {/* Looks like a link; the label names the destination. */}
+        <button
+          type="button"
+          className="pv-link pv-toggle"
+          onClick={toggleTheme}
+          aria-pressed={isDark}
+          aria-label={`Switch to ${isDark ? theme.toLight : theme.toDark} theme`}
+        >
+          {isDark ? theme.toLight : theme.toDark}
+        </button>
+      </nav>
+
+      <header className="pv-intro">
+        <h1 className="pv-name">{preview.name}</h1>
+        <p>{preview.subtitle}</p>
+        {preview.about.map((para, i) => (
+          <p key={i}>{para}</p>
+        ))}
+      </header>
+
+      {sections.map(({ heading, items }) => (
+        <section className="pv-block" key={heading}>
+          <h2>{heading}</h2>
+          {items.map((item) => (
+            <Entry key={item.name} {...item} />
+          ))}
+        </section>
+      ))}
+
+      {/* The only imagery on the page. The whole tile is one link. */}
+      <section className="pv-block">
+        <h2>{preview.hardware.heading}</h2>
+        <div className="pv-hw">
+          {preview.hardware.items.map(({ title, href, image }) => (
+            <a className="pv-hw__item" href={href} key={title} {...NEW_TAB}>
+              <img className="pv-hw__img" src={image} alt="" loading="lazy" />
+              <span>{title}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    </main>
   );
 }
 
 // Layout: masthead (contact) → identity + experience | projects.
 // Source order is deliberate — contact first. See the design handoff.
-function App() {
+function Index() {
   const [isDark, toggleTheme] = useTheme();
   const [bioExpanded, setBioExpanded] = useState(false);
-  // Read at render, not at import, so a test can pushState before rendering.
-  const isPreview = window.location.pathname === PREVIEW_PATH;
-  useNoindex(isPreview);
 
   const visibleBio = bio.paragraphs.slice(0, bio.fold);
   const foldedBio = bio.paragraphs.slice(bio.fold);
@@ -251,8 +310,6 @@ function App() {
         </section>
 
         <section className="showcase">
-          {isPreview && <AiWork />}
-
           <div className="section-head">
             <h2 className="label">{projects.heading}</h2>
             <a href={projects.link.href} target="_blank" rel="noopener noreferrer">
@@ -276,6 +333,11 @@ function App() {
       </div>
     </main>
   );
+}
+
+function App() {
+  // Read at render, not at import, so a test can pushState before rendering.
+  return window.location.pathname === PREVIEW_PATH ? <Preview /> : <Index />;
 }
 
 export default App;

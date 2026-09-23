@@ -104,82 +104,122 @@ test('picks up a theme already applied to <html> before React mounted', () => {
   expect(toggle).toHaveAttribute('aria-checked', 'true');
 });
 
-test('the index at / does not render the AI section or a noindex tag', () => {
+const { preview } = content;
+const aiItems = preview.aiWork.items;
+const aiDocs = aiItems.flatMap(({ docs }) => docs || []);
+
+test('the index at / renders none of the preview and no noindex tag', () => {
   render(<App />);
-  expect(screen.queryByRole('heading', { name: content.ai.heading })).not.toBeInTheDocument();
-  content.ai.items.forEach(({ title }) => expect(screen.queryByText(title)).not.toBeInTheDocument());
+  expect(screen.queryByRole('heading', { name: preview.aiWork.heading })).not.toBeInTheDocument();
+  aiItems.forEach(({ href }) => expect(document.querySelector(`a[href="${href}"]`)).toBeNull());
+  aiDocs.forEach(({ href }) => expect(document.querySelector(`a[href="${href}"]`)).toBeNull());
   expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
   // The index itself is untouched.
   expect(screen.getByRole('heading', { name: content.projects.heading })).toBeInTheDocument();
 });
 
-test('the preview path renders the AI section with every link opening in a new tab', () => {
+test('the preview renders links, intro, Experience, AI work and Hardware in that order', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
-  const { unmount } = render(<App />);
+  const { container, unmount } = render(<App />);
 
-  expect(screen.getByRole('heading', { level: 2, name: content.ai.heading })).toBeInTheDocument();
-  expect(screen.getByRole('link', { name: content.ai.link.label })).toHaveAttribute(
-    'href',
-    content.ai.link.href
-  );
-
-  content.ai.items.forEach(({ title, blurb, meta, href }) => {
-    const link = screen.getByText(title).closest('a');
-    expect(link).toHaveAttribute('href', href);
-    expect(link).toHaveAttribute('target', '_blank');
-    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
-    expect(screen.getByText(blurb)).toBeInTheDocument();
-    expect(screen.getByText(meta)).toBeInTheDocument();
+  const nav = screen.getByRole('navigation', { name: /contact and profiles/i });
+  const h1 = screen.getByRole('heading', { level: 1, name: preview.name });
+  const h2s = screen.getAllByRole('heading', { level: 2 });
+  expect(h2s.map((h) => h.textContent)).toEqual([
+    preview.experience.heading,
+    preview.aiWork.heading,
+    preview.hardware.heading,
+  ]);
+  const order = [nav, h1, ...h2s];
+  order.slice(1).forEach((el, i) => {
+    // eslint-disable-next-line no-bitwise
+    expect(order[i].compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  // The rest of the page still renders around it.
-  expect(screen.getByRole('heading', { level: 1, name: content.name })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: content.projects.heading })).toBeInTheDocument();
+  // The index's two-column page is not rendered here.
+  expect(container.querySelector('.body-grid')).toBeNull();
+  expect(screen.getByText(preview.subtitle)).toBeInTheDocument();
+  preview.about.forEach((para) => expect(screen.getByText(para)).toBeInTheDocument());
+
+  expect(screen.getByRole('link', { name: preview.email })).toHaveAttribute('href', `mailto:${preview.email}`);
+  preview.links.forEach(({ label, href }) => {
+    expect(screen.getByRole('link', { name: label })).toHaveAttribute('href', href);
+  });
 
   expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
   unmount();
   expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
 });
 
-test('the chip design flow row links its own PDF in a new tab, on the preview only', () => {
-  const row = content.ai.items.find(({ title }) => title === 'Chip design flow');
-  expect(row.href).toBe('/docs/chip-design-flow.pdf');
-
-  window.history.pushState({}, '', PREVIEW_PATH);
-  const { unmount } = render(<App />);
-  const link = screen.getByText(row.title).closest('a');
-  expect(link).toHaveAttribute('href', '/docs/chip-design-flow.pdf');
-  expect(link).toHaveAttribute('target', '_blank');
-  expect(link).toHaveAttribute('rel', 'noopener noreferrer');
-  unmount();
-
-  window.history.pushState({}, '', '/');
-  render(<App />);
-  expect(document.querySelector('a[href="/docs/chip-design-flow.pdf"]')).toBeNull();
-});
-
-// Every { label, href } listed under an AI row's optional `docs`.
-const aiDocs = content.ai.items.flatMap(({ docs }) => docs || []);
-
-test('the preview path renders every AI row doc link, opening in a new tab', () => {
-  expect(aiDocs.length).toBeGreaterThan(0);
+test('the preview links each AI name to GitHub, chip design flow to its PDF, plus the PDFs', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
 
-  aiDocs.forEach(({ label, href }) => {
-    const link = screen.getByRole('link', { name: label });
+  const expected = {
+    autobox: 'https://github.com/ihsan-sa/autobox',
+    hwde: 'https://github.com/ihsan-sa/hwde',
+    'lesson-builder': 'https://github.com/ihsan-sa/lesson-builder',
+    'pdf-material-builder': 'https://github.com/ihsan-sa/pdf-material-builder',
+    'Chip design flow': '/docs/chip-design-flow.pdf',
+  };
+  expect(aiItems.map(({ name }) => name).sort()).toEqual(Object.keys(expected).sort());
+  Object.entries(expected).forEach(([name, href]) => {
+    const link = screen.getByRole('link', { name });
     expect(link).toHaveAttribute('href', href);
     expect(link).toHaveAttribute('target', '_blank');
-    expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  });
+
+  expect(aiDocs.map(({ label }) => label)).toEqual(['Pitch', 'Deeper look', 'Showcase']);
+  aiDocs.forEach(({ label, href }) => {
+    expect(screen.getByRole('link', { name: label })).toHaveAttribute('href', href);
   });
 });
 
-test('the index at / renders none of the AI row doc links', () => {
+test('experience names link only where a real page exists', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
-  aiDocs.forEach(({ label, href }) => {
-    expect(screen.queryByRole('link', { name: label })).not.toBeInTheDocument();
-    expect(document.querySelector(`a[href="${href}"]`)).toBeNull();
+  preview.experience.items.forEach(({ name, href }) => {
+    if (href) {
+      expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
+    } else {
+      expect(screen.getByText(name).closest('a')).toBeNull();
+    }
   });
+  expect(screen.getByRole('link', { name: 'aiRadar' }).getAttribute('href')).toMatch(/^https:\/\/docs\.ihsan\.cc\//);
+});
+
+test('the preview hardware grid has six tiles, no radar, each with its index image', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  const { container } = render(<App />);
+
+  const tiles = container.querySelectorAll('.pv-hw a');
+  expect(tiles).toHaveLength(6);
+  tiles.forEach((tile) => expect(tile).not.toHaveTextContent(/radar/i));
+  expect(container.querySelector('a[href*="FMCW_Radar"]')).toBeNull();
+
+  preview.hardware.items.forEach(({ title, href, image }) => {
+    const tile = screen.getByText(title).closest('a');
+    expect(tile).toHaveAttribute('href', href);
+    expect(href).toMatch(/^https:\/\/docs\.ihsan\.cc\//);
+    // Same photo the index uses for that project.
+    expect(content.projects.items.some((p) => p.href === href && p.image === image)).toBe(true);
+    expect(tile.querySelector('img')).toHaveAttribute('src', image);
+  });
+});
+
+test('the preview theme toggle names its destination and persists the choice', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+
+  const toggle = screen.getByRole('button', { name: /switch to dark theme/i });
+  expect(toggle).toHaveTextContent(content.theme.toDark);
+  expect(toggle).toHaveAttribute('aria-pressed', 'false');
+
+  fireEvent.click(toggle);
+  expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
+  expect(localStorage.getItem('ihsan-theme')).toBe('dark');
+  expect(toggle).toHaveTextContent(content.theme.toLight);
+  expect(toggle).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('shelved AI rows render on neither path', () => {
@@ -189,7 +229,7 @@ test('shelved AI rows render on neither path', () => {
     const { unmount } = render(<App />);
     // The live rows do render on the preview, so the check below is not vacuous there.
     if (path === PREVIEW_PATH) {
-      content.ai.items.forEach(({ title }) => expect(screen.getByText(title)).toBeInTheDocument());
+      aiItems.forEach(({ name }) => expect(screen.getByText(name)).toBeInTheDocument());
     }
     shelved.ai.forEach(({ title, href }) => {
       expect(screen.queryByText(title)).not.toBeInTheDocument();

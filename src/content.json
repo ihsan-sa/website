@@ -96,49 +96,67 @@
     ]
   },
 
-  "ai": {
-    "_note": "AI work, one row per project. Only the hidden preview path renders it for now (see README). `blurb` is the one sentence under the title; `meta` is the small grey tag line; `href` is where the row links. `docs` is optional: small links under the row, one { \"label\", \"href\" } per file; PDFs live in public/docs/, so \"/docs/foo.pdf\" means public/docs/foo.pdf. Delete it for a row with none. `link` is the one at the top-right of the section. Shelved rows (not on the site) are in content.shelved.json.",
-    "heading": "AI work",
-    "link": { "label": "GitHub ↗", "href": "https://github.com/ihsan-sa" },
-    "items": [
-      {
-        "title": "autobox",
-        "meta": "Claude Code · orchestration · sandboxing",
-        "blurb": "Runs Claude Code as an always-on agent box I drive from Slack and my phone: headless workers end in pull requests, hooks keep each agent in its lane, and a sandbox holds the unrestricted ones.",
-        "href": "https://github.com/ihsan-sa/autobox",
-        "docs": [
-          { "label": "Pitch", "href": "/docs/autobox-pitch.pdf" },
-          { "label": "A deeper look", "href": "/docs/autobox-deeper-look.pdf" }
-        ]
-      },
-      {
-        "title": "hwde",
-        "meta": "KiCad · JLCPCB · PCB design",
-        "blurb": "An AI PCB engineer for KiCad and JLCPCB that takes a board from brief to order, and boards designed with it have been fabricated.",
-        "href": "https://github.com/ihsan-sa/hwde",
-        "docs": [
-          { "label": "Showcase", "href": "/docs/hwde-showcase.pdf" }
-        ]
-      },
-      {
-        "title": "Chip design flow",
-        "meta": "Proposal · Verilog · analog · mixed-signal",
-        "blurb": "A proposal for three design skills that work the way hwde does: one designs digital blocks in Verilog, one designs analog blocks, and one takes a mixed-signal task, splits it and drives the other two. Nothing is built yet.",
-        "href": "/docs/chip-design-flow.pdf"
-      },
-      {
-        "title": "lesson-builder",
-        "meta": "React · LaTeX · AI tutor",
-        "blurb": "A Claude Code skill that turns course material into interactive lesson apps with math, graphs, animations and a built-in AI tutor.",
-        "href": "https://github.com/ihsan-sa/lesson-builder"
-      },
-      {
-        "title": "pdf-material-builder",
-        "meta": "LaTeX · Claude Code skill",
-        "blurb": "A Claude Code skill that writes study material and technical docs as LaTeX PDFs, from a one-page cheat sheet to full course notes, in one house style.",
-        "href": "https://github.com/ihsan-sa/pdf-material-builder"
-      }
-    ]
+  "preview": {
+    "_note": "The hidden preview page (see README): one column, read top to bottom. The index above does not read this block. `links` is the row at the top, after the email. Experience and AI work entries render as one sentence: the bold `name` (linked when it has an `href`), then `text`, then any `docs` as small links. PDFs live in public/docs/, so \"/docs/foo.pdf\" means public/docs/foo.pdf. `hardware` is the photo grid; images are cropped to 4:3 from the centre. Shelved AI rows (not on the site) are in content.shelved.json.",
+    "name": "Ihsan Salari",
+    "subtitle": "UWaterloo EE student building AI systems, with experience in signal integrity, datacenter optics, and RF for chip manufacturing.",
+    "about": [
+      "Ethics and social impact are far too often overlooked in engineering. These, along with environmental sustainability, are core to my work. With the advent of AI, it is increasingly important that we act with morality and worldly impact in mind.",
+      "Every role I’ve held has been in a domain I was new to, and every time I was owning critical deliverables within weeks."
+    ],
+    "email": "hi@ihsan.cc",
+    "links": [
+      { "label": "GitHub", "href": "https://github.com/ihsan-sa" },
+      { "label": "LinkedIn", "href": "https://linkedin.com/in/ihsan-sa" },
+      { "label": "Résumé", "href": "/images/Ihsan_Salari_Resume.pdf" },
+      { "label": "Portfolio", "href": "/images/Ihsan_Salari_Portfolio.pdf" },
+      { "label": "Contact card", "href": "/images/Salari_Ihsan_Contact_Card.vcf", "download": true }
+    ],
+    "experience": {
+      "heading": "Experience",
+      "items": [
+        { "name": "Fab2 (Atomic Semi)", "text": "RF for plasma generation. Summer ’26." },
+        { "name": "Arista Networks", "text": "SI and optics for AI datacenters. Fall ’25." },
+        { "name": "aiRadar", "text": "power electronics for multi‑beam sonar. Winter ’25.", "href": "https://docs.ihsan.cc/Projects/GaN_DCDC_Converter/overview/" },
+        { "name": "University of Waterloo", "text": "BASc Electrical Engineering. 2024–29." }
+      ]
+    },
+    "aiWork": {
+      "heading": "AI work",
+      "items": [
+        {
+          "name": "autobox",
+          "text": "an always‑on Claude Code agent box.",
+          "href": "https://github.com/ihsan-sa/autobox",
+          "docs": [
+            { "label": "Pitch", "href": "/docs/autobox-pitch.pdf" },
+            { "label": "Deeper look", "href": "/docs/autobox-deeper-look.pdf" }
+          ]
+        },
+        {
+          "name": "hwde",
+          "text": "an AI PCB engineer, from brief to fabricated board.",
+          "href": "https://github.com/ihsan-sa/hwde",
+          "docs": [
+            { "label": "Showcase", "href": "/docs/hwde-showcase.pdf" }
+          ]
+        },
+        { "name": "Chip design flow", "text": "a proposal for digital, analog and mixed‑signal skills.", "href": "/docs/chip-design-flow.pdf" },
+        { "name": "lesson-builder", "text": "course material into interactive lessons.", "href": "https://github.com/ihsan-sa/lesson-builder" },
+        { "name": "pdf-material-builder", "text": "study material and docs as LaTeX PDFs.", "href": "https://github.com/ihsan-sa/pdf-material-builder" }
+      ]
+    },
+    "hardware": {
+      "heading": "Hardware",
+      "items": [
+        { "title": "Ionic thruster", "href": "https://docs.ihsan.cc/Projects/IonicThruster/overview/", "image": "/images/ionic.jpg" },
+        { "title": "3.5 MHz GaN converter", "href": "https://docs.ihsan.cc/Projects/GaN_DCDC_Converter/overview/", "image": "/images/dcdc3500KHz.png" },
+        { "title": "Lorentz E&M solver", "href": "https://docs.ihsan.cc/Projects/LorentzSolver/overview/", "image": "/images/solverImage1.png" },
+        { "title": "USB‑C trigger board", "href": "https://docs.ihsan.cc/Projects/USB-CTriggerBoards/Rev1/overview/", "image": "/images/usb_c_trigger_board.jpg" },
+        { "title": "Quad LED floodlight", "href": "https://docs.ihsan.cc/Projects/LEDLightPanels/WIWO_Light/overview/", "image": "/images/quad_high_power_floodlight.jpg" },
+        { "title": "RP2040 business card", "href": "https://docs.ihsan.cc/Projects/BusinessCard/Rev2/overview/", "image": "/images/usb_business_card.jpg" }
+      ]
+    }
   },
 
   "projects": {

@@ -2,7 +2,7 @@
   "_readme": [
     "Shelved AI work rows. Entries here are not on the site and do not ship: nothing imports",
     "this file, so none of it reaches the built page. To show one again, move its { ... }",
-    "block back into content.json's `ai.items`."
+    "block back into content.json's `preview.aiWork.items` as { \"name\", \"text\", \"href\" }."
   ],
 
   "ai": [
