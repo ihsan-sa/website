@@ -4,9 +4,9 @@ Single-page personal index. Built with [Create React App](https://github.com/fac
 
 ## Editing the content
 
-**All the text on the site is in [`src/content.json`](src/content.json).** Name, bio,
-about paragraphs, the link row, experience entries, project titles and captions — edit
-that one file and you are done. You never need to touch `App.js`.
+**All the text on the site is in [`src/content.json`](src/content.json).** Its `preview`
+block is the page: name, subtitle, about paragraphs, the link row, experience, AI work
+and hardware — edit that one file and you are done. You never need to touch `App.js`.
 
 The file opens with a `_readme` block explaining the JSON rules (quotes, commas) and how
 to add or remove an entry. Every `_note` and `_readme` key is documentation only; the site
@@ -20,19 +20,17 @@ Two exceptions, both in [`public/index.html`](public/index.html):
 Those have to be plain HTML because link-preview bots read the page without running it.
 
 Images go in `public/images/`. A path of `/images/foo.jpg` in the JSON means
-`public/images/foo.jpg`. Project thumbnails render at about 380×238, so export them
-around 760×476 at 16:10 — other ratios get cropped from the centre.
+`public/images/foo.jpg`. Hardware photos are cropped to 4:3 from the centre, so export
+them around 480×360.
 PDFs go in `public/docs/`: `/docs/foo.pdf` in the JSON means `public/docs/foo.pdf`.
 
 To see your changes: `npm start`, then open http://localhost:3000. The page reloads as you
 save. To publish them you still need `npm run build`.
 
-## Hidden preview
+## The page
 
-`/exzmkculs1gj2fdzj01zwef439r7sb1p` renders the next version of the page (today: a single-column page
-built from `content.json`'s `preview` block, styled by `src/Preview.css`) with a `noindex` tag; every other path
-renders the index as before. The preview loads Newsreader 600 from Google Fonts itself; the index never asks for it.
-The slug is `PREVIEW_PATH` in `App.js`, and `public/_redirects` is the one Netlify rule that serves `index.html` there.
+One single-column page built from `content.json`'s `preview` block and styled by `src/Preview.css`.
+It loads Newsreader 600 from Google Fonts itself.
 
 ## Where everything else lives
 
@@ -41,8 +39,7 @@ The slug is `PREVIEW_PATH` in `App.js`, and `public/_redirects` is the one Netli
 | `src/content.json` | all copy and links |
 | `src/content.shelved.json` | AI work rows taken off the site; nothing imports it, so none of it ships |
 | `src/App.js` | page structure and the theme toggle — rarely needs changing |
-| `src/App.css` | layout and component styling |
-| `src/Preview.css` | the hidden preview's styling, every rule scoped under `.pv` |
+| `src/Preview.css` | the page's styling, every rule scoped under `.pv` |
 | `src/index.css` | colours (light **and** dark), fonts, spacing — the design tokens |
 | `public/index.html` | tab title, link-preview description, web fonts, analytics, theme pre-paint script |
 
