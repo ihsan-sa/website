@@ -1,0 +1,118 @@
+/* The hidden preview: one column, one font. Every rule is scoped under .pv so
+   the index, which shares this stylesheet bundle, is untouched. Paper, ink and
+   thumb colours come from index.css; the preview's only own token is the
+   dark underline, which is a shade lighter than the index's. */
+
+.pv {
+  --pv-font: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --pv-link-rule: #cac3b7;
+
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 80px 24px 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  color: var(--ink);
+  font-family: var(--pv-font);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+[data-theme="dark"] .pv { --pv-link-rule: #4a463c; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pv { --pv-link-rule: #4a463c; }
+}
+
+.pv p { margin: 0; text-wrap: pretty; }
+
+/* Contact row: first thing on screen. */
+.pv-links { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+
+.pv-link {
+  text-decoration: underline;
+  text-decoration-color: var(--pv-link-rule);
+  text-underline-offset: 3px;
+}
+
+.pv-link:hover { text-decoration-color: currentColor; }
+
+.pv-toggle {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.pv-intro { display: flex; flex-direction: column; gap: 14px; }
+
+.pv-name {
+  margin: 0 0 4px;
+  font-size: 42px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.pv-block { display: flex; flex-direction: column; gap: 6px; }
+
+.pv-block h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 600;
+}
+
+.pv-strong { font-weight: 600; text-decoration: none; }
+.pv-doc { font-weight: 600; }
+a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Hardware grid: 3 across at full width, 2 on phone. */
+.pv-hw {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 18px 14px;
+  margin-top: 6px;
+}
+
+.pv-hw__item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-decoration: none;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.pv-hw__item:hover { opacity: 0.7; }
+
+.pv-hw__img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 3px;
+  background: var(--thumb-bg);
+}
+
+@media (max-width: 640px) {
+  .pv { padding: 32px 22px 48px; gap: 30px; }
+  .pv-name { font-size: 34px; }
+  .pv-links .pv-link { min-height: 32px; display: inline-flex; align-items: center; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pv-hw__item { transition: opacity 120ms ease; }
+}
+
+.pv :focus-visible { outline: 2px solid currentColor; }
+
+@media print {
+  .pv { color: #000; }
+  .pv-toggle { display: none; }
+}
