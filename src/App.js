@@ -98,8 +98,8 @@ function Entry({ name: entryName, text, href, docs }) {
       {docs &&
         docs.map(({ label, href: docHref }, i) => (
           <span key={label}>
-            {i === 0 ? ' ' : ' · '}
-            <a className="pv-link" href={docHref} {...NEW_TAB}>
+            {' • '}
+            <a className="pv-link pv-doc" href={docHref} {...NEW_TAB}>
               {label}
             </a>
           </span>

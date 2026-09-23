@@ -69,6 +69,7 @@
 }
 
 .pv-strong { font-weight: 600; text-decoration: none; }
+.pv-doc { font-weight: 600; }
 a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 /* Hardware grid: 3 across at full width, 2 on phone. */

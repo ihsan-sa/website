@@ -169,9 +169,10 @@ test('the preview links each AI name to GitHub, chip design flow to its PDF, plu
     expect(link).toHaveAttribute('target', '_blank');
   });
 
-  expect(aiDocs.map(({ label }) => label)).toEqual(['Pitch', 'Deeper look', 'Showcase']);
+  expect(aiDocs.map(({ label }) => label)).toEqual(['Overview', 'Deeper look', 'Showcase']);
   aiDocs.forEach(({ label, href }) => {
     expect(screen.getByRole('link', { name: label })).toHaveAttribute('href', href);
+    expect(screen.getByRole('link', { name: label })).toHaveClass('pv-doc');
   });
 });
 
