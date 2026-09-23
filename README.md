@@ -27,12 +27,10 @@ PDFs go in `public/docs/`: `/docs/foo.pdf` in the JSON means `public/docs/foo.pd
 To see your changes: `npm start`, then open http://localhost:3000. The page reloads as you
 save. To publish them you still need `npm run build`.
 
-## Hidden preview
+## The page
 
-`/exzmkculs1gj2fdzj01zwef439r7sb1p` renders the next version of the page (today: a single-column page
-built from `content.json`'s `preview` block, styled by `src/Preview.css`) with a `noindex` tag; every other path
-renders the index as before. The preview loads Newsreader 600 from Google Fonts itself; the index never asks for it.
-The slug is `PREVIEW_PATH` in `App.js`, and `public/_redirects` is the one Netlify rule that serves `index.html` there.
+One single-column page built from `content.json`'s `preview` block and styled by `src/Preview.css`.
+It loads Newsreader 600 from Google Fonts itself.
 
 ## Where everything else lives
 
@@ -41,8 +39,7 @@ The slug is `PREVIEW_PATH` in `App.js`, and `public/_redirects` is the one Netli
 | `src/content.json` | all copy and links |
 | `src/content.shelved.json` | AI work rows taken off the site; nothing imports it, so none of it ships |
 | `src/App.js` | page structure and the theme toggle — rarely needs changing |
-| `src/App.css` | layout and component styling |
-| `src/Preview.css` | the hidden preview's styling, every rule scoped under `.pv` |
+| `src/Preview.css` | the page's styling, every rule scoped under `.pv` |
 | `src/index.css` | colours (light **and** dark), fonts, spacing — the design tokens |
 | `public/index.html` | tab title, link-preview description, web fonts, analytics, theme pre-paint script |
 
