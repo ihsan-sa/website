@@ -11,6 +11,11 @@
       "meta": "Spiking neural networks · PyTorch",
       "blurb": "A small workbench for spiking neural networks where the neuron, synapse, topology and learning rule all swap from one config file or a local web page.",
       "href": "https://github.com/ihsan-sa/spikelab"
+    },
+    {
+      "title": "pdf-material-builder",
+      "text": "study material and docs as LaTeX PDFs.",
+      "href": "https://github.com/ihsan-sa/pdf-material-builder"
     }
   ]
 }

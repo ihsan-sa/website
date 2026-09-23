@@ -76,9 +76,15 @@
             { "label": "Showcase", "href": "/docs/hwde-showcase.pdf" }
           ]
         },
-        { "name": "Chip design flow", "text": "a proposal for digital, analog and mixed‑signal skills.", "href": "/docs/chip-design-flow.pdf" },
-        { "name": "lesson-builder", "text": "course material into interactive lessons.", "href": "https://github.com/ihsan-sa/lesson-builder" },
-        { "name": "pdf-material-builder", "text": "study material and docs as LaTeX PDFs.", "href": "https://github.com/ihsan-sa/pdf-material-builder" }
+        {
+          "name": "chip design flow",
+          "text": "a proposal for digital, analog and mixed‑signal skills.",
+          "href": "/docs/chip-design-flow.pdf",
+          "docs": [
+            { "label": "Brief", "href": "/docs/chip-design-flow.pdf" }
+          ]
+        },
+        { "name": "lesson-builder", "text": "course material into interactive lessons.", "href": "https://github.com/ihsan-sa/lesson-builder" }
       ]
     },
     "hardware": {
