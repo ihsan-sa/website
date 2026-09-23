@@ -52,8 +52,7 @@ test('the page links each AI name to GitHub, chip design flow to its PDF, plus t
     autobox: 'https://github.com/ihsan-sa/autobox',
     hwde: 'https://github.com/ihsan-sa/hwde',
     'lesson-builder': 'https://github.com/ihsan-sa/lesson-builder',
-    'pdf-material-builder': 'https://github.com/ihsan-sa/pdf-material-builder',
-    'Chip design flow': '/docs/chip-design-flow.pdf',
+    'chip design flow': '/docs/chip-design-flow.pdf',
   };
   expect(aiItems.map(({ name }) => name).sort()).toEqual(Object.keys(expected).sort());
   Object.entries(expected).forEach(([name, href]) => {
@@ -62,7 +61,7 @@ test('the page links each AI name to GitHub, chip design flow to its PDF, plus t
     expect(link).toHaveAttribute('target', '_blank');
   });
 
-  expect(aiDocs.map(({ label }) => label)).toEqual(['Overview', 'Deeper look', 'Showcase']);
+  expect(aiDocs.map(({ label }) => label)).toEqual(['Overview', 'Deeper look', 'Showcase', 'Brief']);
   aiDocs.forEach(({ label, href }) => {
     expect(screen.getByRole('link', { name: label })).toHaveAttribute('href', href);
     expect(screen.getByRole('link', { name: label })).toHaveClass('pv-doc');
