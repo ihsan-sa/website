@@ -1,7 +1,6 @@
-/* The hidden preview: one column, one font. Every rule is scoped under .pv so
-   the index, which shares this stylesheet bundle, is untouched. Paper, ink and
-   thumb colours come from index.css; the preview's only own token is the
-   dark underline, which is a shade lighter than the index's. */
+/* The page: one column, one font. Every rule is scoped under .pv. Paper, ink
+   and thumb colours come from index.css; the page's only own token is the dark
+   underline. */
 
 .pv {
   --pv-font: 'Newsreader', Georgia, 'Times New Roman', serif;

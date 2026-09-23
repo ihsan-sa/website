@@ -81,7 +81,7 @@ test('experience names link only where a real page exists', () => {
   expect(screen.getByRole('link', { name: 'aiRadar' }).getAttribute('href')).toMatch(/^https:\/\/docs\.ihsan\.cc\//);
 });
 
-test('the page hardware grid has six tiles, no radar, each with its index image', () => {
+test('the page hardware grid has six tiles, no radar, each with its photo', () => {
   const { container } = render(<App />);
 
   const tiles = container.querySelectorAll('.pv-hw a');
@@ -93,8 +93,7 @@ test('the page hardware grid has six tiles, no radar, each with its index image'
     const tile = screen.getByText(title).closest('a');
     expect(tile).toHaveAttribute('href', href);
     expect(href).toMatch(/^https:\/\/docs\.ihsan\.cc\//);
-    // Same photo the index uses for that project.
-    expect(content.projects.items.some((p) => p.href === href && p.image === image)).toBe(true);
+    expect(image).toMatch(/^\/images\//);
     expect(tile.querySelector('img')).toHaveAttribute('src', image);
   });
 });

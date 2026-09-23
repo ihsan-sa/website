@@ -4,9 +4,9 @@ Single-page personal index. Built with [Create React App](https://github.com/fac
 
 ## Editing the content
 
-**All the text on the site is in [`src/content.json`](src/content.json).** Name, bio,
-about paragraphs, the link row, experience entries, project titles and captions — edit
-that one file and you are done. You never need to touch `App.js`.
+**All the text on the site is in [`src/content.json`](src/content.json).** Its `preview`
+block is the page: name, subtitle, about paragraphs, the link row, experience, AI work
+and hardware — edit that one file and you are done. You never need to touch `App.js`.
 
 The file opens with a `_readme` block explaining the JSON rules (quotes, commas) and how
 to add or remove an entry. Every `_note` and `_readme` key is documentation only; the site
@@ -20,8 +20,8 @@ Two exceptions, both in [`public/index.html`](public/index.html):
 Those have to be plain HTML because link-preview bots read the page without running it.
 
 Images go in `public/images/`. A path of `/images/foo.jpg` in the JSON means
-`public/images/foo.jpg`. Project thumbnails render at about 380×238, so export them
-around 760×476 at 16:10 — other ratios get cropped from the centre.
+`public/images/foo.jpg`. Hardware photos are cropped to 4:3 from the centre, so export
+them around 480×360.
 PDFs go in `public/docs/`: `/docs/foo.pdf` in the JSON means `public/docs/foo.pdf`.
 
 To see your changes: `npm start`, then open http://localhost:3000. The page reloads as you
