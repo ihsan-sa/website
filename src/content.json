@@ -65,7 +65,8 @@
           "href": "https://github.com/ihsan-sa/autobox",
           "docs": [
             { "label": "Overview", "href": "/docs/autobox-pitch.pdf" },
-            { "label": "Deeper look", "href": "/docs/autobox-deeper-look.pdf" }
+            { "label": "Deeper look", "href": "/docs/autobox-deeper-look.pdf" },
+            { "label": "Map", "href": "/docs/agentic-systems-map.pdf" }
           ]
         },
         {
