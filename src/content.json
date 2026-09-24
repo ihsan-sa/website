@@ -22,7 +22,11 @@
     "",
     "Images live in public/images/. A path of \"/images/foo.jpg\" means the file",
     "public/images/foo.jpg. Hardware photos are cropped to 4:3 from the centre;",
-    "ship them around 480x360."
+    "ship them around 480x360.",
+    "",
+    "`prototype` is the draft of the next front page, served only at the hidden",
+    "path in App.js (PREVIEW_PATH). Same shape as `preview`, plus a `result` line",
+    "per row, `pages` on each PDF and the AI portfolio at the head of `aiWork`. It does not change the front page."
   ],
 
   "theme": {
@@ -97,6 +101,186 @@
         { "title": "USB‑C trigger board", "href": "https://docs.ihsan.cc/Projects/USB-CTriggerBoards/Rev1/overview/", "image": "/images/usb_c_trigger_board.jpg" },
         { "title": "Quad LED floodlight", "href": "https://docs.ihsan.cc/Projects/LEDLightPanels/WIWO_Light/overview/", "image": "/images/quad_high_power_floodlight.jpg" },
         { "title": "RP2040 business card", "href": "https://docs.ihsan.cc/Projects/BusinessCard/Rev2/overview/", "image": "/images/usb_business_card.jpg" }
+      ]
+    }
+  },
+
+  "prototype": {
+    "_note": "Draft of the next front page, only at the hidden PREVIEW_PATH. Every number in a `result` comes from the résumé or a PDF in public/docs. `pages` is the PDF's page count (pdfinfo). A doc with `pending` instead of `href` is a spot waiting for its link.",
+    "name": "Ihsan Salari",
+    "subtitle": "UWaterloo EE student building AI systems, with experience in signal integrity, datacenter optics, and RF for chip manufacturing.",
+    "about": [
+      "I care about what my work does to people and the planet, and AI makes that matter more. So the AI systems I build keep a person in charge: hwde has someone sign off at every stage, and in autobox no agent merges its own work.",
+      "Every role I’ve held was in a field new to me. At Fab2 I designed a 200 W GaN inverter for RF plasma in a day, then took it from schematic to first plasma in three weeks."
+    ],
+    "email": "hi@ihsan.cc",
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/ihsan-sa"
+      },
+      {
+        "label": "LinkedIn",
+        "href": "https://linkedin.com/in/ihsan-sa"
+      },
+      {
+        "label": "Résumé",
+        "href": "/images/Ihsan_Salari_Resume.pdf",
+        "pages": 1
+      },
+      {
+        "label": "Portfolio",
+        "href": "/images/Ihsan_Salari_Portfolio.pdf",
+        "pages": 13
+      }
+    ],
+    "contactCard": {
+      "label": "Save my contact card (.vcf)",
+      "href": "/images/Salari_Ihsan_Contact_Card.vcf"
+    },
+    "experience": {
+      "heading": "Experience",
+      "items": [
+        {
+          "name": "Fab2 (Atomic Semi)",
+          "text": "RF for plasma generation. Summer ’26.",
+          "result": "Designed a V‑I probe that resolves voltage, current and phase at the load of a tens‑of‑MHz RF supply."
+        },
+        {
+          "name": "Arista Networks",
+          "text": "SI and optics for AI datacenters. Fall ’25.",
+          "result": "Unblocked fabout of the two most advanced 102.4T switches by debugging 224G signal integrity on 70 GHz VNAs."
+        },
+        {
+          "name": "aiRadar",
+          "text": "power electronics for multi‑beam sonar. Winter ’25.",
+          "href": "https://docs.ihsan.cc/Projects/GaN_DCDC_Converter/overview/",
+          "result": "Redesigned a 3.5 MHz multi‑stage GaN dc‑dc converter end to end, from topology choice to STM32 firmware and bring‑up."
+        },
+        {
+          "name": "University of Waterloo",
+          "text": "BASc Electrical Engineering. 2024–29.",
+          "result": "GPA 89%."
+        }
+      ]
+    },
+    "aiWork": {
+      "heading": "AI work",
+      "docs": [
+        {
+          "label": "AI portfolio",
+          "href": "/docs/ai-portfolio.pdf",
+          "pages": 5
+        }
+      ],
+      "items": [
+        {
+          "name": "hwde",
+          "text": "an AI PCB engineer, from brief to fabricated board.",
+          "href": "https://github.com/ihsan-sa/hwde",
+          "result": "16 boards designed, 6 ready to order and 2 made. The best run went from brief to an order‑ready board in 13.6 hours, with nobody watching.",
+          "detail": "You describe the board in plain words. hwde researches the parts, picks a topology, draws the schematic, lays out and routes the board, runs the electrical and manufacturing checks, and hands you the files a factory needs. A person signs off at every stage, and ordering always waits for one. Neither made board has been powered on yet.",
+          "figure": {
+            "image": "/images/hwde-lumina-carrier.jpg",
+            "alt": "A rendered circuit board with connectors and a wireless module",
+            "caption": "lumina‑carrier, a 4‑layer board for a stage‑lighting fixture. It’s one of the two that were made."
+          },
+          "docs": [
+            {
+              "label": "Showcase",
+              "href": "/docs/hwde-showcase.pdf",
+              "pages": 14
+            }
+          ]
+        },
+        {
+          "name": "autobox",
+          "text": "an always‑on Claude Code agent box.",
+          "href": "https://github.com/ihsan-sa/autobox",
+          "result": "550 pieces of work landed from 27 August to 20 September 2026.",
+          "detail": "It’s a small computer that does software work on its own. It manages Claude Code agents, and no agent merges its own work: every change goes through the test suite, then a second agent reads it against what was asked for. When a gate fails, it sends out a repair worker by itself, so a red build gets fixed without anyone asking.",
+          "docs": [
+            {
+              "label": "Overview",
+              "href": "/docs/autobox-pitch.pdf",
+              "pages": 6
+            },
+            {
+              "label": "Deeper look",
+              "href": "/docs/autobox-deeper-look.pdf",
+              "pages": 12
+            },
+            {
+              "label": "Map",
+              "href": "/docs/agentic-systems-map.pdf",
+              "pages": 12
+            }
+          ],
+          "start": "Start with the Overview. The Deeper look explains how it works, and the Map draws each of its agentic systems."
+        },
+        {
+          "name": "lesson-builder",
+          "text": "course material into interactive lessons.",
+          "href": "https://github.com/ihsan-sa/lesson-builder",
+          "result": "41 lessons built across 8 courses. Tested blind, its reviewer caught 12 of 12 planted mistakes.",
+          "docs": [
+            {
+              "label": "See a generated lesson",
+              "pending": "link needed"
+            }
+          ]
+        },
+        {
+          "name": "chip design flow",
+          "text": "a proposal for digital, analog and mixed‑signal skills.",
+          "result": "/vde would design digital blocks in Verilog, /ade analog blocks, and /msde would split a mixed‑signal task and drive the other two. Nothing is built yet.",
+          "docs": [
+            {
+              "label": "Brief",
+              "href": "/docs/chip-design-flow.pdf",
+              "pages": 9
+            }
+          ]
+        }
+      ]
+    },
+    "projects": {
+      "heading": "Projects",
+      "items": [
+        {
+          "title": "Ionic thruster",
+          "href": "https://docs.ihsan.cc/Projects/IonicThruster/overview/",
+          "image": "/images/ionic.jpg",
+          "result": "1.5 m/s of ionic wind and 40 mN of thrust."
+        },
+        {
+          "title": "3.5 MHz GaN converter",
+          "href": "https://docs.ihsan.cc/Projects/GaN_DCDC_Converter/overview/",
+          "image": "/images/dcdc3500KHz.png",
+          "result": "10–50 V in, 20 V out."
+        },
+        {
+          "title": "Lorentz E&M solver",
+          "href": "https://docs.ihsan.cc/Projects/LorentzSolver/overview/",
+          "image": "/images/solverImage1.png",
+          "result": "C++ software that traces charged‑particle paths with a hybrid RK4 and Euler integrator."
+        },
+        {
+          "title": "USB‑C trigger board",
+          "href": "https://docs.ihsan.cc/Projects/USB-CTriggerBoards/Rev1/overview/",
+          "image": "/images/usb_c_trigger_board.jpg",
+          "result": "140 W USB‑C Power Delivery on a 6‑layer board."
+        },
+        {
+          "title": "Quad LED floodlight",
+          "href": "https://docs.ihsan.cc/Projects/LEDLightPanels/WIWO_Light/overview/",
+          "image": "/images/quad_high_power_floodlight.jpg"
+        },
+        {
+          "title": "RP2040 business card",
+          "href": "https://docs.ihsan.cc/Projects/BusinessCard/Rev2/overview/",
+          "image": "/images/usb_business_card.jpg"
+        }
       ]
     }
   }

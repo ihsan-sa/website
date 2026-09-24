@@ -1,5 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import App from './App';
+import fs from 'fs';
+import path from 'path';
+import App, { PREVIEW_PATH } from './App';
 import content from './content.json';
 import shelved from './content.shelved.json';
 
@@ -120,4 +122,146 @@ test('shelved AI rows do not render', () => {
     expect(screen.queryByText(title)).not.toBeInTheDocument();
     expect(document.querySelector(`a[href="${href}"]`)).toBeNull();
   });
+});
+
+// The front page must stay byte-for-byte what it was while the prototype sits
+// at its hidden path. The snapshot was taken from the front page before the
+// prototype existed; a diff here means the prototype leaked onto it.
+test('the front page is unchanged', () => {
+  const { container, unmount } = render(<App />);
+  expect(container.innerHTML).toMatchSnapshot();
+  expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
+  unmount();
+});
+
+// ---- The prototype at the hidden path -------------------------------------
+
+const { prototype } = content;
+const read = (...parts) => fs.readFileSync(path.join(__dirname, '..', ...parts), 'utf8');
+
+test('the prototype path is unguessable, served by one rule and published nowhere', () => {
+  expect(PREVIEW_PATH).toMatch(/^\/[a-z0-9]{32}$/);
+  expect(read('public', '_redirects').trim().split('\n')).toEqual([
+    `${PREVIEW_PATH}    /index.html    200`,
+  ]);
+  // robots.txt would publish the path, so it must not name it.
+  expect(read('public', 'robots.txt')).not.toContain(PREVIEW_PATH.slice(1));
+  // Nothing the site ships links to it: only App.js and _redirects carry it.
+  ['public/index.html', 'public/manifest.json', 'src/content.json'].forEach((f) =>
+    expect(read(f)).not.toContain(PREVIEW_PATH.slice(1))
+  );
+});
+
+test('the prototype renders only at its path, and asks not to be indexed', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  const { container, unmount } = render(<App />);
+  expect(container.querySelector('.pv-proto')).not.toBeNull();
+  expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  unmount();
+  expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
+
+  // Any other path, including one a character short, is the front page.
+  window.history.pushState({}, '', PREVIEW_PATH.slice(0, -1));
+  const front = render(<App />);
+  expect(front.container.querySelector('.pv-proto')).toBeNull();
+  expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
+  front.unmount();
+});
+
+test('the prototype puts a result under every experience row and AI project', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
+    prototype.experience.heading,
+    prototype.aiWork.heading,
+    prototype.projects.heading,
+  ]);
+  prototype.experience.items.forEach(({ result }) => {
+    expect(result).toBeTruthy();
+    expect(screen.getByText(result)).toHaveClass('pv-result');
+  });
+  prototype.aiWork.items.forEach(({ result }) => {
+    expect(result).toBeTruthy();
+    expect(screen.getByText(result)).toHaveClass('pv-result');
+  });
+});
+
+test('the prototype orders AI work hwde, autobox, lesson-builder, then the chip proposal', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  const { container } = render(<App />);
+  expect(prototype.aiWork.items.map(({ name }) => name)).toEqual([
+    'hwde',
+    'autobox',
+    'lesson-builder',
+    'chip design flow',
+  ]);
+  const names = [...container.querySelectorAll('.pv-block:nth-of-type(2) .pv-entry .pv-strong')];
+  expect(names.map((n) => n.textContent)).toEqual(prototype.aiWork.items.map(({ name }) => name));
+
+  // The chip proposal links its PDF once, not from both the name and "Brief".
+  expect(container.querySelectorAll('a[href="/docs/chip-design-flow.pdf"]')).toHaveLength(1);
+  expect(screen.queryByRole('link', { name: 'chip design flow' })).toBeNull();
+
+  // lesson-builder keeps its repo link and shows the lesson spot without inventing a URL.
+  expect(screen.getByRole('link', { name: 'lesson-builder' })).toHaveAttribute(
+    'href',
+    'https://github.com/ihsan-sa/lesson-builder'
+  );
+  expect(screen.getByText(/See a generated lesson/)).not.toHaveAttribute('href');
+  expect(screen.getByText(/See a generated lesson/).closest('a')).toBeNull();
+
+  // hwde carries its board render.
+  expect(container.querySelector('img[src="/images/hwde-lumina-carrier.jpg"]')).not.toBeNull();
+});
+
+test('every prototype PDF says what it is and how many pages', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  const pdfs = [
+    ...prototype.links.filter(({ href }) => href.endsWith('.pdf')),
+    ...prototype.aiWork.docs,
+    ...prototype.aiWork.items.flatMap(({ docs }) => docs || []).filter(({ href }) => href),
+  ];
+  expect(pdfs).toHaveLength(8);
+  pdfs.forEach(({ label, href, pages }) => {
+    expect(Number.isInteger(pages)).toBe(true);
+    const name = `${label} · PDF, ${pages} ${pages === 1 ? 'page' : 'pages'}`;
+    expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
+  });
+  expect(screen.getByText(prototype.aiWork.items[1].start)).toHaveClass('pv-start');
+});
+
+test('the prototype opens AI work with the AI portfolio, and pdf-material-builder stays shelved', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  const head = screen.getByRole('link', { name: 'AI portfolio · PDF, 5 pages' });
+  expect(head).toHaveAttribute('href', '/docs/ai-portfolio.pdf');
+  expect(read('public', 'docs', 'ai-portfolio.pdf').startsWith('%PDF')).toBe(true);
+  // It comes before the first AI row.
+  const first = screen.getByRole('link', { name: prototype.aiWork.items[0].name });
+  // eslint-disable-next-line no-bitwise
+  expect(head.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(screen.queryByText(/pdf-material-builder/)).toBeNull();
+});
+
+test('the prototype moves the contact card out of the top links to the foot', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  const nav = screen.getByRole('navigation', { name: /contact and profiles/i });
+  expect(nav.querySelector('a[download]')).toBeNull();
+  const card = screen.getByRole('link', { name: prototype.contactCard.label });
+  expect(card).toHaveAttribute('download');
+  expect(card).toHaveAttribute('href', prototype.contactCard.href);
+  // eslint-disable-next-line no-bitwise
+  expect(nav.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
+test('the prototype linked names are marked visibly clickable, and Projects covers the solver', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  const { container } = render(<App />);
+  [...container.querySelectorAll('.pv-entry a.pv-strong')].forEach((a) =>
+    expect(a).toHaveClass('pv-name-link')
+  );
+  expect(prototype.projects.heading).not.toMatch(/hardware/i);
+  expect(screen.getByText('Lorentz E&M solver')).toBeInTheDocument();
 });

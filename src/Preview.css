@@ -115,3 +115,39 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
   .pv { color: #000; }
   .pv-toggle { display: none; }
 }
+
+/* The prototype at PREVIEW_PATH. Everything below is scoped under .pv-proto,
+   so the front page renders exactly as above. */
+
+.pv-proto .pv-entry { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+
+/* A linked name reads as a link: underlined in the page's link rule. */
+.pv-proto a.pv-name-link {
+  text-decoration: underline;
+  text-decoration-color: var(--pv-link-rule);
+  text-underline-offset: 3px;
+}
+.pv-proto a.pv-name-link:hover { text-decoration-color: currentColor; }
+
+.pv-proto .pv-result,
+.pv-proto .pv-detail,
+.pv-proto .pv-docs,
+.pv-proto .pv-start { font-size: 15px; line-height: 1.5; }
+
+.pv-proto .pv-result { opacity: 0.85; }
+.pv-proto .pv-start { font-style: italic; }
+.pv-proto .pv-docs .pv-doc { font-weight: 400; }
+.pv-proto .pv-pending { opacity: 0.6; }
+
+.pv-proto .pv-figure { margin: 6px 0 2px; max-width: 280px; }
+.pv-proto .pv-figure img {
+  display: block;
+  width: 100%;
+  border-radius: 3px;
+  background: var(--thumb-bg);
+}
+.pv-proto .pv-figure figcaption { font-size: 13px; line-height: 1.4; margin-top: 4px; opacity: 0.75; }
+
+.pv-proto .pv-hw__result { font-size: 13px; opacity: 0.75; }
+
+.pv-proto .pv-foot { font-size: 15px; }

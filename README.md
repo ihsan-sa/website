@@ -32,6 +32,10 @@ save. To publish them you still need `npm run build`.
 One single-column page built from `content.json`'s `preview` block and styled by `src/Preview.css`.
 It loads Newsreader 600 from Google Fonts itself.
 
+A draft of the next front page renders from the `prototype` block, only at the unguessable
+`PREVIEW_PATH` in `src/App.js`. `public/_redirects` serves `index.html` there, the page adds
+`noindex` at runtime, and nothing links to it. A snapshot test holds the front page unchanged.
+
 ## Where everything else lives
 
 | File | What's in it |
