@@ -63,7 +63,7 @@ test('the page links each AI name to GitHub, chip design flow to its PDF, plus t
     expect(link).toHaveAttribute('target', '_blank');
   });
 
-  expect(aiDocs.map(({ label }) => label)).toEqual(['Overview', 'Deeper look', 'Map', 'Showcase', 'Brief']);
+  expect(aiDocs.map(({ label }) => label)).toEqual(['Overview', 'Deeper look', 'Map', 'Showcase', 'Brief', 'Write-up']);
   aiDocs.forEach(({ label, href }) => {
     expect(screen.getByRole('link', { name: label })).toHaveAttribute('href', href);
     expect(screen.getByRole('link', { name: label })).toHaveClass('pv-doc');
@@ -222,7 +222,7 @@ test('every prototype PDF says what it is and how many pages', () => {
     ...prototype.aiWork.docs,
     ...prototype.aiWork.items.flatMap(({ docs }) => docs || []).filter(({ href }) => href),
   ];
-  expect(pdfs).toHaveLength(8);
+  expect(pdfs).toHaveLength(9);
   pdfs.forEach(({ label, href, pages }) => {
     expect(Number.isInteger(pages)).toBe(true);
     const name = `${label} · PDF, ${pages} ${pages === 1 ? 'page' : 'pages'}`;
