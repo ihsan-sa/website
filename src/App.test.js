@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import fs from 'fs';
 import path from 'path';
 import App, { PREVIEW_PATH } from './App';
@@ -264,4 +264,63 @@ test('the prototype linked names are marked visibly clickable, and Projects cove
   );
   expect(prototype.projects.heading).not.toMatch(/hardware/i);
   expect(screen.getByText('Lorentz E&M solver')).toBeInTheDocument();
+});
+
+// ---- Folded sections on the prototype --------------------------------------
+
+const FOLDS = ['experience', 'ai-work', 'projects'];
+const foldButton = (id) => document.querySelector(`#${id} h2 button`);
+const foldBody = (id) => document.getElementById(foldButton(id).getAttribute('aria-controls'));
+
+test('every prototype section starts folded to its heading; links, intro and card stay open', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  const buttons = screen.getAllByRole('heading', { level: 2 }).map((h) => h.querySelector('button'));
+  expect(buttons.map((b) => b.closest('section').id)).toEqual(FOLDS);
+  FOLDS.forEach((id) => {
+    const button = foldButton(id);
+    expect(button).toHaveAttribute('type', 'button');
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    expect(foldBody(id)).toHaveAttribute('inert');
+  });
+  // Nothing outside the sections is folded.
+  expect(document.querySelectorAll('[inert]')).toHaveLength(FOLDS.length);
+  const nav = screen.getByRole('navigation', { name: /contact and profiles/i });
+  const card = screen.getByRole('link', { name: prototype.contactCard.label });
+  [nav, card, screen.getByRole('heading', { level: 1 })].forEach((el) =>
+    expect(el.closest('[inert]')).toBeNull()
+  );
+});
+
+test('a click opens one prototype section and a second click folds it again', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  fireEvent.click(screen.getByRole('button', { name: prototype.aiWork.heading }));
+  expect(foldButton('ai-work')).toHaveAttribute('aria-expanded', 'true');
+  expect(foldBody('ai-work')).not.toHaveAttribute('inert');
+  // The others stay folded.
+  ['experience', 'projects'].forEach((id) => {
+    expect(foldButton(id)).toHaveAttribute('aria-expanded', 'false');
+    expect(foldBody(id)).toHaveAttribute('inert');
+  });
+  fireEvent.click(foldButton('ai-work'));
+  expect(foldButton('ai-work')).toHaveAttribute('aria-expanded', 'false');
+  expect(foldBody('ai-work')).toHaveAttribute('inert');
+});
+
+test('a hash naming a prototype section opens it, on load and on change', () => {
+  window.history.pushState({}, '', `${PREVIEW_PATH}#projects`);
+  render(<App />);
+  expect(foldButton('projects')).toHaveAttribute('aria-expanded', 'true');
+  expect(foldButton('experience')).toHaveAttribute('aria-expanded', 'false');
+
+  window.history.pushState({}, '', `${PREVIEW_PATH}#experience`);
+  act(() => window.dispatchEvent(new HashChangeEvent('hashchange')));
+  expect(foldButton('experience')).toHaveAttribute('aria-expanded', 'true');
+  expect(foldButton('ai-work')).toHaveAttribute('aria-expanded', 'false');
+});
+
+test('the front page has no folded sections', () => {
+  render(<App />);
+  expect(document.querySelector('[inert], [aria-expanded], .pv-fold')).toBeNull();
 });
