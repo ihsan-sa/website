@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import './Preview.css';
 import content from './content.json';
 
@@ -179,13 +179,23 @@ function DocLink({ label, pages, href }) {
   );
 }
 
-// A prototype row: the linked name and what it is, then one concrete result,
-// then optional longer sentences, a small figure, the PDFs and a pointer to the
-// one to open first. A doc with no href is a spot still waiting for its link.
+// A prototype row, folded to one line until opened: the linked name and what
+// it is. Opening it shows one concrete result, then optional longer sentences,
+// a small figure, the PDFs and a pointer to the one to open first. A doc with
+// no href is a spot still waiting for its link.
+//
+// The toggle is a real button at the end of the line; its ::before stretches
+// over the whole line, so a click anywhere on it opens the row, while the name
+// link sits above that layer and still just opens its page. The panel is inert
+// while folded, so its links are neither tabbable nor read out.
 function ProtoEntry({ name: entryName, text, href, result, detail, figure, docs, start }) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  const hasMore = Boolean(result || detail || figure || docs || start);
+
   return (
     <div className="pv-entry">
-      <p>
+      <p className="pv-entry__head">
         {href ? (
           <a className="pv-strong pv-name-link" href={href} {...NEW_TAB}>
             {entryName}
@@ -194,85 +204,60 @@ function ProtoEntry({ name: entryName, text, href, result, detail, figure, docs,
           <strong className="pv-strong">{entryName}</strong>
         )}
         , {text}
+        {hasMore && (
+          <button
+            type="button"
+            className="pv-entry__btn"
+            aria-expanded={open}
+            aria-controls={panelId}
+            aria-label={`More about ${entryName}`}
+            onClick={() => setOpen((o) => !o)}
+          />
+        )}
       </p>
-      {result && <p className="pv-result">{result}</p>}
-      {detail && <p className="pv-detail">{detail}</p>}
-      {figure && (
-        <figure className="pv-figure">
-          <img src={figure.image} alt={figure.alt} loading="lazy" />
-          <figcaption>{figure.caption}</figcaption>
-        </figure>
+      {hasMore && (
+        <div className="pv-fold" id={panelId} inert={!open}>
+          <div className="pv-fold__inner">
+            {result && <p className="pv-result">{result}</p>}
+            {detail && <p className="pv-detail">{detail}</p>}
+            {figure && (
+              <figure className="pv-figure">
+                <img src={figure.image} alt={figure.alt} loading="lazy" />
+                <figcaption>{figure.caption}</figcaption>
+              </figure>
+            )}
+            {docs && (
+              <p className="pv-docs">
+                {docs.map((doc, i) => (
+                  <span key={doc.label}>
+                    {i > 0 && ' • '}
+                    {doc.href ? (
+                      <DocLink {...doc} />
+                    ) : (
+                      <span className="pv-pending">{doc.label} ({doc.pending})</span>
+                    )}
+                  </span>
+                ))}
+              </p>
+            )}
+            {start && <p className="pv-start">{start}</p>}
+          </div>
+        </div>
       )}
-      {docs && (
-        <p className="pv-docs">
-          {docs.map((doc, i) => (
-            <span key={doc.label}>
-              {i > 0 && ' • '}
-              {doc.href ? (
-                <DocLink {...doc} />
-              ) : (
-                <span className="pv-pending">{doc.label} ({doc.pending})</span>
-              )}
-            </span>
-          ))}
-        </p>
-      )}
-      {start && <p className="pv-start">{start}</p>}
     </div>
-  );
-}
-
-// A section folded to its heading until opened. The heading holds a real
-// button; the body is inert while folded, so its links are neither tabbable nor
-// read out. A URL hash naming the section (#projects) opens it, on load and on
-// every later hash change, and the browser's own jump then lands on it.
-const namedByHash = (id) => window.location.hash === `#${id}`;
-
-function Fold({ id, heading, children }) {
-  const [open, setOpen] = useState(() => namedByHash(id));
-
-  useEffect(() => {
-    const onHash = () => {
-      if (namedByHash(id)) setOpen(true);
-    };
-    window.addEventListener('hashchange', onHash);
-    return () => window.removeEventListener('hashchange', onHash);
-  }, [id]);
-
-  const bodyId = `${id}-body`;
-  return (
-    <section className="pv-block" id={id}>
-      <h2>
-        <button
-          type="button"
-          className="pv-fold__btn"
-          aria-expanded={open}
-          aria-controls={bodyId}
-          onClick={() => setOpen((o) => !o)}
-        >
-          {heading}
-        </button>
-      </h2>
-      <div className="pv-fold" id={bodyId} inert={!open}>
-        <div className="pv-fold__inner">{children}</div>
-      </div>
-    </section>
   );
 }
 
 // Same order as the front page, with the review's changes: a result under
 // every row, the AI rows in their own order, and the contact card moved out of
-// the top row to the foot of the page. Every section below the intro starts
-// folded; the links row, the intro and the contact card stay open.
+// the top row to the foot of the page. Every experience and AI row starts
+// folded to one line; the sections themselves and the project grid stay open.
 function Prototype() {
   const [isDark, toggleTheme] = useTheme();
   useNoindex();
   usePreviewFont();
 
-  const sections = [
-    { id: 'experience', ...prototype.experience },
-    { id: 'ai-work', ...prototype.aiWork },
-  ];
+  const sections = [prototype.experience, prototype.aiWork];
 
   return (
     <main className="pv pv-proto">
@@ -302,8 +287,9 @@ function Prototype() {
         ))}
       </header>
 
-      {sections.map(({ id, heading, docs, items }) => (
-        <Fold id={id} heading={heading} key={id}>
+      {sections.map(({ heading, docs, items }) => (
+        <section className="pv-block" key={heading}>
+          <h2>{heading}</h2>
           {docs && (
             <p className="pv-docs pv-head-docs">
               {docs.map((doc) => (
@@ -314,10 +300,11 @@ function Prototype() {
           {items.map((item) => (
             <ProtoEntry key={item.name} {...item} />
           ))}
-        </Fold>
+        </section>
       ))}
 
-      <Fold id="projects" heading={prototype.projects.heading}>
+      <section className="pv-block">
+        <h2>{prototype.projects.heading}</h2>
         <div className="pv-hw">
           {prototype.projects.items.map(({ title, href, image, result }) => (
             <a className="pv-hw__item" href={href} key={title} {...NEW_TAB}>
@@ -327,7 +314,7 @@ function Prototype() {
             </a>
           ))}
         </div>
-      </Fold>
+      </section>
 
       <footer className="pv-foot">
         <a className="pv-link" href={prototype.contactCard.href} download>
