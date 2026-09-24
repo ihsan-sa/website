@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import fs from 'fs';
 import path from 'path';
 import App, { PREVIEW_PATH } from './App';
@@ -266,61 +266,65 @@ test('the prototype linked names are marked visibly clickable, and Projects cove
   expect(screen.getByText('Lorentz E&M solver')).toBeInTheDocument();
 });
 
-// ---- Folded sections on the prototype --------------------------------------
+// ---- Folded rows on the prototype ------------------------------------------
 
-const FOLDS = ['experience', 'ai-work', 'projects'];
-const foldButton = (id) => document.querySelector(`#${id} h2 button`);
-const foldBody = (id) => document.getElementById(foldButton(id).getAttribute('aria-controls'));
+const ROWS = () => [...prototype.experience.items, ...prototype.aiWork.items];
+const rowButton = (name) => screen.getByRole('button', { name: `More about ${name}` });
+const rowPanel = (name) => document.getElementById(rowButton(name).getAttribute('aria-controls'));
 
-test('every prototype section starts folded to its heading; links, intro and card stay open', () => {
+test('every experience and AI row starts folded to its one line; sections and projects stay open', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
-  const buttons = screen.getAllByRole('heading', { level: 2 }).map((h) => h.querySelector('button'));
-  expect(buttons.map((b) => b.closest('section').id)).toEqual(FOLDS);
-  FOLDS.forEach((id) => {
-    const button = foldButton(id);
+  ROWS().forEach(({ name, text, result }) => {
+    const button = rowButton(name);
     expect(button).toHaveAttribute('type', 'button');
     expect(button).toHaveAttribute('aria-expanded', 'false');
-    expect(foldBody(id)).toHaveAttribute('inert');
+    // The one line holds the name, the short description and the toggle.
+    const head = button.closest('.pv-entry__head');
+    expect(head).toHaveTextContent(name);
+    expect(head).toHaveTextContent(text);
+    expect(head.closest('[inert]')).toBeNull();
+    // The rest sits in the folded panel.
+    const panel = rowPanel(name);
+    expect(panel).toHaveAttribute('inert');
+    expect(panel).toContainElement(screen.getByText(result));
   });
-  // Nothing outside the sections is folded.
-  expect(document.querySelectorAll('[inert]')).toHaveLength(FOLDS.length);
+  // Only the rows fold: headings, the project grid, the links and the card do not.
+  expect(document.querySelectorAll('[inert]')).toHaveLength(ROWS().length);
+  expect(document.querySelectorAll('h2 button')).toHaveLength(0);
+  const tile = screen.getByText('Lorentz E&M solver').closest('a');
   const nav = screen.getByRole('navigation', { name: /contact and profiles/i });
   const card = screen.getByRole('link', { name: prototype.contactCard.label });
-  [nav, card, screen.getByRole('heading', { level: 1 })].forEach((el) =>
-    expect(el.closest('[inert]')).toBeNull()
-  );
+  [tile, nav, card].forEach((el) => expect(el.closest('[inert]')).toBeNull());
 });
 
-test('a click opens one prototype section and a second click folds it again', () => {
+test('a click opens one prototype row and a second click folds it again', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
-  fireEvent.click(screen.getByRole('button', { name: prototype.aiWork.heading }));
-  expect(foldButton('ai-work')).toHaveAttribute('aria-expanded', 'true');
-  expect(foldBody('ai-work')).not.toHaveAttribute('inert');
-  // The others stay folded.
-  ['experience', 'projects'].forEach((id) => {
-    expect(foldButton(id)).toHaveAttribute('aria-expanded', 'false');
-    expect(foldBody(id)).toHaveAttribute('inert');
+  const [first, ...others] = ROWS();
+  fireEvent.click(rowButton(first.name));
+  expect(rowButton(first.name)).toHaveAttribute('aria-expanded', 'true');
+  expect(rowPanel(first.name)).not.toHaveAttribute('inert');
+  others.forEach(({ name }) => {
+    expect(rowButton(name)).toHaveAttribute('aria-expanded', 'false');
+    expect(rowPanel(name)).toHaveAttribute('inert');
   });
-  fireEvent.click(foldButton('ai-work'));
-  expect(foldButton('ai-work')).toHaveAttribute('aria-expanded', 'false');
-  expect(foldBody('ai-work')).toHaveAttribute('inert');
+  fireEvent.click(rowButton(first.name));
+  expect(rowButton(first.name)).toHaveAttribute('aria-expanded', 'false');
+  expect(rowPanel(first.name)).toHaveAttribute('inert');
 });
 
-test('a hash naming a prototype section opens it, on load and on change', () => {
-  window.history.pushState({}, '', `${PREVIEW_PATH}#projects`);
+test('the name link on a folded row stays a link and does not toggle the row', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
-  expect(foldButton('projects')).toHaveAttribute('aria-expanded', 'true');
-  expect(foldButton('experience')).toHaveAttribute('aria-expanded', 'false');
-
-  window.history.pushState({}, '', `${PREVIEW_PATH}#experience`);
-  act(() => window.dispatchEvent(new HashChangeEvent('hashchange')));
-  expect(foldButton('experience')).toHaveAttribute('aria-expanded', 'true');
-  expect(foldButton('ai-work')).toHaveAttribute('aria-expanded', 'false');
+  const link = screen.getByRole('link', { name: 'lesson-builder' });
+  expect(link).toHaveAttribute('href', 'https://github.com/ihsan-sa/lesson-builder');
+  expect(link.closest('[inert]')).toBeNull();
+  fireEvent.click(link);
+  expect(rowButton('lesson-builder')).toHaveAttribute('aria-expanded', 'false');
 });
 
-test('the front page has no folded sections', () => {
+test('the front page has no folded rows', () => {
   render(<App />);
   expect(document.querySelector('[inert], [aria-expanded], .pv-fold')).toBeNull();
 });
