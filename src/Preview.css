@@ -151,3 +151,53 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pv-proto .pv-hw__result { font-size: 13px; opacity: 0.75; }
 
 .pv-proto .pv-foot { font-size: 15px; }
+
+/* Folded sections. The heading is the button and a faint + marks it, turning
+   to × when open; the body opens by height and opacity. The panel is inert
+   while folded, so [inert] is the folded state. */
+.pv-proto .pv-fold__btn {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.pv-proto .pv-fold__btn::after {
+  content: '+';
+  display: inline-block;
+  font-weight: 400;
+  opacity: 0.4;
+}
+.pv-proto .pv-fold__btn:hover::after { opacity: 0.8; }
+.pv-proto .pv-fold__btn[aria-expanded="true"]::after { transform: rotate(45deg); }
+
+.pv-proto .pv-fold { display: grid; grid-template-rows: 1fr; opacity: 1; }
+.pv-proto .pv-fold[inert] { grid-template-rows: 0fr; opacity: 0; }
+.pv-proto .pv-fold__inner {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+/* Keeps focus rings on the body's links from being clipped where supported. */
+@supports (overflow-clip-margin: 4px) {
+  .pv-proto .pv-fold__inner { overflow: clip; overflow-clip-margin: 4px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pv-proto .pv-fold { transition: grid-template-rows 220ms ease, opacity 180ms ease; }
+  .pv-proto .pv-fold__btn::after { transition: transform 180ms ease, opacity 120ms ease; }
+}
+
+@media print {
+  .pv-proto .pv-fold[inert] { grid-template-rows: 1fr; opacity: 1; }
+  .pv-proto .pv-fold__btn::after { content: none; }
+}

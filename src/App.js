@@ -222,15 +222,57 @@ function ProtoEntry({ name: entryName, text, href, result, detail, figure, docs,
   );
 }
 
+// A section folded to its heading until opened. The heading holds a real
+// button; the body is inert while folded, so its links are neither tabbable nor
+// read out. A URL hash naming the section (#projects) opens it, on load and on
+// every later hash change, and the browser's own jump then lands on it.
+const namedByHash = (id) => window.location.hash === `#${id}`;
+
+function Fold({ id, heading, children }) {
+  const [open, setOpen] = useState(() => namedByHash(id));
+
+  useEffect(() => {
+    const onHash = () => {
+      if (namedByHash(id)) setOpen(true);
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, [id]);
+
+  const bodyId = `${id}-body`;
+  return (
+    <section className="pv-block" id={id}>
+      <h2>
+        <button
+          type="button"
+          className="pv-fold__btn"
+          aria-expanded={open}
+          aria-controls={bodyId}
+          onClick={() => setOpen((o) => !o)}
+        >
+          {heading}
+        </button>
+      </h2>
+      <div className="pv-fold" id={bodyId} inert={!open}>
+        <div className="pv-fold__inner">{children}</div>
+      </div>
+    </section>
+  );
+}
+
 // Same order as the front page, with the review's changes: a result under
 // every row, the AI rows in their own order, and the contact card moved out of
-// the top row to the foot of the page.
+// the top row to the foot of the page. Every section below the intro starts
+// folded; the links row, the intro and the contact card stay open.
 function Prototype() {
   const [isDark, toggleTheme] = useTheme();
   useNoindex();
   usePreviewFont();
 
-  const sections = [prototype.experience, prototype.aiWork];
+  const sections = [
+    { id: 'experience', ...prototype.experience },
+    { id: 'ai-work', ...prototype.aiWork },
+  ];
 
   return (
     <main className="pv pv-proto">
@@ -260,9 +302,8 @@ function Prototype() {
         ))}
       </header>
 
-      {sections.map(({ heading, docs, items }) => (
-        <section className="pv-block" key={heading}>
-          <h2>{heading}</h2>
+      {sections.map(({ id, heading, docs, items }) => (
+        <Fold id={id} heading={heading} key={id}>
           {docs && (
             <p className="pv-docs pv-head-docs">
               {docs.map((doc) => (
@@ -273,11 +314,10 @@ function Prototype() {
           {items.map((item) => (
             <ProtoEntry key={item.name} {...item} />
           ))}
-        </section>
+        </Fold>
       ))}
 
-      <section className="pv-block">
-        <h2>{prototype.projects.heading}</h2>
+      <Fold id="projects" heading={prototype.projects.heading}>
         <div className="pv-hw">
           {prototype.projects.items.map(({ title, href, image, result }) => (
             <a className="pv-hw__item" href={href} key={title} {...NEW_TAB}>
@@ -287,7 +327,7 @@ function Prototype() {
             </a>
           ))}
         </div>
-      </section>
+      </Fold>
 
       <footer className="pv-foot">
         <a className="pv-link" href={prototype.contactCard.href} download>

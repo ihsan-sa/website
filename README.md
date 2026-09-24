@@ -35,6 +35,8 @@ It loads Newsreader 600 from Google Fonts itself.
 A draft of the next front page renders from the `prototype` block, only at the unguessable
 `PREVIEW_PATH` in `src/App.js`. `public/_redirects` serves `index.html` there, the page adds
 `noindex` at runtime, and nothing links to it. A snapshot test holds the front page unchanged.
+On the draft, each section below the intro starts folded to its heading and opens on a click;
+a link ending `#experience`, `#ai-work` or `#projects` opens that section.
 
 ## Where everything else lives
 
