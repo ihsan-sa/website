@@ -3,7 +3,12 @@ import './Preview.css';
 import content from './content.json';
 
 // All copy lives in content.json — edit there, not here.
-const { theme, preview } = content;
+const { theme, preview, prototype } = content;
+
+// The prototype of the next front page lives at this unguessable path. Nothing
+// links here and robots.txt does not name it; public/_redirects serves
+// index.html at it. Every other path renders the front page exactly as before.
+export const PREVIEW_PATH = '/ua6x0zhyeewlevzyh9c87r3wb29m9qlu';
 
 const THEME_KEY = 'ihsan-theme';
 const DARK_QUERY = '(prefers-color-scheme: dark)';
@@ -44,6 +49,18 @@ function useTheme() {
   };
 
   return [isDark, toggle];
+}
+
+// Keep the prototype out of search results. Added at mount rather than listed
+// in robots.txt, because listing the path there would publish it.
+function useNoindex() {
+  useEffect(() => {
+    const meta = document.createElement('meta');
+    meta.name = 'robots';
+    meta.content = 'noindex';
+    document.head.appendChild(meta);
+    return () => meta.remove();
+  }, []);
 }
 
 // Headings and names are Newsreader 600; index.html's font link does not carry
@@ -149,8 +166,141 @@ function Page() {
   );
 }
 
+// A PDF link says what it is and how long: "Showcase · PDF, 14 pages".
+function pdfLabel(label, pages) {
+  return `${label} · PDF, ${pages} ${pages === 1 ? 'page' : 'pages'}`;
+}
+
+function DocLink({ label, pages, href }) {
+  return (
+    <a className="pv-link pv-doc" href={href} {...NEW_TAB}>
+      {pdfLabel(label, pages)}
+    </a>
+  );
+}
+
+// A prototype row: the linked name and what it is, then one concrete result,
+// then optional longer sentences, a small figure, the PDFs and a pointer to the
+// one to open first. A doc with no href is a spot still waiting for its link.
+function ProtoEntry({ name: entryName, text, href, result, detail, figure, docs, start }) {
+  return (
+    <div className="pv-entry">
+      <p>
+        {href ? (
+          <a className="pv-strong pv-name-link" href={href} {...NEW_TAB}>
+            {entryName}
+          </a>
+        ) : (
+          <strong className="pv-strong">{entryName}</strong>
+        )}
+        , {text}
+      </p>
+      {result && <p className="pv-result">{result}</p>}
+      {detail && <p className="pv-detail">{detail}</p>}
+      {figure && (
+        <figure className="pv-figure">
+          <img src={figure.image} alt={figure.alt} loading="lazy" />
+          <figcaption>{figure.caption}</figcaption>
+        </figure>
+      )}
+      {docs && (
+        <p className="pv-docs">
+          {docs.map((doc, i) => (
+            <span key={doc.label}>
+              {i > 0 && ' • '}
+              {doc.href ? (
+                <DocLink {...doc} />
+              ) : (
+                <span className="pv-pending">{doc.label} ({doc.pending})</span>
+              )}
+            </span>
+          ))}
+        </p>
+      )}
+      {start && <p className="pv-start">{start}</p>}
+    </div>
+  );
+}
+
+// Same order as the front page, with the review's changes: a result under
+// every row, the AI rows in their own order, and the contact card moved out of
+// the top row to the foot of the page.
+function Prototype() {
+  const [isDark, toggleTheme] = useTheme();
+  useNoindex();
+  usePreviewFont();
+
+  const sections = [prototype.experience, prototype.aiWork];
+
+  return (
+    <main className="pv pv-proto">
+      <nav className="pv-links" aria-label="Contact and profiles">
+        <a className="pv-link" href={`mailto:${prototype.email}`}>{prototype.email}</a>
+        {prototype.links.map(({ label, href, pages }) => (
+          <a key={label} className="pv-link" href={href} {...NEW_TAB}>
+            {pages ? pdfLabel(label, pages) : label}
+          </a>
+        ))}
+        <button
+          type="button"
+          className="pv-link pv-toggle"
+          onClick={toggleTheme}
+          aria-pressed={isDark}
+          aria-label={`Switch to ${isDark ? theme.toLight : theme.toDark} theme`}
+        >
+          {isDark ? theme.toLight : theme.toDark}
+        </button>
+      </nav>
+
+      <header className="pv-intro">
+        <h1 className="pv-name">{prototype.name}</h1>
+        <p>{prototype.subtitle}</p>
+        {prototype.about.map((para, i) => (
+          <p key={i}>{para}</p>
+        ))}
+      </header>
+
+      {sections.map(({ heading, docs, items }) => (
+        <section className="pv-block" key={heading}>
+          <h2>{heading}</h2>
+          {docs && (
+            <p className="pv-docs pv-head-docs">
+              {docs.map((doc) => (
+                <DocLink key={doc.label} {...doc} />
+              ))}
+            </p>
+          )}
+          {items.map((item) => (
+            <ProtoEntry key={item.name} {...item} />
+          ))}
+        </section>
+      ))}
+
+      <section className="pv-block">
+        <h2>{prototype.projects.heading}</h2>
+        <div className="pv-hw">
+          {prototype.projects.items.map(({ title, href, image, result }) => (
+            <a className="pv-hw__item" href={href} key={title} {...NEW_TAB}>
+              <img className="pv-hw__img" src={image} alt="" loading="lazy" />
+              <span className="pv-hw__title">{title}</span>
+              {result && <span className="pv-hw__result">{result}</span>}
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <footer className="pv-foot">
+        <a className="pv-link" href={prototype.contactCard.href} download>
+          {prototype.contactCard.label}
+        </a>
+      </footer>
+    </main>
+  );
+}
+
 function App() {
-  return <Page />;
+  // Read at render, not at import, so a test can pushState before rendering.
+  return window.location.pathname === PREVIEW_PATH ? <Prototype /> : <Page />;
 }
 
 export default App;
