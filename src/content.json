@@ -89,7 +89,14 @@
             { "label": "Brief", "href": "/docs/chip-design-flow.pdf" }
           ]
         },
-        { "name": "lesson-builder", "text": "course material into interactive lessons.", "href": "https://github.com/ihsan-sa/lesson-builder" }
+        {
+          "name": "lesson-builder",
+          "text": "course material into interactive lessons.",
+          "href": "https://github.com/ihsan-sa/lesson-builder",
+          "docs": [
+            { "label": "Write-up", "href": "/docs/lesson-builder-overview.pdf" }
+          ]
+        }
       ]
     },
     "hardware": {
@@ -224,6 +231,11 @@
           "href": "https://github.com/ihsan-sa/lesson-builder",
           "result": "41 lessons built across 8 courses. Tested blind, its reviewer caught 12 of 12 planted mistakes.",
           "docs": [
+            {
+              "label": "Write-up",
+              "href": "/docs/lesson-builder-overview.pdf",
+              "pages": 11
+            },
             {
               "label": "See a generated lesson",
               "pending": "link needed"
