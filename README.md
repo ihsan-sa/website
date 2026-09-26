@@ -27,6 +27,14 @@ PDFs go in `public/docs/`: `/docs/foo.pdf` in the JSON means `public/docs/foo.pd
 To see your changes: `npm start`, then open http://localhost:3000. The page reloads as you
 save. To publish them you still need `npm run build`.
 
+## Checks
+
+Every pull request and every push to `main` runs the tests and a production build on
+GitHub Actions (`.github/workflows/ci.yml`). The result is the tick or cross beside the
+commit, and the PR's **Checks** tab; the full logs are under the repo's
+[Actions](https://github.com/ihsan-sa/website/actions) tab. A newer push cancels the run
+it replaces. Nothing is deployed from there.
+
 ## The page
 
 One single-column page built from `content.json`'s `preview` block and styled by `src/Preview.css`.
