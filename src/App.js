@@ -293,8 +293,11 @@ function Prototype() {
           <h2>{heading}</h2>
           {docs && (
             <p className="pv-docs pv-head-docs">
-              {docs.map((doc) => (
-                <DocLink key={doc.label} {...doc} />
+              {docs.map((doc, i) => (
+                <span key={doc.label}>
+                  {i > 0 && ' •\u00a0'}
+                  <DocLink {...doc} />
+                </span>
               ))}
             </p>
           )}
