@@ -40,8 +40,8 @@
     "name": "Ihsan Salari",
     "subtitle": "UWaterloo EE student building AI systems, with experience in signal integrity, datacenter optics, and RF for chip manufacturing.",
     "about": [
-      "Ethics and social impact are far too often overlooked in engineering. These, along with environmental sustainability, are core to my work. With the advent of AI, it is increasingly important that we act with morality and worldly impact in mind.",
-      "Every role I’ve held has been in a domain I was new to, and every time I was owning critical deliverables within weeks."
+      "Engineering overlooks ethics and social impact far too often. I treat them as core to my work, along with environmental sustainability, and AI makes that matter more.",
+      "Every role I’ve held was in a field new to me, and each time I owned critical deliverables within weeks."
     ],
     "email": "hi@ihsan.cc",
     "links": [
@@ -156,7 +156,7 @@
         {
           "name": "Arista Networks",
           "text": "SI and optics for AI datacenters. Fall ’25.",
-          "result": "Unblocked fabout of the two most advanced 102.4T switches by debugging 224G signal integrity on 70 GHz VNAs."
+          "result": "Debugged 224G signal integrity on 70 GHz VNAs, which unblocked fabout of the two most advanced 102.4T switches."
         },
         {
           "name": "aiRadar",
