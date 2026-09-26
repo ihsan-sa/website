@@ -103,6 +103,8 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
   .pv { padding: 32px 22px 48px; gap: 30px; }
   .pv-name { font-size: 34px; }
   .pv-links .pv-link { min-height: 32px; display: inline-flex; align-items: center; }
+  .pv-proto .pv-head-docs .pv-link,
+  .pv-proto .pv-foot .pv-link { min-height: 32px; display: inline-flex; align-items: center; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -137,6 +139,9 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pv-proto .pv-result { opacity: 0.85; }
 .pv-proto .pv-start { font-style: italic; }
 .pv-proto .pv-docs .pv-doc { font-weight: 400; }
+/* A PDF label ("Deeper look · PDF, 12 pages") never splits across lines. */
+.pv-proto .pv-docs .pv-doc,
+.pv-proto .pv-pending { white-space: nowrap; }
 .pv-proto .pv-pending { opacity: 0.6; }
 
 .pv-proto .pv-figure { margin: 6px 0 2px; max-width: 280px; }

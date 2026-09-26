@@ -95,7 +95,8 @@ function Entry({ name: entryName, text, href, docs }) {
       {docs &&
         docs.map(({ label, href: docHref }, i) => (
           <span key={label}>
-            {' • '}
+            {/* The bullet travels with the link after it, never ending a line. */}
+            {' •\u00a0'}
             <a className="pv-link pv-doc" href={docHref} {...NEW_TAB}>
               {label}
             </a>
@@ -230,7 +231,7 @@ function ProtoEntry({ name: entryName, text, href, result, detail, figure, docs,
               <p className="pv-docs">
                 {docs.map((doc, i) => (
                   <span key={doc.label}>
-                    {i > 0 && ' • '}
+                    {i > 0 && ' •\u00a0'}
                     {doc.href ? (
                       <DocLink {...doc} />
                     ) : (

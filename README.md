@@ -35,6 +35,13 @@ commit, and the PR's **Checks** tab; the full logs are under the repo's
 [Actions](https://github.com/ihsan-sa/website/actions) tab. A newer push cancels the run
 it replaces. Nothing is deployed from there.
 
+To check the pages in a real browser: `npm run build && npm run ui-check`. It serves the
+build, opens the front page and the preview at phone (390×844) and desktop (1440×900)
+widths in light and dark, opens every folded row, flips the theme, and checks every link
+and PDF answers. Screenshots and `report.json` land in `ui-check-out/`; it exits non-zero
+when something is off. It needs Playwright's Chromium 1234 (`npx playwright-core@1.62.1
+install chromium`); it runs on this machine, not in CI.
+
 ## The page
 
 One single-column page built from `content.json`'s `preview` block and styled by `src/Preview.css`.
