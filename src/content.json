@@ -26,7 +26,7 @@
     "",
     "`prototype` is the draft of the next front page, served only at the hidden",
     "path in App.js (PREVIEW_PATH). Same shape as `preview`, plus a `result` line",
-    "per row, `pages` on each PDF and the AI portfolio at the head of `aiWork`. It does not change the front page."
+    "per row, `pages` on each PDF and the AI portfolio at the head of `aiWork`. The PDFs under /docs/notes/ come from the career repo; refresh them with scripts/sync-portfolio-notes.sh, never edit them here. It does not change the front page."
   ],
 
   "theme": {
@@ -178,6 +178,11 @@
           "label": "AI portfolio",
           "href": "/docs/ai-portfolio.pdf",
           "pages": 5
+        },
+        {
+          "label": "Overview",
+          "href": "/docs/notes/overview.pdf",
+          "pages": 2
         }
       ],
       "items": [
@@ -197,6 +202,11 @@
               "label": "Showcase",
               "href": "/docs/hwde-showcase.pdf",
               "pages": 14
+            },
+            {
+              "label": "Technical note",
+              "href": "/docs/notes/hwde.pdf",
+              "pages": 4
             }
           ]
         },
@@ -221,6 +231,11 @@
               "label": "Map",
               "href": "/docs/agentic-systems-map.pdf",
               "pages": 12
+            },
+            {
+              "label": "Technical note",
+              "href": "/docs/notes/autobox.pdf",
+              "pages": 4
             }
           ],
           "start": "Start with the Overview. The Deeper look explains how it works, and the Map draws each of its agentic systems."
@@ -237,6 +252,16 @@
               "pages": 11
             },
             {
+              "label": "Technical note",
+              "href": "/docs/notes/lesson-builder.pdf",
+              "pages": 4
+            },
+            {
+              "label": "pdf-material-builder note",
+              "href": "/docs/notes/pdf-material-builder.pdf",
+              "pages": 4
+            },
+            {
               "label": "See a generated lesson",
               "pending": "link needed"
             }
@@ -251,6 +276,11 @@
               "label": "Brief",
               "href": "/docs/chip-design-flow.pdf",
               "pages": 9
+            },
+            {
+              "label": "Technical note",
+              "href": "/docs/notes/chip-flow.pdf",
+              "pages": 4
             }
           ]
         }

@@ -222,16 +222,18 @@ test('every prototype PDF says what it is and how many pages', () => {
     ...prototype.aiWork.docs,
     ...prototype.aiWork.items.flatMap(({ docs }) => docs || []).filter(({ href }) => href),
   ];
-  expect(pdfs).toHaveLength(9);
+  expect(pdfs).toHaveLength(15);
   pdfs.forEach(({ label, href, pages }) => {
     expect(Number.isInteger(pages)).toBe(true);
     const name = `${label} · PDF, ${pages} ${pages === 1 ? 'page' : 'pages'}`;
-    expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
+    // Every row's Technical note shares a name, so match on the href too.
+    const hrefs = screen.getAllByRole('link', { name }).map((a) => a.getAttribute('href'));
+    expect(hrefs).toContain(href);
   });
   expect(screen.getByText(prototype.aiWork.items[1].start)).toHaveClass('pv-start');
 });
 
-test('the prototype opens AI work with the AI portfolio, and pdf-material-builder stays shelved', () => {
+test('the prototype opens AI work with the AI portfolio, and pdf-material-builder is a note, not a row', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
   const head = screen.getByRole('link', { name: 'AI portfolio · PDF, 5 pages' });
@@ -241,7 +243,24 @@ test('the prototype opens AI work with the AI portfolio, and pdf-material-builde
   const first = screen.getByRole('link', { name: prototype.aiWork.items[0].name });
   // eslint-disable-next-line no-bitwise
   expect(head.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  expect(screen.queryByText(/pdf-material-builder/)).toBeNull();
+  // Its note hangs off the lesson-builder row; it has no row of its own.
+  expect(prototype.aiWork.items.map(({ name }) => name)).not.toContain('pdf-material-builder');
+  const lessons = prototype.aiWork.items.find(({ name }) => name === 'lesson-builder');
+  expect(lessons.docs.map(({ href }) => href)).toContain('/docs/notes/pdf-material-builder.pdf');
+});
+
+// The portfolio notes are career's files, copied byte-for-byte by
+// scripts/sync-portfolio-notes.sh; each rides on its own row as a Technical note.
+test('each portfolio note is on the page, is a PDF, and sits on its own row', () => {
+  const onRow = { hwde: 'hwde', autobox: 'autobox', 'lesson-builder': 'lesson-builder', 'chip design flow': 'chip-flow' };
+  Object.entries(onRow).forEach(([row, file]) => {
+    const { docs } = prototype.aiWork.items.find(({ name }) => name === row);
+    expect(docs).toContainEqual(expect.objectContaining({ label: 'Technical note', href: `/docs/notes/${file}.pdf` }));
+  });
+  expect(prototype.aiWork.docs.map(({ href }) => href)).toEqual(['/docs/ai-portfolio.pdf', '/docs/notes/overview.pdf']);
+  ['overview', 'autobox', 'hwde', 'chip-flow', 'lesson-builder', 'pdf-material-builder'].forEach((n) => {
+    expect(read('public', 'docs', 'notes', `${n}.pdf`).startsWith('%PDF')).toBe(true);
+  });
 });
 
 test('the prototype moves the contact card out of the top links to the foot', () => {
