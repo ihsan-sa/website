@@ -269,8 +269,8 @@
         },
         {
           "name": "chip design flow",
-          "text": "a proposal for digital, analog and mixed‑signal skills.",
-          "result": "/vde would design digital blocks in Verilog, /ade analog blocks, and /msde would split a mixed‑signal task and drive the other two. Nothing is built yet.",
+          "text": "AI chip designers for digital, analog and mixed‑signal work on open tools.",
+          "result": "/vde, /ade and /msde design digital, analog and mixed‑signal blocks for GF180 and Tiny Tapeout. A Verilog optimise loop cut a UART's area by about 30%, and each released design gets its own design‑document PDF. Two course chips — an R2R DAC and a charge‑pump PLL — are being designed with it now.",
           "docs": [
             {
               "label": "Brief",
@@ -281,6 +281,10 @@
               "label": "Technical note",
               "href": "/docs/notes/chip-flow.pdf",
               "pages": 4
+            },
+            {
+              "label": "Example design",
+              "pending": "publication under review"
             }
           ]
         }
