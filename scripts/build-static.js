@@ -413,6 +413,19 @@ const STATIC_CSS = `
 @media (prefers-reduced-motion: no-preference) {
   .pv-proto .pv-entry__mark::after { transition: transform 160ms ease; }
 }
+/* Open and close by height and opacity, like the React fold (200ms / 160ms), where
+   the browser can animate <details>. Elsewhere the row just snaps open. */
+@supports selector(::details-content) {
+  .pv-proto { interpolate-size: allow-keywords; }
+  .pv-proto details.pv-entry::details-content { block-size: 0; opacity: 0; overflow: clip; }
+  .pv-proto details.pv-entry[open]::details-content { block-size: auto; opacity: 1; }
+  @media (prefers-reduced-motion: no-preference) {
+    .pv-proto details.pv-entry::details-content {
+      transition: block-size 200ms ease, opacity 160ms ease, content-visibility 200ms allow-discrete;
+    }
+  }
+}
+@media print { .pv-proto .pv-entry__mark { display: none; } }
 `;
 
 function build(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
