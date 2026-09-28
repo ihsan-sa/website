@@ -25,3 +25,6 @@ yarn-error.log*
 
 # built from content/writing/ by scripts/writing.js
 /src/writing/essays.generated.json
+
+# built by scripts/content-pdf.js
+/content-pdf
