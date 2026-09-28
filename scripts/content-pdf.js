@@ -116,15 +116,17 @@ function renderTex(content, date = new Date()) {
     '',
   );
   p.about.forEach((para, i) => L.push(cf(para, 'about', i), ''));
-  L.push(`{\\small\\color{inkseventy}${toTex(p.email)} \\textbullet\\ ${docList(p.links, 'links')}}`, '');
+  L.push(`{\\small\\color{inkseventy}${toTex(p.email)} \\textbullet\\ ${cf(p.contactCard.label, 'contactCard', 'label')} \\textbullet\\ ${docList(p.links, 'links')}}`, '');
+  // A document beside a section heading, as the page shows it.
+  const headLink = (s, key) => (s.headLink ? [`{\\small ${cf(s.headLink.label, key, 'headLink', 'label')}}`, ''] : []);
 
   for (const key of ['experience', 'aiWork']) {
     const s = p[key];
-    L.push(`\\section{${cf(s.heading, key, 'heading')}}`);
-    if (s.docs) L.push(`{\\small ${docList(s.docs, key, 'docs')}}`, '');
+    L.push(`\\section{${cf(s.heading, key, 'heading')}}`, ...headLink(s, key));
     s.items.forEach((it, i) => {
       const k = [key, 'items', i];
-      L.push(`\\needspace{4\\baselineskip}\\noindent\\textbf{${cf(it.name, ...k, 'name')}}, ${cf(it.text, ...k, 'text')}`, '');
+      L.push(`\\needspace{4\\baselineskip}\\noindent\\textbf{${cf(it.name, ...k, 'name')}}, ${cf(it.text, ...k, 'text')}`
+        + (it.short ? ` {\\small\\color{inkfiftyfive}(on a phone: ${cf(it.short, ...k, 'short')})}` : ''), '');
       if (it.result) L.push(cf(it.result, ...k, 'result'), '');
       if (it.detail) L.push(`{\\color{inkseventy}${cf(it.detail, ...k, 'detail')}}`, '');
       if (it.figure) {
@@ -139,7 +141,11 @@ function renderTex(content, date = new Date()) {
     });
   }
 
-  L.push(`\\section{${cf(p.projects.heading, 'projects', 'heading')}}`, '\\noindent');
+  L.push(
+    `\\section{${cf(p.essays.heading, 'essays', 'heading')}}`,
+    '{\\small\\color{inkfiftyfive}The list itself is built from content/writing, where each essay is edited.}', '',
+  );
+  L.push(`\\section{${cf(p.projects.heading, 'projects', 'heading')}}`, ...headLink(p.projects, 'projects'), '\\noindent');
   p.projects.items.forEach((it, i) => {
     const k = ['projects', 'items', i];
     L.push(
@@ -152,7 +158,7 @@ function renderTex(content, date = new Date()) {
     );
   });
   L.push(
-    '', `\\vspace{12pt}{\\small ${cf(p.contactCard.label, 'contactCard', 'label')}}`, '',
+    '',
     `\\hsprovenance{Built from src/content.json on ${date.toISOString().slice(0, 10)}. Edit the text here and say “publish site content rev <R>” to put it on the site's draft page.}`,
     '\\end{document}', '',
   );

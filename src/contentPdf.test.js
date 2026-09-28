@@ -16,6 +16,11 @@ test('the untouched document reads back to the same file', () => {
   expect(applyEdits(text, tex)).toEqual({ out: text, changed: [], problems: [] });
 });
 
+test('the phone text, heading links and Essays heading are editable too', () => {
+  ['prototype.aiWork.items.0.short', 'prototype.aiWork.headLink.label', 'prototype.projects.headLink.label',
+    'prototype.essays.heading', 'prototype.contactCard.label'].forEach((k) => expect(tex).toContain(`\\cf{${k}}`));
+});
+
 test('an edit changes that one string, reflowed and unescaped, and keeps the file layout', () => {
   const edited = tex.replace('GPA 89\\%.', 'GPA 89\\%,\n  and E\\&M in first year.');
   const { out, changed, problems } = applyEdits(text, edited);

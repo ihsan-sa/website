@@ -37,6 +37,21 @@ test('the draft folds its rows with <details> and keeps the folded copy', () => 
   folded.forEach((r) => r.result && expect(html).toContain(r.result));
   folded.forEach((r) => r.detail && expect(html).toContain(r.detail));
   expect(html).not.toContain('<button type="button" class="pv-entry__btn"');
+  // A row with a `short` carries both lengths; the fold opens on the full text.
+  expect(html).toContain('<span class="pv-t-long">, RF for plasma generation. Summer ’26.</span><span class="pv-t-short">, RF plasma, ’26.</span>');
+  expect(html).toContain('<p class="pv-result pv-fold__long">RF for plasma generation. Summer ’26.</p>');
+  // No page counts anywhere, and no foot: the contact card is in the links bar.
+  expect(html).not.toMatch(/PDF, \d+ page/);
+  expect(html).not.toContain('pv-foot');
+  // The switch starts hidden, so with JavaScript off the page follows the OS theme.
+  expect(html).toMatch(/<button[^>]*class="theme-switch" role="switch"[^>]*hidden/);
+});
+
+test('the draft lists the essays it is given, and leaves the section out with none', () => {
+  const html = decode(renderDraft(content, twoEssays()));
+  expect(html).toContain(`<h2><a class="pv-strong" href="${STATIC_PATH}writing/">Essays</a></h2>`);
+  expect(html).toContain(`<a class="pv-strong pv-name-link" href="${STATIC_PATH}writing/second/">Second</a>, About Second. September ’26.`);
+  expect(decode(renderDraft(content, []))).not.toContain('<h2><a class="pv-strong"');
 });
 
 // Each case builds its own two essays: one published, one draft.
@@ -59,7 +74,10 @@ test('the review copy of /writing lists and renders drafts, all noindex', () => 
   expect(essay).toContain('A paragraph of Second with <em>emphasis</em>.');
   expect(essay).toContain('<title>Second · Ihsan Salari</title>');
   expect(essay).toContain(`href="${STATIC_PATH}writing.css"`);
-  expect(essay).not.toContain('theme-toggle');
+  expect(essay).toMatch(/<nav class="wr-top"><a class="wr-top__link" href="[^"]+">Essays<\/a><button[^>]*role="switch"[^>]*hidden/);
+  expect(essay).toContain('All essays');
+  expect(index).toContain('<h1 class="wr-index__title">Essays</h1>');
+  expect(index).toContain('<title>Essays · Ihsan Salari</title>');
   pages.forEach((p) => expect(p.html).toContain('content="noindex"'));
 });
 

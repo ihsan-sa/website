@@ -3,19 +3,22 @@
 // page, the preview path, /writing, the draft essays under the preview path,
 // and the static front page, draft, /writing and essays that
 // scripts/build-static.js writes)
-// with Playwright at phone and desktop widths, in light and dark. It
-// screenshots each page, opens every folded row, flips the theme, and checks
-// every href on the page for a 2xx. Then it loads each static page with
+// with Playwright at 360, 414, 768, 1024, 1440 and 1920 px wide, in light and
+// dark. It screenshots each page, opens every folded row, flips the theme, and
+// checks every href on the page for a 2xx. Then it loads each static page with
 // JavaScript off and checks that all its text (from content.json, or the
 // essay's markdown) is in the raw HTML and on screen, and that no React ships.
+// Last, it screenshots the static draft and one essay beside the design
+// handoff's reference HTML (docs/design-handoff/reference, read with the repo's
+// own CSS) and compares the two pixel by pixel.
 //
 //   npm run build && node scripts/ui-check.js [outDir]
 //
 // Screenshots and report.json go to outDir (default ui-check-out/, ignored).
 // Exit 1 when anything is off: a console error, a failed request, sideways
-// scroll, a local link or PDF that is not 200, a fold that does not open, or
-// a standalone tap target under 24px on the phone, or a static page missing
-// text without JavaScript. External links that answer 4xx/5xx
+// scroll (a diagram included: it must fit the column), a local link or PDF that is not 200, a fold that does not open, or
+// a standalone tap target under 24px on a phone, a static page missing
+// text without JavaScript, or a page that strays from its reference design. External links that answer 4xx/5xx
 // are listed as warnings only, since LinkedIn and friends refuse bots.
 
 const http = require('http');
@@ -51,7 +54,7 @@ const PAGES = [
 ];
 
 // Every piece of copy a page shows, from its content.json block.
-const TEXT_KEYS = new Set(['name', 'subtitle', 'about', 'email', 'heading', 'text', 'label', 'title',
+const TEXT_KEYS = new Set(['name', 'subtitle', 'about', 'email', 'heading', 'text', 'short', 'label', 'title',
   'result', 'detail', 'caption', 'start', 'pending']);
 function copyOf(node, key, out = []) {
   if (typeof node === 'string') { if (TEXT_KEYS.has(key)) out.push(node); }
@@ -62,8 +65,12 @@ function copyOf(node, key, out = []) {
   return out;
 }
 const VIEWPORTS = [
-  { name: 'phone', width: 390, height: 844, isMobile: true, hasTouch: true },
-  { name: 'desktop', width: 1440, height: 900 },
+  { name: '360', width: 360, height: 780, isMobile: true, hasTouch: true },
+  { name: '414', width: 414, height: 896, isMobile: true, hasTouch: true },
+  { name: '768', width: 768, height: 1024, isMobile: true, hasTouch: true },
+  { name: '1024', width: 1024, height: 768 },
+  { name: '1440', width: 1440, height: 900 },
+  { name: '1920', width: 1920, height: 1080 },
 ];
 const THEMES = ['light', 'dark'];
 
@@ -78,18 +85,31 @@ const TYPES = {
   '.txt': 'text/plain', '.svg': 'image/svg+xml', '.map': 'application/json',
 };
 
+// The design handoff's reference HTML, served at /__ref/ with the repo's own
+// src/ CSS in place of the handoff's copies, and its ../../public/ images from
+// the build, so a difference from our page is the markup's.
+const REF_DIR = path.join(ROOT, 'docs/design-handoff');
+const REF_ESSAY = 'talking-to-my-server';
+function refFile(url) {
+  const rest = url.slice('/__ref/'.length);
+  if (rest.startsWith('src/')) return { root: path.join(ROOT, 'src'), file: path.join(ROOT, rest) };
+  if (rest.startsWith('reference/public/')) return { root: BUILD, file: path.join(BUILD, rest.slice('reference/public/'.length)) };
+  return { root: REF_DIR, file: path.join(REF_DIR, rest) };
+}
+
 // Static server: a real file (or a directory's index.html) wins, the preview
 // path, anything under it and any other /writing path get index.html (as
 // _redirects says), and anything else is a 404 so broken links show up.
 function serve() {
   const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url.split('?')[0]);
-    let file = path.join(BUILD, url);
+    const { root, file: refPath } = url.startsWith('/__ref/') ? refFile(url) : { root: BUILD };
+    let file = refPath || path.join(BUILD, url);
     if (fs.existsSync(path.join(file, 'index.html'))) file = path.join(file, 'index.html');
     else if (url === '/' || url === PREVIEW_PATH || url.startsWith(`${PREVIEW_PATH}/writing`) || url.startsWith('/writing/')) {
       if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) file = path.join(BUILD, 'index.html');
     }
-    if (!file.startsWith(BUILD) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+    if (!file.startsWith(root) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
       res.writeHead(404);
       return res.end('not found');
     }
@@ -175,8 +195,8 @@ async function main() {
           const vw = document.documentElement.clientWidth;
           if (document.documentElement.scrollWidth > vw) out.overflow.push(`page scrollWidth ${document.documentElement.scrollWidth} > ${vw}`);
           for (const el of document.querySelectorAll('main *')) {
-            // A wide diagram or code line scrolls sideways inside its own box, by design.
-            if (el.closest('.wr-figure__frame, .wr-pre')) continue;
+            // A long code line scrolls sideways inside its own box, by design.
+            if (el.closest('.wr-pre')) continue;
             const r = el.getBoundingClientRect();
             if (r.width && r.right > vw + 1) out.overflow.push(`${el.tagName.toLowerCase()}.${el.className} right=${Math.round(r.right)}`);
           }
@@ -186,11 +206,14 @@ async function main() {
           }
           // Inline links inside a sentence are exempt (WCAG 2.5.8); the fold
           // button's target is its whole line, measured via the line itself.
-          const targets = '.pv-links a, .pv-links button, .pv-foot a, .pv-hw__item, .pv-head-docs a, .pv-entry__head';
+          // The theme switch is 34x20 but its ::before widens the target 8px
+          // on every side, which a bounding box does not see.
+          const targets = '.pv-links a, .pv-links button, .wr-top a, .wr-top button, .pv-foot a, .pv-hw__item, .pv-head-docs a, .pv-entry__head';
           for (const el of document.querySelectorAll(targets)) {
             if (el.closest('[inert]')) continue;
             const r = el.getBoundingClientRect();
-            if (r.width && r.height && (r.height < 24 || r.width < 24)) {
+            const pad = el.classList.contains('theme-switch') ? 16 : 0;
+            if (r.width && r.height && (r.height + pad < 24 || r.width + pad < 24)) {
               out.smallTargets.push(`${el.tagName.toLowerCase()} "${(el.textContent || el.getAttribute('aria-label') || '').trim().slice(0, 40)}" ${Math.round(r.width)}x${Math.round(r.height)}`);
             }
           }
@@ -199,7 +222,8 @@ async function main() {
         });
         layout.overflow.forEach((o) => problems.push(where(`overflow: ${o}`)));
         layout.brokenImgs.forEach((s) => problems.push(where(`image did not load: ${s}`)));
-        if (vp.name === 'phone') layout.smallTargets.forEach((s) => problems.push(where(`tap target under 24px: ${s}`)));
+        // Phones only: at 640px and under, where the CSS makes links 32px tall.
+        if (vp.width <= 640) layout.smallTargets.forEach((s) => problems.push(where(`tap target under 24px: ${s}`)));
         layout.hrefs.forEach((h) => { if (!hrefs.has(h)) hrefs.set(h, tag); });
 
         const shot = path.join(OUT, `${tag}.png`);
@@ -316,9 +340,9 @@ async function main() {
           }
         }
 
-        // Theme toggle flips data-theme and the page background. The essay
-        // pages have no toggle yet.
-        const toggle = page.locator('.pv-toggle');
+        // Theme toggle flips data-theme and the page background; a switch
+        // also flips aria-checked.
+        const toggle = page.locator('.pv-toggle, .theme-switch');
         if (!(await toggle.count())) {
           await context.close();
           continue;
@@ -328,6 +352,8 @@ async function main() {
         const after = await page.evaluate(() => ({ bg: getComputedStyle(document.body).backgroundColor, t: document.documentElement.dataset.theme }));
         if (after.bg === before) problems.push(where('theme toggle did not change the background'));
         if (after.t !== (theme === 'light' ? 'dark' : 'light')) problems.push(where(`theme toggle set data-theme=${after.t}`));
+        const checked = await toggle.getAttribute('aria-checked');
+        if (checked !== null && checked !== String(after.t === 'dark')) problems.push(where(`theme switch aria-checked=${checked} in ${after.t}`));
         await page.reload({ waitUntil: 'networkidle' });
         const kept = await page.evaluate(() => document.documentElement.dataset.theme);
         if (kept !== after.t) problems.push(where(`theme choice not kept across reload (${kept})`));
@@ -359,6 +385,7 @@ async function main() {
     const page = await context.newPage();
     await page.goto(base + pg.path, { waitUntil: 'networkidle' });
     const seen = await page.evaluate(() => document.querySelector('main').innerText.replace(/\s+/g, ' '));
+    if (await page.locator('.theme-switch:visible').count()) problems.push(where('theme switch shows with JavaScript off'));
     shown.flatMap((e) => (pg.index ? [e.title] : [e.title, e.standfirst]))
       .filter((t) => !seen.includes(t.replace(/\s+/g, ' '))).forEach((t) => problems.push(where(`not on screen: "${t.slice(0, 60)}"`)));
     const shot = path.join(OUT, `${pg.name}-nojs.png`);
@@ -369,7 +396,7 @@ async function main() {
   for (const pg of PAGES.filter((p) => p.block)) {
     const where = (msg) => `${pg.name}-nojs: ${msg}`;
     const raw = decode(await (await fetch(base + pg.path)).text());
-    const copy = copyOf(pg.block).concat(content.theme.toDark);
+    const copy = copyOf(pg.block).concat(pg.block === content.preview ? content.theme.toDark : []);
     copy.filter((t) => !raw.includes(t)).forEach((t) => problems.push(where(`not in the raw HTML: "${t.slice(0, 60)}"`)));
     if (/<script[^>]+src="\/static\/js\//.test(raw)) problems.push(where('ships the React bundle'));
     const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
@@ -377,13 +404,95 @@ async function main() {
     await page.goto(base + pg.path, { waitUntil: 'networkidle' });
     const seen = await page.evaluate(() => document.querySelector('main').innerText.replace(/\s+/g, ' '));
     const heads = [pg.block.name, pg.block.subtitle, ...pg.block.about, pg.block.experience.heading,
-      ...pg.block.experience.items.map((i) => i.text), ...pg.block.aiWork.items.map((i) => i.name)];
+      // At 390px a row with a `short` shows that; its full text waits in the fold.
+      ...pg.block.experience.items.map((i) => i.short || i.text), ...pg.block.aiWork.items.map((i) => i.name)];
     heads.filter((t) => !seen.includes(t.replace(/\s+/g, ' '))).forEach((t) => problems.push(where(`not on screen: "${t.slice(0, 60)}"`)));
-    if (await page.locator('.pv-toggle:visible').count()) problems.push(where('theme toggle shows with JavaScript off'));
+    if (await page.locator('.pv-toggle:visible, .theme-switch:visible').count()) problems.push(where('theme toggle shows with JavaScript off'));
     const shot = path.join(OUT, `${pg.name}-nojs.png`);
     await page.screenshot({ path: shot, fullPage: true });
     shots.push(shot);
     await context.close();
+  }
+
+  // The design reference: the static draft and one essay beside the handoff's
+  // HTML, at a phone and a desktop width in both themes. Its demo-only site.js
+  // and demo.css are left out, and its https://ihsan.cc images come from this
+  // build. A page whose height strays by more than 2%, or whose pixels differ
+  // on more than REF_TOLERANCE of the page, fails; each pair's two shots and a
+  // diff image (differing pixels in red) are saved.
+  const REF_TOLERANCE = 0.03;
+  const refs = [
+    { name: 'draft', ours: DRAFT_PATH, ref: '/__ref/reference/site/index.html' },
+    { name: `essay-${REF_ESSAY}`, ours: `${STATIC_PATH}writing/${REF_ESSAY}/`, ref: `/__ref/reference/site/essays/${REF_ESSAY}.html` },
+  ];
+  const refReport = [];
+  for (const pair of refs) {
+    for (const vp of VIEWPORTS.filter((v) => v.width === 360 || v.width === 1440)) {
+      for (const theme of THEMES) {
+        const tag = `ref-${pair.name}-${vp.name}-${theme}`;
+        const shot = async (url) => {
+          const context = await browser.newContext({
+            viewport: { width: vp.width, height: vp.height }, isMobile: !!vp.isMobile, hasTouch: !!vp.hasTouch,
+            deviceScaleFactor: 1, colorScheme: theme, reducedMotion: 'reduce',
+          });
+          await context.route(/\/(site\.js|demo\.css)$/, (r) => r.fulfill({ status: 200, body: '' }));
+          await context.route(/^https:\/\/ihsan\.cc\//, async (r) => r.fulfill({ response: await r.fetch({ url: base + new URL(r.request().url()).pathname }) }));
+          const page = await context.newPage();
+          await page.goto(base + url, { waitUntil: 'networkidle' });
+          await page.evaluate(async () => {
+            for (let y = 0; y < document.body.scrollHeight; y += 400) {
+              window.scrollTo(0, y);
+              await new Promise((r) => setTimeout(r, 30));
+            }
+            window.scrollTo(0, 0);
+            await document.fonts.ready;
+          });
+          await page.waitForLoadState('networkidle');
+          const png = await page.screenshot({ fullPage: true });
+          await context.close();
+          return png;
+        };
+        const [ours, ref] = [await shot(pair.ours), await shot(pair.ref)];
+        fs.writeFileSync(path.join(OUT, `${tag}-ours.png`), ours);
+        fs.writeFileSync(path.join(OUT, `${tag}-reference.png`), ref);
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        const d = await page.evaluate(async ([a, b]) => {
+          const load = (src) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.src = src; });
+          const [ia, ib] = await Promise.all([load(a), load(b)]);
+          const w = Math.max(ia.width, ib.width);
+          const h = Math.max(ia.height, ib.height);
+          const pixels = (img) => {
+            const c = document.createElement('canvas');
+            c.width = w; c.height = h;
+            const x = c.getContext('2d');
+            x.fillStyle = '#f0f';
+            x.fillRect(0, 0, w, h);
+            x.drawImage(img, 0, 0);
+            return x.getImageData(0, 0, w, h).data;
+          };
+          const pa = pixels(ia);
+          const pb = pixels(ib);
+          const out = document.createElement('canvas');
+          out.width = w; out.height = h;
+          const ox = out.getContext('2d');
+          const od = ox.createImageData(w, h);
+          let n = 0;
+          for (let i = 0; i < pa.length; i += 4) {
+            const diff = Math.max(Math.abs(pa[i] - pb[i]), Math.abs(pa[i + 1] - pb[i + 1]), Math.abs(pa[i + 2] - pb[i + 2]));
+            if (diff > 48) { n++; od.data[i] = 255; od.data[i + 3] = 255; } else { od.data[i] = od.data[i + 1] = od.data[i + 2] = pa[i]; od.data[i + 3] = 50; }
+          }
+          ox.putImageData(od, 0, 0);
+          return { ratio: n / (w * h), ours: ia.height, reference: ib.height, png: out.toDataURL('image/png') };
+        }, [ours, ref].map((b) => `data:image/png;base64,${b.toString('base64')}`));
+        await context.close();
+        fs.writeFileSync(path.join(OUT, `${tag}-diff.png`), Buffer.from(d.png.split(',')[1], 'base64'));
+        shots.push(path.join(OUT, `${tag}-diff.png`));
+        refReport.push({ tag, ratio: Number(d.ratio.toFixed(4)), ours: d.ours, reference: d.reference });
+        if (Math.abs(d.ours - d.reference) > 0.02 * d.reference) problems.push(`${tag}: page is ${d.ours}px tall, the reference ${d.reference}px`);
+        if (d.ratio > REF_TOLERANCE) problems.push(`${tag}: ${(d.ratio * 100).toFixed(1)}% of pixels differ from the reference`);
+      }
+    }
   }
 
   // Every href once. Local ones must be 200; mailto is checked for shape.
@@ -402,7 +511,7 @@ async function main() {
 
   await browser.close();
   server.close();
-  const report = { base, problems, warnings, links: links.map((l) => ({ ...l, url: l.url.replace(base, '') })), shots };
+  const report = { base, problems, warnings, reference: refReport, links: links.map((l) => ({ ...l, url: l.url.replace(base, '') })), shots };
   fs.writeFileSync(path.join(OUT, 'report.json'), JSON.stringify(report, null, 2));
   for (const w of warnings) console.log(`warn  ${w.replace(base, '')}`);
   for (const p of problems) console.log(`FAIL  ${p.replace(base, '')}`);

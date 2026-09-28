@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Static build: turns src/content.json into plain HTML + CSS that reads in
 // full with JavaScript off. No React ships with it. The only script on the
-// page is the theme toggle's few lines (plus the pre-paint theme script and
+// page is the theme switch's few lines (plus the pre-paint theme script and
 // the analytics beacon copied from public/index.html); the draft's folded rows
 // are <details>, so they open without any.
 //
@@ -9,7 +9,8 @@
 //
 // It writes, under buildDir (default build/):
 //   STATIC_PATH/index.html                the front page (content.json `preview`)
-//   STATIC_PATH/draft/index.html          the draft (content.json `prototype`)
+//   STATIC_PATH/draft/index.html          the draft (content.json `prototype`, and an
+//                                         Essays list from content/writing/*.md)
 //   STATIC_PATH/writing/index.html        the essay list (content/writing/*.md)
 //   STATIC_PATH/writing/<slug>/index.html each essay
 //   STATIC_PATH/site.css                  src/index.css + src/Preview.css + the static-only rules
@@ -36,9 +37,10 @@ const ROOT = path.resolve(__dirname, '..');
 const STATIC_PATH = '/fbl6b84nx8v09rotjh22t1jm6jpinmmk/';
 const DRAFT_PATH = `${STATIC_PATH}draft/`;
 
-// Headings and names are Newsreader 600, which index.html's font link lacks.
+// Headings and names are Newsreader 600 and captions italic 400, which
+// index.html's font link lacks.
 const PAGE_FONT =
-  'https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap';
+  'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap';
 
 const NEW_TAB = ' target="_blank" rel="noopener noreferrer"';
 
@@ -47,10 +49,6 @@ const esc = (s) =>
 
 // The bullet travels with the link after it, never ending a line.
 const BULLET = ' •&nbsp;';
-
-function pdfLabel(label, pages) {
-  return `${label} · PDF, ${pages} ${pages === 1 ? 'page' : 'pages'}`;
-}
 
 // public/index.html's <head>, minus comments and the CRA placeholders, and the
 // analytics <script> from its <body>.
@@ -68,7 +66,9 @@ function headFrom(indexHtml) {
 
 // The toggle is hidden until this runs, so with JavaScript off the page just
 // follows the OS theme and shows no dead button. Same rules as before: a
-// click wins and persists in localStorage['ihsan-theme'].
+// click wins and persists in localStorage['ihsan-theme']. Two kinds: the front
+// page's text button names where it goes ("Dark"); the draft's and the essays'
+// role="switch" says whether dark is on through aria-checked.
 const TOGGLE_SCRIPT = `<script>
 (function () {
   var b = document.getElementById('theme-toggle'), d = document.documentElement;
@@ -76,7 +76,9 @@ const TOGGLE_SCRIPT = `<script>
   var q = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   function dark() { var t = d.getAttribute('data-theme'); return t ? t === 'dark' : !!(q && q.matches); }
   function show() {
-    var k = dark(), to = k ? b.getAttribute('data-to-light') : b.getAttribute('data-to-dark');
+    var k = dark();
+    if (b.getAttribute('role') === 'switch') { b.setAttribute('aria-checked', String(k)); return; }
+    var to = k ? b.getAttribute('data-to-light') : b.getAttribute('data-to-dark');
     b.textContent = to;
     b.setAttribute('aria-pressed', String(k));
     b.setAttribute('aria-label', 'Switch to ' + to + ' theme');
@@ -93,24 +95,27 @@ const TOGGLE_SCRIPT = `<script>
 })();
 </script>`;
 
+// The draft's and the essays' switch, hidden until the script above runs.
+const THEME_SWITCH = '<button type="button" id="theme-toggle" class="theme-switch" role="switch" aria-checked="false" aria-label="Dark theme" title="Dark theme" hidden></button>';
+
 function toggleButton(theme) {
   return `<button type="button" id="theme-toggle" class="pv-link pv-toggle" hidden data-to-dark="${esc(theme.toDark)}" data-to-light="${esc(theme.toLight)}">${esc(theme.toDark)}</button>`;
 }
 
 // `meta` swaps in one page's own title and link-preview tags (the essays).
-// The essays load neither the page font nor the toggle, as on the React site.
 function page({ head, beacon }, { mainClass, body, noindex, meta, essay = false }) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 ${meta ? withMeta(head, meta) : head}
-${noindex ? '<meta name="robots" content="noindex" />\n' : ''}${essay ? '' : `<link href="${PAGE_FONT}" rel="stylesheet" />\n`}<link rel="stylesheet" href="${STATIC_PATH}site.css" />
+${noindex ? '<meta name="robots" content="noindex" />\n' : ''}<link href="${PAGE_FONT}" rel="stylesheet" />\n<link rel="stylesheet" href="${STATIC_PATH}site.css" />
 ${essay ? `<link rel="stylesheet" href="${STATIC_PATH}writing.css" />\n` : ''}</head>
 <body>
 <main class="${mainClass}">
 ${body}
 </main>
-${essay ? '' : `${TOGGLE_SCRIPT}\n`}${beacon}
+${TOGGLE_SCRIPT}
+${beacon}
 </body>
 </html>
 `;
@@ -167,25 +172,34 @@ ${hw}
 </section>`;
 }
 
-function docLink({ label, pages, href }) {
-  return `<a class="pv-link pv-doc" href="${esc(href)}"${NEW_TAB}>${esc(pdfLabel(label, pages))}</a>`;
-}
-
+// The draft names each PDF by what it is, with no page count.
 function docList(docs) {
   return docs
-    .map((d, i) => `<span>${i > 0 ? BULLET : ''}${d.href ? docLink(d) : `<span class="pv-pending">${esc(d.label)} (${esc(d.pending)})</span>`}</span>`)
+    .map((d, i) => `<span>${i > 0 ? BULLET : ''}${d.href
+      ? `<a class="pv-link pv-doc" href="${esc(d.href)}"${NEW_TAB}>${esc(d.label)}</a>`
+      : `<span class="pv-pending">${esc(d.label)} (${esc(d.pending)})</span>`}</span>`)
     .join('');
+}
+
+// A row's text after its name. With a `short`, the phone shows that and the
+// fold opens on the full text (Preview.css swaps them at ≤640px); the comma
+// sits inside each span so no stray space is left between them.
+function rowText({ text, short }) {
+  return short
+    ? `<span class="pv-t-long">, ${esc(text)}</span><span class="pv-t-short">, ${esc(short)}</span>`
+    : `, ${esc(text)}`;
 }
 
 // A draft row: its one line is the <summary>, and opening it shows the result,
 // the longer sentences, the figure, the PDFs and where to start.
 function protoEntry(item) {
-  const { text, result, detail, figure, docs, start } = item;
-  const line = `${nameHtml(item, 'pv-strong pv-name-link')}, ${esc(text)}`;
+  const { text, short, result, detail, figure, docs, start } = item;
+  const line = `${nameHtml(item, 'pv-strong pv-name-link')}${rowText(item)}`;
   if (!(result || detail || figure || docs || start)) {
     return `<div class="pv-entry"><p class="pv-entry__head">${line}</p></div>`;
   }
   const inner = [
+    short && `<p class="pv-result pv-fold__long">${esc(text[0].toUpperCase() + text.slice(1))}</p>`,
     result && `<p class="pv-result">${esc(result)}</p>`,
     detail && `<p class="pv-detail">${esc(detail)}</p>`,
     figure && `<figure class="pv-figure"><img src="${esc(figure.image)}" alt="${esc(figure.alt)}" loading="lazy" /><figcaption>${esc(figure.caption)}</figcaption></figure>`,
@@ -200,36 +214,65 @@ ${inner}
 </details>`;
 }
 
-function renderDraft(content) {
-  const { theme, prototype: pt } = content;
-  const links = pt.links
-    .map(({ label, href, pages }) => `<a class="pv-link" href="${esc(href)}"${NEW_TAB}>${esc(pages ? pdfLabel(label, pages) : label)}</a>`)
-    .join('\n');
+// A section heading with one document beside it (content.json `headLink`).
+function heading({ heading: h, headLink }) {
+  return headLink
+    ? `<h2 class="pv-head-with-link">${esc(h)} <a class="pv-link pv-head-link" href="${esc(headLink.href)}"${NEW_TAB}>${esc(headLink.label)}</a></h2>`
+    : `<h2>${esc(h)}</h2>`;
+}
+
+// "September ’26", from an essay's YYYY-MM-DD date.
+function monthYear(iso) {
+  const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+    'August', 'September', 'October', 'November', 'December'];
+  const [y, m] = iso.split('-');
+  return `${MONTHS[Number(m) - 1]} ’${y.slice(2)}`;
+}
+
+// `essays` is newest first. Drafts are listed, because the whole of
+// STATIC_PATH is the noindex review copy.
+function renderDraft(content, essays = []) {
+  const { prototype: pt } = content;
+  const writing = `${STATIC_PATH}writing/`;
+  const link = ({ label, href }) => `<a class="pv-link" href="${esc(href)}"${NEW_TAB}>${esc(label)}</a>`;
   const sections = [pt.experience, pt.aiWork]
-    .map(({ heading, docs, items }) => `<section class="pv-block">
-<h2>${esc(heading)}</h2>
-${docs ? `<p class="pv-docs pv-head-docs">${docList(docs)}</p>\n` : ''}${items.map(protoEntry).join('\n')}
+    .map((sec) => `<section class="pv-block">
+${heading(sec)}
+${sec.items.map(protoEntry).join('\n')}
 </section>`)
+    .join('\n');
+  const essayRows = essays
+    .map((e) => `<p><a class="pv-strong pv-name-link" href="${writing}${e.slug}/">${esc(e.title)}</a>, ${esc(e.blurb || e.summary)} ${esc(monthYear(e.date))}.</p>`)
     .join('\n');
   const projects = pt.projects.items
     .map(({ title, href, image, result }) => `<a class="pv-hw__item" href="${esc(href)}"${NEW_TAB}><img class="pv-hw__img" src="${esc(image)}" alt="" loading="lazy" /><span class="pv-hw__title">${esc(title)}</span>${result ? `<span class="pv-hw__result">${esc(result)}</span>` : ''}</a>`)
     .join('\n');
-  return `<nav class="pv-links" aria-label="Contact and profiles">
+  // Row one: how to reach me, and the theme switch. Row two: where to read more.
+  return `<nav class="pv-links pv-links--compact" aria-label="Contact and profiles">
+<span class="pv-links__row">
+<span class="pv-links__rest">
 <a class="pv-link" href="mailto:${esc(pt.email)}">${esc(pt.email)}</a>
-${links}
-${toggleButton(theme)}
+<a class="pv-link" href="${esc(pt.contactCard.href)}" download title="${esc(pt.contactCard.title)}">${esc(pt.contactCard.label)}</a>
+</span>
+${THEME_SWITCH}
+</span>
+<span class="pv-links__rest">
+<a class="pv-link" href="${writing}">${esc(pt.essays.heading)}</a>
+${pt.links.map(link).join('\n')}
+</span>
 </nav>
 ${intro(pt)}
 ${sections}
-<section class="pv-block">
-<h2>${esc(pt.projects.heading)}</h2>
+${essays.length ? `<section class="pv-block">
+<h2><a class="pv-strong" href="${writing}">${esc(pt.essays.heading)}</a></h2>
+${essayRows}
+</section>
+` : ''}<section class="pv-block">
+${heading(pt.projects)}
 <div class="pv-hw">
 ${projects}
 </div>
-</section>
-<footer class="pv-foot">
-<a class="pv-link" href="${esc(pt.contactCard.href)}" download>${esc(pt.contactCard.label)}</a>
-</footer>`;
+</section>`;
 }
 
 // ---- essays: the markup of src/writing/Writing.js, as strings ---------------
@@ -270,10 +313,10 @@ function block(b, notes, seen) {
     case 'hr': return '<hr class="wr-rule" />';
     case 'figure': {
       const { kind, src, alt, caption, width, height, missing } = b;
-      // A wide diagram keeps a readable size on a phone and scrolls sideways instead.
+      // A diagram shrinks to fit the column on a phone rather than scrolling sideways.
       const img = missing
         ? `<div class="wr-figure__missing">Figure not added yet: ${esc(src.split('/').pop())}</div>`
-        : `<img class="wr-figure__img" src="${esc(src)}" alt="${esc(alt)}"${width ? ` width="${width}"` : ''}${height ? ` height="${height}"` : ''}${width > 640 ? ' style="min-width:560px"' : ''} loading="lazy" />`;
+        : `<img class="wr-figure__img" src="${esc(src)}" alt="${esc(alt)}"${width ? ` width="${width}"` : ''}${height ? ` height="${height}"` : ''} loading="lazy" />`;
       return `<figure class="wr-figure wr-figure--${kind}"><div class="wr-figure__frame">${img}</div><figcaption class="wr-figure__caption">${il(caption)}</figcaption></figure>`;
     }
     default: return `<p class="wr-p">${il(b.c)}</p>`;
@@ -284,11 +327,6 @@ function essayMeta(e) {
   return `<p class="wr-meta"><time datetime="${esc(e.date)}">${esc(e.dateLabel)}</time><span class="wr-meta__sep"> · </span>${e.readingMinutes} min read${e.draft ? '<span class="wr-meta__draft"> · Draft</span>' : ''}</p>`;
 }
 
-function pdfNote({ note, pages }) {
-  const count = pages ? `${pages} page${pages === 1 ? '' : 's'}` : '';
-  return [note, count].filter(Boolean).join(' · ');
-}
-
 function renderEssay(e, { older, newer, base }) {
   const notes = e.footnotes;
   const seen = new Set();
@@ -296,12 +334,12 @@ function renderEssay(e, { older, newer, base }) {
     ? `<section class="wr-footnotes" aria-label="Notes"><ol>${notes.map((f) => `<li id="fn-${f.n}">${inline(f.c, notes, new Set([f.n]))} <a class="wr-footnotes__back" href="#fnref-${f.n}" aria-label="Back to note ${f.n}">↩</a></li>`).join('')}</ol></section>`
     : '';
   const reading = e.furtherReading.length
-    ? `<section class="wr-reading"><h2 class="wr-reading__head">Further reading</h2><ul class="wr-reading__list">${e.furtherReading.map((r) => `<li class="wr-reading__item"><a class="wr-reading__link" href="${esc(r.href)}"${NEW_TAB}>${esc(r.title)}</a><span class="wr-reading__note">${esc(pdfNote(r))}</span></li>`).join('')}</ul></section>`
+    ? `<section class="wr-reading"><h2 class="wr-reading__head">Further reading</h2><ul class="wr-reading__list">${e.furtherReading.map((r) => `<li class="wr-reading__item"><a class="wr-reading__link" href="${esc(r.href)}"${NEW_TAB}>${esc(r.title)}</a><span class="wr-reading__note">${esc(r.note)}</span></li>`).join('')}</ul></section>`
     : '';
   const pager = (x, dir, label) => (x
     ? `<a class="wr-pager__link wr-pager__link--${dir}" href="${base}writing/${x.slug}/"><span class="wr-pager__label">${label}</span><span class="wr-pager__title">${esc(x.title)}</span></a>`
     : '');
-  return `<nav class="wr-top"><a class="wr-top__link" href="${base}writing/">Writing</a></nav>
+  return `<nav class="wr-top"><a class="wr-top__link" href="${base}writing/">Essays</a>${THEME_SWITCH}</nav>
 <article>
 <header class="wr-head"><h1 class="wr-title">${esc(e.title)}</h1>${essayMeta(e)}<p class="wr-standfirst">${esc(e.standfirst)}</p></header>
 <div class="wr-body">
@@ -309,30 +347,33 @@ ${e.blocks.map((b) => block(b, notes, seen)).join('\n')}
 </div>
 ${foot}${reading}
 </article>
-<nav class="wr-pager" aria-label="More essays">${pager(older, 'prev', 'Previous')}${pager(newer, 'next', 'Next')}<a class="wr-pager__index" href="${base}writing/">All writing</a></nav>`;
+<nav class="wr-pager" aria-label="More essays">${pager(older, 'prev', 'Previous')}${pager(newer, 'next', 'Next')}<a class="wr-pager__index" href="${base}writing/">All essays</a></nav>`;
 }
 
-function renderIndex(essays, { base }) {
+function renderIndex(essays, { base, home }) {
   const list = essays.length
     ? `<ol class="wr-index__list">
 ${essays.map((e) => `<li class="wr-index__item"><a class="wr-index__link" href="${base}writing/${e.slug}/">${esc(e.title)}</a><p class="wr-index__summary">${esc(e.summary)}</p>${essayMeta(e)}</li>`).join('\n')}
 </ol>`
     : '<p class="wr-index__empty">Nothing here yet.</p>';
-  return `<nav class="wr-top"><a class="wr-top__link" href="${base}">Ihsan Salari</a></nav>
-<h1 class="wr-index__title">Writing</h1>
+  return `<nav class="wr-top"><a class="wr-top__link" href="${home}">Ihsan Salari</a>${THEME_SWITCH}</nav>
+<h1 class="wr-index__title">Essays</h1>
 ${list}`;
 }
 
 // Every /writing page as { rel, html }, rel being the directory under base.
 // "Draft essays never appear on the public site": with preview false a draft is
 // neither listed nor given a page, and every page is noindex when preview is on.
+// The list's name links home: the draft front page in the review copy, since
+// that is the page the essays are linked from there.
 function renderWriting(essays, shell, { base = STATIC_PATH, preview = true } = {}) {
+  const home = preview ? `${base}draft/` : base;
   const shown = preview ? essays : essays.filter((e) => !e.draft);
   const out = [{
     rel: 'writing',
     html: page(shell, {
-      mainClass: 'wr wr-index', body: renderIndex(shown, { base }), noindex: preview, essay: true,
-      meta: { title: 'Writing · Ihsan Salari', description: 'Essays on the AI systems I build.', url: `${SITE}/writing`, type: 'website' },
+      mainClass: 'wr wr-index', body: renderIndex(shown, { base, home }), noindex: preview, essay: true,
+      meta: { title: 'Essays · Ihsan Salari', description: 'Essays on the AI systems I build.', url: `${SITE}/writing`, type: 'website' },
     }),
   }];
   shown.forEach((e, i) => out.push({
@@ -348,21 +389,30 @@ function renderWriting(essays, shell, { base = STATIC_PATH, preview = true } = {
   return out;
 }
 
-// Rules only the static pages need: the hidden toggle, and the draft's rows
+// Rules only the static pages need: the hidden switches, and the draft's rows
 // folding with <details> in place of Preview.css's button-and-inert fold
-// (whose rules match nothing on these pages).
+// (whose rules match nothing on these pages). The fold marker is drawn as
+// Preview.css draws .pv-entry__btn: a + that turns 45° to × when open.
 const STATIC_CSS = `
-/* The toggle stays hidden until its script runs; the phone rule's inline-flex would show it. */
-.pv-toggle[hidden] { display: none !important; }
+/* A switch stays hidden until its script runs; the phone rule's inline-flex would show the text toggle. */
+.pv-toggle[hidden], .theme-switch[hidden] { display: none !important; }
 /* Static pages: a draft row is <details>; its <summary> is the one line. */
 .pv-proto summary.pv-entry__head { display: block; list-style: none; cursor: pointer; text-wrap: pretty; }
 /* A folded React row kept its panel's 4px top padding; keep the same rhythm. */
 .pv-proto details.pv-entry:not([open]) { padding-bottom: 4px; }
 .pv-proto summary.pv-entry__head::-webkit-details-marker { display: none; }
-.pv-proto .pv-entry__mark { display: inline-block; margin-left: 8px; padding: 0 2px; }
-.pv-proto .pv-entry__mark::after { content: '+'; display: inline-block; opacity: 0.4; }
-.pv-proto summary.pv-entry__head:hover .pv-entry__mark::after { opacity: 0.8; }
+.pv-proto .pv-entry__mark { display: inline-block; width: 14px; height: 14px; margin-left: 7px; vertical-align: -0.08em; color: var(--label); }
+.pv-proto .pv-entry__mark::after {
+  content: ''; display: block; width: 10px; height: 10px; margin: 2px;
+  background:
+    linear-gradient(currentColor, currentColor) center / 10px 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1.5px 10px no-repeat;
+}
+.pv-proto summary.pv-entry__head:hover .pv-entry__mark { color: var(--ink); }
 .pv-proto details[open] > summary .pv-entry__mark::after { transform: rotate(45deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .pv-proto .pv-entry__mark::after { transition: transform 160ms ease; }
+}
 `;
 
 function build(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
@@ -377,7 +427,7 @@ function build(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
   fs.writeFileSync(path.join(out, 'index.html'),
     page(shell, { mainClass: 'pv', body: renderFront(content), noindex: true }));
   fs.writeFileSync(path.join(buildDir, DRAFT_PATH, 'index.html'),
-    page(shell, { mainClass: 'pv pv-proto', body: renderDraft(content), noindex: true }));
+    page(shell, { mainClass: 'pv pv-proto', body: renderDraft(content, essays), noindex: true }));
   fs.copyFileSync(path.join(ROOT, 'src/writing/Writing.css'), path.join(out, 'writing.css'));
   for (const { rel, html } of renderWriting(essays, shell)) {
     fs.mkdirSync(path.join(out, rel), { recursive: true });
