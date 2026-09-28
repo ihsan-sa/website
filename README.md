@@ -24,6 +24,9 @@ Images go in `public/images/`. A path of `/images/foo.jpg` in the JSON means
 them around 480×360.
 PDFs go in `public/docs/`: `/docs/foo.pdf` in the JSON means `public/docs/foo.pdf`.
 
+To read and edit the text as a PDF in the document library instead, see
+[`docs/content-pdf.md`](docs/content-pdf.md).
+
 To see your changes: `npm start`, then open http://localhost:3000. The page reloads as you
 save. To publish them you still need `npm run build`.
 
@@ -89,6 +92,7 @@ needed. `/` stays the React page until the owner approves the switch.
 | File | What's in it |
 |---|---|
 | `src/content.json` | all copy and links |
+| `scripts/content-pdf.js` | the text as a library PDF, and an edited revision back into `content.json` ([docs](docs/content-pdf.md)) |
 | `src/content.shelved.json` | AI work rows taken off the site; nothing imports it, so none of it ships |
 | `src/App.js` | page structure and the theme toggle — rarely needs changing |
 | `src/Preview.css` | the page's styling, every rule scoped under `.pv` |
