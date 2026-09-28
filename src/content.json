@@ -26,7 +26,7 @@
     "",
     "`prototype` is the draft of the next front page, served only at the hidden",
     "path in App.js (PREVIEW_PATH). Same shape as `preview`, plus a `result` line",
-    "per row, `pages` on each PDF and the AI portfolio at the head of `aiWork`. The PDFs under /docs/notes/ come from the career repo; refresh them with scripts/sync-portfolio-notes.sh, never edit them here. It does not change the front page.",
+    "per row, an optional `short` (the row's text on a phone; the full `text` then opens the fold), a `headLink` (one document beside a section heading) and `essays` (the heading of the list built from content/writing/). `pages` on a PDF is kept but no longer shown. The PDFs under /docs/notes/ come from the career repo; refresh them with scripts/sync-portfolio-notes.sh, never edit them here. It does not change the front page.",
     "",
     "`npm run build` also writes both pages, and the essays, as plain HTML with no",
     "JavaScript needed (scripts/build-static.js), at a second hidden path. It reads",
@@ -121,7 +121,7 @@
     "name": "Ihsan Salari",
     "subtitle": "UWaterloo EE student building AI systems, with experience in signal integrity, datacenter optics, and RF for chip manufacturing.",
     "about": [
-      "I care about what my work does to people and the planet, and AI makes that matter more. So the AI systems I build keep a person in charge: hwde has someone sign off at every stage, and in autobox no agent merges its own work.",
+      "Engineering overlooks ethics and social impact far too often. I treat them as core to my work, along with environmental sustainability, and AI makes that matter more.",
       "Every role I’ve held was in a field new to me. At Fab2 I designed a 200 W GaN inverter for RF plasma in a day, then took it from schematic to first plasma in three weeks."
     ],
     "email": "hi@ihsan.cc",
@@ -138,15 +138,11 @@
         "label": "Résumé",
         "href": "/images/Ihsan_Salari_Resume.pdf",
         "pages": 1
-      },
-      {
-        "label": "Portfolio",
-        "href": "/images/Ihsan_Salari_Portfolio.pdf",
-        "pages": 13
       }
     ],
     "contactCard": {
-      "label": "Save my contact card (.vcf)",
+      "label": "Save contact",
+      "title": "Save my contact card (.vcf)",
       "href": "/images/Salari_Ihsan_Contact_Card.vcf"
     },
     "experience": {
@@ -155,44 +151,41 @@
         {
           "name": "Fab2 (Atomic Semi)",
           "text": "RF for plasma generation. Summer ’26.",
+          "short": "RF plasma, ’26.",
           "result": "Designed a V‑I probe that resolves voltage, current and phase at the load of a tens‑of‑MHz RF supply."
         },
         {
           "name": "Arista Networks",
           "text": "SI and optics for AI datacenters. Fall ’25.",
+          "short": "optics, ’25.",
           "result": "Debugged 224G signal integrity on 70 GHz VNAs, which unblocked fabout of the two most advanced 102.4T switches."
         },
         {
           "name": "aiRadar",
           "text": "power electronics for multi‑beam sonar. Winter ’25.",
+          "short": "sonar power, ’25.",
           "href": "https://docs.ihsan.cc/Projects/GaN_DCDC_Converter/overview/",
           "result": "Redesigned a 3.5 MHz multi‑stage GaN dc‑dc converter end to end, from topology choice to STM32 firmware and bring‑up."
         },
         {
           "name": "University of Waterloo",
           "text": "BASc Electrical Engineering. 2024–29.",
+          "short": "EE, 2024–29.",
           "result": "GPA 89%."
         }
       ]
     },
     "aiWork": {
       "heading": "AI work",
-      "docs": [
-        {
-          "label": "AI portfolio",
-          "href": "/docs/ai-portfolio.pdf",
-          "pages": 5
-        },
-        {
-          "label": "Overview",
-          "href": "/docs/notes/overview.pdf",
-          "pages": 2
-        }
-      ],
+      "headLink": {
+        "label": "AI portfolio",
+        "href": "/docs/ai-portfolio.pdf"
+      },
       "items": [
         {
           "name": "hwde",
           "text": "an AI PCB engineer, from brief to fabricated board.",
+          "short": "an AI PCB engineer.",
           "href": "https://github.com/ihsan-sa/hwde",
           "result": "16 boards designed, 6 ready to order and 2 made. The best run went from brief to an order‑ready board in 13.6 hours, with nobody watching.",
           "detail": "You describe the board in plain words. hwde researches the parts, picks a topology, draws the schematic, lays out and routes the board, runs the electrical and manufacturing checks, and hands you the files a factory needs. A person signs off at every stage, and ordering always waits for one. Neither made board has been powered on yet.",
@@ -217,6 +210,7 @@
         {
           "name": "autobox",
           "text": "an always‑on Claude Code agent box.",
+          "short": "an always‑on agent box.",
           "href": "https://github.com/ihsan-sa/autobox",
           "result": "550 pieces of work landed from 27 August to 20 September 2026.",
           "detail": "It’s a small computer that does software work on its own. It manages Claude Code agents, and no agent merges its own work: every change goes through the test suite, then a second agent reads it against what was asked for. When a gate fails, it sends out a repair worker by itself, so a red build gets fixed without anyone asking.",
@@ -247,6 +241,7 @@
         {
           "name": "lesson-builder",
           "text": "course material into interactive lessons.",
+          "short": "courses into lessons.",
           "href": "https://github.com/ihsan-sa/lesson-builder",
           "result": "41 lessons built across 8 courses. Tested blind, its reviewer caught 12 of 12 planted mistakes.",
           "docs": [
@@ -273,7 +268,8 @@
         },
         {
           "name": "chip design flow",
-          "text": "AI chip designers for digital, analog and mixed‑signal work on open tools.",
+          "text": "AI chip designers for digital, analog and mixed‑signal work.",
+          "short": "AI chip designers.",
           "result": "/vde, /ade and /msde design digital, analog and mixed‑signal blocks for GF180 and Tiny Tapeout. A Verilog optimise loop cut a UART's area by about 30%, and each released design gets its own design‑document PDF. Two course chips — an R2R DAC and a charge‑pump PLL — are being designed with it now.",
           "docs": [
             {
@@ -294,8 +290,15 @@
         }
       ]
     },
+    "essays": {
+      "heading": "Essays"
+    },
     "projects": {
       "heading": "Projects",
+      "headLink": {
+        "label": "Hardware portfolio",
+        "href": "/images/Ihsan_Salari_Portfolio.pdf"
+      },
       "items": [
         {
           "title": "Ionic thruster",

@@ -2,6 +2,7 @@
 title: Talking to my server all day
 date: 2026-09-28
 summary: One computer at home runs my projects, coursework and job search through Claude Code agents, and I steer it from Slack.
+blurb: what autobox is, what it runs and what I use it for.
 standfirst: One computer at home runs my projects, my coursework and my job search through Claude Code agents, and I steer it from Slack.
 draft: true
 ---

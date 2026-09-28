@@ -207,3 +207,79 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
   .pv-proto .pv-fold[inert] { grid-template-rows: 1fr; opacity: 1; }
   .pv-proto .pv-entry__btn { display: none; }
 }
+
+/* Links on the prototype, two rows. Row one: email and contact card, with the theme
+   switch at its right end. Row two: Essays and the profiles. Links in a row are joined
+   by middle dots; on a phone, gaps replace the dots so a wrapped line never starts with one. */
+.pv-proto .pv-links--compact { flex-direction: column; align-items: stretch; gap: 6px; }
+.pv-proto .pv-links__row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.pv-proto .pv-links__rest { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 0; }
+.pv-proto .pv-links__rest .pv-link { white-space: nowrap; }
+.pv-proto .pv-links__rest .pv-link + .pv-link::before {
+  content: '·';
+  display: inline-block;
+  padding: 0 9px;
+  text-decoration: none;
+  opacity: 0.5;
+}
+
+@media (max-width: 640px) {
+  .pv-proto .pv-links--compact { gap: 0; }
+  .pv-proto .pv-links__rest { gap: 0 18px; }
+  .pv-proto .pv-links__rest .pv-link + .pv-link::before { content: none; }
+}
+
+/* Fold marker: a plain drawn +, big enough to read as a control, no circle.
+   It turns 45° to × when open. Overrides the faint bare + above. */
+.pv-proto .pv-entry__btn {
+  display: inline-block;
+  position: static;
+  width: 14px;
+  height: 14px;
+  margin: 0 0 0 7px;
+  padding: 0;
+  border: 0;
+  vertical-align: -0.08em;
+  color: var(--label);
+}
+.pv-proto .pv-entry__btn::after {
+  content: '';
+  display: block;
+  width: 10px;
+  height: 10px;
+  margin: 2px;
+  opacity: 1;
+  background:
+    linear-gradient(currentColor, currentColor) center / 10px 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1.5px 10px no-repeat;
+}
+.pv-proto .pv-entry__btn[aria-expanded="true"]::after { transform: rotate(45deg); }
+.pv-proto .pv-entry__head:hover .pv-entry__btn { color: var(--ink); }
+.pv-proto .pv-entry__head:hover .pv-entry__btn::after { opacity: 1; }
+
+/* Softer ink on the prototype: a warm dark grey instead of near-black, still
+   well above 4.5:1 on paper in both themes. Scoped to .pv-proto only. */
+.pv-proto { --pv-ink: #3a352f; color: var(--pv-ink); }
+.pv-proto .pv-icon, .pv-proto .theme-switch { color: var(--pv-ink); }
+[data-theme="dark"] .pv-proto { --pv-ink: #dcd7cb; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .pv-proto { --pv-ink: #dcd7cb; }
+}
+
+/* Row text in two lengths. On a phone each row shows its short version, which fits
+   on one line at 360px and up, and the full sentence moves to the top of the fold.
+   content.json: an optional `short` next to `text`. Plain inline text, never
+   clipped: on a very narrow screen a row simply wraps. */
+.pv-proto .pv-t-short,
+.pv-proto .pv-fold__long { display: none; }
+@media (max-width: 640px) {
+  .pv-proto .pv-t-long { display: none; }
+  .pv-proto .pv-t-short { display: inline; }
+  .pv-proto .pv-fold__long { display: block; }
+}
+
+/* A section heading with one document beside it (AI work · Portfolio): same line,
+   body size, regular weight, so it reads as a link, not a second heading. */
+.pv-proto .pv-head-with-link { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.pv-proto .pv-head-link { font-size: 15px; font-weight: 400; color: var(--label); }
+.pv-proto .pv-head-link:hover { color: inherit; }

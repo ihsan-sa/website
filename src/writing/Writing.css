@@ -1,164 +1,287 @@
-/* The look of /writing. A placeholder until the Claude Design pass: swap this
-   file whole. It reads only the tokens in index.css plus the few below, and
-   Writing.js carries no styling of its own. Mobile first; wider screens add to it. */
+/* The look of /writing. Drop-in for the placeholder: same wr-* classes Writing.js
+   emits, nothing else. Reads the tokens in index.css (--paper, --ink, --ink-soft,
+   --label, --rule, --thumb-bg, --serif, --mono) plus the few below.
+   Mobile first; wider screens add to it.
+
+   The look: a set essay, not a blog template. One column, serif throughout, ink
+   links with a hairline underline (as on the front page), rules instead of boxes,
+   mono only for code. Diagrams sit on their own paper, which matches the page in
+   light mode and reads as a light rounded panel in dark mode. They are never inverted. */
 
 .wr {
-  --wr-column: 680px;
+  --wr-column: 660px;
   --wr-text: 19px;
-  --wr-sidenote: 230px;
-  --wr-diagram-paper: #faf8f3; /* the diagram tool's own paper, kept in dark mode */
+  --wr-sidenote: 220px;
+  --wr-link-rule: #cac3b7;
+  --wr-code-bg: #f2eee3;
+  --wr-diagram-paper: #faf8f3; /* the diagram tool's own paper, the same in both themes */
 
-  max-width: calc(var(--wr-column) + 40px);
+  max-width: calc(var(--wr-column) + 48px);
   margin: 0 auto;
-  padding: 32px 20px 64px;
+  padding: 32px 24px 64px;
   color: var(--ink);
+  font-family: var(--serif);
   font-size: var(--wr-text);
   line-height: 1.6;
 }
 
-.wr-top { margin-bottom: var(--gap-block); }
-.wr-top__link,
-.wr-meta,
-.wr-pager__label,
-.wr-pager__index,
-.wr-reading__head {
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.02em;
-  color: var(--label);
+[data-theme="dark"] .wr { --wr-link-rule: #4a463c; --wr-code-bg: #1f1d17; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .wr { --wr-link-rule: #4a463c; --wr-code-bg: #1f1d17; }
 }
-.wr-top__link { text-decoration: none; }
-.wr-top__link:hover { color: var(--ink); }
 
+.wr p { margin: 0; text-wrap: pretty; }
+
+/* ---- links ---- */
 .wr-link,
-.wr-index__link,
-.wr-reading__link {
-  color: var(--accent);
+.wr-top__link,
+.wr-reading__link,
+.wr-pager__index {
+  color: inherit;
   text-decoration: underline;
-  text-decoration-color: var(--accent-rule);
+  text-decoration-color: var(--wr-link-rule);
   text-underline-offset: 3px;
 }
 .wr-link:hover,
-.wr-reading__link:hover { text-decoration-color: currentColor; }
+.wr-top__link:hover,
+.wr-reading__link:hover,
+.wr-pager__index:hover { text-decoration-color: currentColor; }
+
+.wr-top { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin-bottom: 40px; font-size: 15px; line-height: 1.5; }
+.wr-top .theme-switch { margin-left: auto; }
+
+/* ---- metadata: date · reading time, plain serif in the label ink ---- */
+.wr-meta { font-size: 15px; line-height: 1.5; color: var(--label); }
+.wr-meta__draft { color: var(--ink); }
 
 /* ---- index ---- */
-.wr-index__title,
-.wr-title { font-weight: 400; line-height: 1.2; margin: 0 0 12px; }
-.wr-index__title { font-size: 32px; }
+.wr-index__title {
+  margin: 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--ink);
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
 .wr-index__list { list-style: none; margin: 0; padding: 0; }
-.wr-index__item { padding: 22px 0; border-top: 1px solid var(--rule); }
-.wr-index__link { font-size: 22px; color: var(--ink); text-decoration-color: var(--link-rule); }
-.wr-index__summary { margin: 6px 0; color: var(--ink-soft); }
-.wr-index__empty { color: var(--ink-soft); }
+.wr-index__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.wr-index__link {
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 600;
+  text-decoration: none;
+  text-wrap: balance;
+}
+/* The whole row is the tap target; the title is the link. */
+.wr-index__link::after { content: ''; position: absolute; inset: 0; }
+.wr-index__item:hover .wr-index__link { text-decoration: underline; text-decoration-color: var(--wr-link-rule); text-underline-offset: 3px; }
+.wr-index__summary { font-size: 17px; line-height: 1.5; color: var(--ink-soft); }
+.wr-index__empty { padding-top: 24px; color: var(--ink-soft); }
 
-/* ---- essay head ---- */
-.wr-title { font-size: 34px; }
-.wr-meta { margin: 0; }
-.wr-meta__draft { color: var(--accent); }
-.wr-standfirst { font-size: 22px; line-height: 1.45; color: var(--ink-soft); margin: 18px 0 var(--gap-block); }
+/* ---- essay head: title, standfirst, then date · time, closed by an ink rule ---- */
+.wr-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--ink);
+}
+.wr-title {
+  margin: 0;
+  font-size: 32px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+.wr-head .wr-standfirst { order: 1; font-size: 19px; line-height: 1.5; color: var(--ink-soft); }
+.wr-head .wr-meta { order: 2; }
 
 /* ---- body ---- */
-.wr-body > * { margin: 0 0 24px; }
-.wr-h2 { font-size: 24px; font-weight: 500; line-height: 1.3; margin-top: var(--gap-block); }
-.wr-h3 { font-size: 20px; font-weight: 500; }
-.wr-list { padding-left: 1.3em; }
-.wr-rule { border: 0; border-top: 1px solid var(--rule); }
+.wr-body { display: flex; flex-direction: column; gap: 16px; }
+.wr-body > * { margin: 0; }
+.wr-h2 { margin-top: 24px !important; font-size: 23px; line-height: 1.3; font-weight: 400; text-wrap: balance; }
+.wr-h3 { margin-top: 8px !important; font-size: 19px; line-height: 1.4; font-weight: 600; }
+.wr-list { padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; }
+.wr-rule { width: 100%; border: 0; border-top: 1px solid var(--rule); margin: 16px 0 !important; }
 
-.wr-code,
-.wr-pre {
+.wr-code {
   font-family: var(--mono);
   font-size: 0.8em;
-  background: var(--tint);
+  background: var(--wr-code-bg);
+  padding: 0.1em 0.35em;
   border-radius: 3px;
+  overflow-wrap: anywhere;
 }
-.wr-code { padding: 1px 4px; }
-.wr-pre { padding: 14px 16px; overflow-x: auto; line-height: 1.5; }
+.wr-pre {
+  margin: 8px 0 !important;
+  padding: 12px 14px;
+  background: var(--wr-code-bg);
+  border-top: 1px solid var(--ink);
+  font: 400 13px/1.55 var(--mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 .wr-pre code { font: inherit; }
 
+/* At most one per essay (the build enforces it). Ink rules, no stripe, no italics. */
 .wr-pullquote {
-  margin: var(--gap-block) 0;
-  padding: 0 0 0 18px;
-  border-left: 1px solid var(--rule);
-  font-size: 22px;
-  line-height: 1.45;
-  font-style: italic;
-  color: var(--ink-soft);
+  margin: 16px 0 !important;
+  padding: 18px 0;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  font-size: 23px;
+  line-height: 1.35;
+  text-wrap: pretty;
 }
 
-.wr-figure { margin: var(--gap-block) 0; }
+/* ---- figures ---- */
+.wr-figure { margin: 24px 0 !important; }
 .wr-figure__frame { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .wr-figure__img { display: block; width: 100%; height: auto; }
-.wr-figure--diagram .wr-figure__frame { background: var(--wr-diagram-paper); }
-.wr-figure--image .wr-figure__img { border: 1px solid var(--rule); }
+
+/* Diagrams: full column, on their own paper. Invisible edge in light, a 3px-rounded
+   light panel in dark. */
+.wr-figure--diagram .wr-figure__frame {
+  background: var(--wr-diagram-paper);
+  border-radius: 3px;
+  padding: 12px;
+}
+
+/* Images and screenshots: hairline border, centred, never taller than a screen,
+   so a portrait phone screenshot doesn't run the length of the essay. */
+.wr-figure--image .wr-figure__img {
+  width: auto;
+  max-width: 100%;
+  max-height: min(640px, 80vh);
+  margin: 0 auto;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+.wr-figure--image .wr-figure__caption { max-width: 30em; margin-inline: auto; text-align: center; }
+
 .wr-figure__missing {
-  padding: 48px 16px;
+  width: min(100%, 300px);
+  aspect-ratio: 9 / 16;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
   background: var(--thumb-bg);
-  font-family: var(--mono);
-  font-size: 12px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  font-size: 15px;
+  line-height: 1.4;
   color: var(--label);
   text-align: center;
 }
-.wr-figure__caption { margin-top: 10px; font-size: 16px; line-height: 1.5; font-style: italic; color: var(--ink-soft); }
-
-/* Dark page, light diagram: never invert the house-style figures. */
-[data-theme="dark"] .wr-figure--diagram .wr-figure__frame { border-radius: 4px; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .wr-figure--diagram .wr-figure__frame { border-radius: 4px; }
+.wr-figure__caption {
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--ink-soft);
+  text-wrap: pretty;
 }
 
 /* ---- notes: footnotes on a phone, sidenotes in the margin when there is room ---- */
-.wr-fnref { font-family: var(--mono); font-size: 0.6em; line-height: 0; }
-.wr-fnref a { color: var(--accent); text-decoration: none; padding: 0 2px; }
+.wr-fnref { font-size: 0.62em; line-height: 0; }
+.wr-fnref a { color: var(--label); text-decoration: none; padding: 0 1px; }
 .wr-sidenote { display: none; }
 
 .wr-footnotes {
-  margin-top: var(--gap-block);
-  padding-top: 18px;
+  margin-top: 40px;
+  padding-top: 16px;
   border-top: 1px solid var(--rule);
   font-size: 15px;
+  line-height: 1.5;
   color: var(--ink-soft);
 }
-.wr-footnotes ol { margin: 0; padding-left: 1.3em; }
-.wr-footnotes__back { color: var(--accent); text-decoration: none; }
+.wr-footnotes ol { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 8px; }
+.wr-footnotes li::marker { color: var(--label); }
+.wr-footnotes__back { color: var(--label); text-decoration: none; }
 
-@media (min-width: 1200px) {
+@media (min-width: 1180px) {
+  .wr-body > .wr-p { position: relative; }
+  /* Specified inline so its static top is the reference's own line; absolute lifts it
+     into the right margin beside that line. */
   .wr-sidenote {
-    display: block;
-    float: right;
-    clear: right;
+    display: inline;
+    position: absolute;
+    left: calc(100% + 40px);
     width: var(--wr-sidenote);
-    margin-right: calc(-1 * var(--wr-sidenote) - 40px);
     font-size: 14px;
-    line-height: 1.45;
+    line-height: 1.5;
+    font-style: normal;
+    font-weight: 400;
     color: var(--ink-soft);
+    text-wrap: pretty;
   }
-  .wr-sidenote__n { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .wr-sidenote__n { color: var(--label); padding-right: 2px; }
   .wr-footnotes { display: none; }
 }
 
 /* ---- further reading ---- */
-.wr-reading { margin-top: var(--gap-block); padding-top: 18px; border-top: 1px solid var(--rule); }
-.wr-reading__head { font-weight: 400; margin: 0 0 12px; }
-.wr-reading__list { list-style: none; margin: 0; padding: 0; }
-.wr-reading__item { margin-bottom: 14px; }
-.wr-reading__note { display: block; font-size: 16px; color: var(--ink-soft); }
+.wr-reading {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rule);
+}
+.wr-reading__head { margin: 0 0 16px; font-size: 15px; line-height: 1.5; font-weight: 400; color: var(--label); }
+.wr-reading__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+.wr-reading__item { display: flex; flex-direction: column; gap: 4px; }
+.wr-reading__link { font-size: 19px; line-height: 1.3; font-weight: 600; }
+.wr-reading__note { font-size: 17px; line-height: 1.5; color: var(--ink-soft); }
+.wr-reading__note::first-letter { text-transform: uppercase; }
 
-/* ---- next / previous ---- */
+/* ---- previous / next ---- */
 .wr-pager {
   display: flex;
   flex-wrap: wrap;
-  gap: 18px 24px;
-  margin-top: var(--gap-block);
-  padding-top: 18px;
-  border-top: 1px solid var(--rule);
+  gap: 20px 24px;
+  margin-top: 56px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ink);
 }
-.wr-pager__link { flex: 1 1 240px; display: flex; flex-direction: column; text-decoration: none; }
+.wr-pager__link { flex: 1 1 220px; display: flex; flex-direction: column; gap: 3px; text-decoration: none; }
 .wr-pager__link--next { text-align: right; }
-.wr-pager__title { color: var(--ink); }
-.wr-pager__link:hover .wr-pager__title { text-decoration: underline; text-decoration-color: var(--link-rule); }
-.wr-pager__index { flex-basis: 100%; }
+.wr-pager__label { font-size: 15px; line-height: 1.5; color: var(--label); }
+.wr-pager__title { font-size: 19px; line-height: 1.3; font-weight: 600; text-wrap: balance; }
+.wr-pager__link:hover .wr-pager__title { text-decoration: underline; text-decoration-color: var(--wr-link-rule); text-underline-offset: 3px; }
+.wr-pager__index { flex-basis: 100%; font-size: 15px; }
+
+.wr-missing { display: flex; flex-direction: column; gap: 16px; }
 
 @media (min-width: 720px) {
-  .wr { padding-top: 64px; }
-  .wr-title { font-size: 42px; }
+  .wr { padding-top: 80px; padding-bottom: 96px; }
+  .wr-title { font-size: 38px; }
+  .wr-index__title { font-size: 38px; }
+  .wr-h2 { font-size: 25px; }
+  .wr-pullquote { font-size: 25px; }
+  .wr-body { gap: 18px; }
+}
+
+@media (max-width: 640px) {
+  .wr { --wr-text: 18px; }
+  .wr-top__link { min-height: 32px; display: inline-flex; align-items: center; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wr-top__link, .wr-reading__link, .wr-pager__index { transition: text-decoration-color 120ms ease; }
+}
+
+@media print {
+  .wr { color: #000; }
+  .wr-sidenote { display: none; }
+  .wr-footnotes { display: block; }
 }

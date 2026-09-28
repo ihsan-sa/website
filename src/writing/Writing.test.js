@@ -156,7 +156,8 @@ test('an essay page has its head, figures, notes, further reading and pager', ()
   expect(container.querySelector('.wr-standfirst')).toHaveTextContent('M stand.');
   const diagram = container.querySelector('.wr-figure--diagram img');
   expect(diagram).toHaveAttribute('src', '/writing/middle/a.svg');
-  expect(diagram.style.minWidth).toBe('560px');
+  // It fits the column on a phone: no minimum width that would scroll sideways.
+  expect(diagram.style.minWidth).toBe('');
   expect(container.querySelector('.wr-figure--diagram figcaption')).toHaveTextContent('Cap');
   // A missing image renders a placeholder, never a broken request.
   expect(container.querySelector('.wr-figure--image img')).toBeNull();
@@ -167,7 +168,9 @@ test('an essay page has its head, figures, notes, further reading and pager', ()
   expect(container.querySelector('#fnref-1')).toHaveAttribute('href', '#fn-1');
   const reading = container.querySelector('.wr-reading__item');
   expect(reading.querySelector('a')).toHaveAttribute('target', '_blank');
-  expect(reading).toHaveTextContent('How it works · 4 pages');
+  // The note alone: the page count is dropped.
+  expect(reading.querySelector('.wr-reading__note').textContent).toBe('How it works');
+  expect(container.querySelector('.wr-pager__index')).toHaveTextContent('All essays');
   // Previous is the older essay; the draft above it is not "next" on the public site.
   expect(container.querySelector('.wr-pager__link--prev')).toHaveAttribute('href', '/writing/oldest');
   expect(container.querySelector('.wr-pager__link--next')).toBeNull();

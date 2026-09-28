@@ -9,6 +9,8 @@
 //
 // An essay starts with a front-matter block of `key: value` lines between `---`:
 //   title, date (YYYY-MM-DD), summary (one line, for the index and link previews),
+//   blurb (optional: the clause after the title in the draft front page's Essays list;
+//   the summary stands in without it),
 //   standfirst (one line under the title), draft (true keeps it off /writing), image (optional
 //   link-preview image path under public/).
 // The body is markdown: ## and ### headings, paragraphs, *em*, **strong**, `code`, [links](url),
@@ -256,6 +258,7 @@ function parseEssay(source, slug, assets = () => ({ exists: true })) {
     date: meta.date || '',
     dateLabel: meta.date ? formatDate(meta.date) : '',
     summary: meta.summary || '',
+    blurb: meta.blurb || meta.summary || '',
     standfirst: meta.standfirst || '',
     draft: meta.draft === true,
     readingMinutes: Math.max(1, Math.round(words / WORDS_PER_MINUTE)),

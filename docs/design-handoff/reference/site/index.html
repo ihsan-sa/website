@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ihsan Salari</title>
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../src/index.css">
+<link rel="stylesheet" href="../../src/Preview.css">
+<link rel="stylesheet" href="demo.css"><!-- demo only -->
+<script>
+  try {
+    var t = localStorage.getItem('ihsan-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<!-- Prototype front page (App.js › Prototype, content.json › prototype), static.
+     Changed here: a compact all-text links row (Portfolio off, Save contact and Essays on),
+     and the Dark link is now a switch. -->
+<main class="pv pv-proto">
+
+  <!-- Two rows. First: how to reach me (email, contact card) and the theme switch.
+       Second: where to read more. -->
+  <nav class="pv-links pv-links--compact" aria-label="Contact and profiles">
+    <span class="pv-links__row">
+      <span class="pv-links__rest">
+        <a class="pv-link" href="mailto:hi@ihsan.cc">hi@ihsan.cc</a>
+        <a class="pv-link" href="https://ihsan.cc/images/Salari_Ihsan_Contact_Card.vcf" download title="Save my contact card (.vcf)">Save contact</a>
+      </span>
+      <button type="button" class="theme-switch" role="switch" aria-checked="false" aria-label="Dark theme" title="Dark theme"></button>
+    </span>
+    <span class="pv-links__rest">
+      <a class="pv-link" href="essays/index.html">Essays</a>
+      <a class="pv-link" href="https://github.com/ihsan-sa" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a class="pv-link" href="https://linkedin.com/in/ihsan-sa" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="pv-link" href="https://ihsan.cc/images/Ihsan_Salari_Resume.pdf" target="_blank" rel="noopener noreferrer">Résumé</a>
+    </span>
+  </nav>
+
+  <header class="pv-intro">
+    <h1 class="pv-name">Ihsan Salari</h1>
+    <p>UWaterloo EE student building AI systems, with experience in signal integrity, datacenter optics, and RF for chip manufacturing.</p>
+    <p>Engineering overlooks ethics and social impact far too often. I treat them as core to my work, along with environmental sustainability, and AI makes that matter more.</p>
+    <p>Every role I’ve held was in a field new to me. At Fab2 I designed a 200 W GaN inverter for RF plasma in a day, then took it from schematic to first plasma in three weeks.</p>
+  </header>
+
+  <section class="pv-block">
+    <h2>Experience</h2>
+
+    <div class="pv-entry">
+      <p class="pv-entry__head"><strong class="pv-strong">Fab2 (Atomic Semi)</strong><span class="pv-t-long">, RF for plasma generation. Summer ’26.</span><span class="pv-t-short">, RF plasma, ’26.</span><button type="button" class="pv-entry__btn" aria-expanded="false" aria-controls="f-fab2" aria-label="More about Fab2 (Atomic Semi)"></button></p>
+      <div class="pv-fold" id="f-fab2" inert><div class="pv-fold__inner">
+        <p class="pv-result pv-fold__long">RF for plasma generation. Summer ’26.</p>
+        <p class="pv-result">Designed a V‑I probe that resolves voltage, current and phase at the load of a tens‑of‑MHz RF supply.</p>
+      </div></div>
+    </div>
+
+    <div class="pv-entry">
+      <p class="pv-entry__head"><strong class="pv-strong">Arista Networks</strong><span class="pv-t-long">, SI and optics for AI datacenters. Fall ’25.</span><span class="pv-t-short">, optics, ’25.</span><button type="button" class="pv-entry__btn" aria-expanded="false" aria-controls="f-arista" aria-label="More about Arista Networks"></button></p>
+      <div class="pv-fold" id="f-arista" inert><div class="pv-fold__inner">
+        <p class="pv-result pv-fold__long">SI and optics for AI datacenters. Fall ’25.</p>
+        <p class="pv-result">Debugged 224G signal integrity on 70 GHz VNAs, which unblocked fabout of the two most advanced 102.4T switches.</p>
+      </div></div>
+    </div>
+
+    <div class="pv-entry">
+      <p class="pv-entry__head"><a class="pv-strong pv-name-link" href="https://docs.ihsan.cc/Projects/GaN_DCDC_Converter/overview/" target="_blank" rel="noopener noreferrer">aiRadar</a><span class="pv-t-long">, power electronics for multi‑beam sonar. Winter ’25.</span><span class="pv-t-short">, sonar power, ’25.</span><button type="button" class="pv-entry__btn" aria-expanded="false" aria-controls="f-airadar" aria-label="More about aiRadar"></button></p>
+      <div class="pv-fold" id="f-airadar" inert><div class="pv-fold__inner">
+        <p class="pv-result pv-fold__long">Power electronics for multi‑beam sonar. Winter ’25.</p>
+        <p class="pv-result">Redesigned a 3.5 MHz multi‑stage GaN dc‑dc converter end to end, from topology choice to STM32 firmware and bring‑up.</p>
+      </div></div>
+    </div>
+
+    <div class="pv-entry">
+      <p class="pv-entry__head"><strong class="pv-strong">University of Waterloo</strong><span class="pv-t-long">, BASc Electrical Engineering. 2024–29.</span><span class="pv-t-short">, EE, 2024–29.</span><button type="button" class="pv-entry__btn" aria-expanded="false" aria-controls="f-uw" aria-label="More about University of Waterloo"></button></p>
+      <div class="pv-fold" id="f-uw" inert><div class="pv-fold__inner">
+        <p class="pv-result pv-fold__long">BASc Electrical Engineering. 2024–29.</p>
+        <p class="pv-result">GPA 89%.</p>
+      </div></div>
+    </div>
+  </section>
+
+  <section class="pv-block">
+    <h2 class="pv-head-with-link">AI work <a class="pv-link pv-head-link" href="https://ihsan.cc/docs/ai-portfolio.pdf" target="_blank" rel="noopener noreferrer">AI portfolio</a></h2>
+
+    <div class="pv-entry">
+      <p class="pv-entry__head"><a class="pv-strong pv-name-link" href="https://github.com/ihsan-sa/hwde" target="_blank" rel="noopener noreferrer">hwde</a><span class="pv-t-long">, an AI PCB engineer, from brief to fabricated board.</span><span class="pv-t-short">, an AI PCB engineer.</span><button type="button" class="pv-entry__btn" aria-expanded="false" aria-controls="f-hwde" aria-label="More about hwde"></button></p>
+      <div class="pv-fold" id="f-hwde" inert><div class="pv-fold__inner">
+        <p class="pv-result pv-fold__long">An AI PCB engineer, from brief to fabricated board.</p>
+        <p class="pv-result">16 boards designed, 6 ready to order and 2 made. The best run went from brief to an order‑ready board in 13.6 hours, with nobody watching.</p>
+        <p class="pv-detail">You describe the board in plain words. hwde researches the parts, picks a topology, draws the schematic, lays out and routes the board, runs the electrical and manufacturing checks, and hands you the files a factory needs. A person signs off at every stage, and ordering always waits for one. Neither made board has been powered on yet.</p>
+        <figure class="pv-figure">
+          <img src="https://ihsan.cc/images/hwde-lumina-carrier.jpg" alt="A rendered circuit board with connectors and a wireless module" loading="lazy">
+          <figcaption>lumina‑carrier, a 4‑layer board for a stage‑lighting fixture. It’s one of the two that were made.</figcaption>
+        </figure>
+        <p class="pv-docs"><span><a class="pv-link pv-doc" href="https://ihsan.cc/docs/hwde-showcase.pdf" target="_blank" rel="noopener noreferrer">Showcase</a></span><span> •&nbsp;<a class="pv-link pv-doc" href="https://ihsan.cc/docs/notes/hwde.pdf" target="_blank" rel="noopener noreferrer">Technical note</a></span></p>
+      </div></div>
+    </div>
+
+    <div class="pv-entry">
+      <p class="pv-entry__head"><a class="pv-strong pv-name-link" href="https://github.com/ihsan-sa/autobox" target="_blank" rel="noopener noreferrer">autobox</a><span class="pv-t-long">, an always‑on Claude Code agent box.</span><span class="pv-t-short">, an always‑on agent box.</span><button type="button" class="pv-entry__btn" aria-expanded="false" aria-controls="f-autobox" aria-label="More about autobox"></button></p>
+      <div class="pv-fold" id="f-autobox" inert><div class="pv-fold__inner">
+        <p class="pv-result pv-fold__long">An always‑on Claude Code agent box.</p>
+        <p class="pv-result">550 pieces of work landed from 27 August to 20 September 2026.</p>
+        <p class="pv-detail">It’s a small computer that does software work on its own. It manages Claude Code agents, and no agent merges its own work: every change goes through the test suite, then a second agent reads it against what was asked for. When a gate fails, it sends out a repair worker by itself, so a red build gets fixed without anyone asking.</p>
+        <p class="pv-docs"><span><a class="pv-link pv-doc" href="https://ihsan.cc/docs/autobox-pitch.pdf" target="_blank" rel="noopener noreferrer">Overview</a></span><span> •&nbsp;<a class="pv-link pv-doc" href="https://ihsan.cc/docs/autobox-deeper-look.pdf" target="_blank" rel="noopener noreferrer">Deeper look</a></span><span> •&nbsp;<a class="pv-link pv-doc" href="https://ihsan.cc/docs/agentic-systems-map.pdf" target="_blank" rel="noopener noreferrer">Map</a></span><span> •&nbsp;<a class="pv-link pv-doc" href="https://ihsan.cc/docs/notes/autobox.pdf" target="_blank" rel="noopener noreferrer">Technical note</a></span></p>
+        <p class="pv-start">Start with the Overview. The Deeper look explains how it works, and the Map draws each of its agentic systems.</p>
+      </div></div>
+    </div>
+
+    <div class="pv-entry">
+      <p class="pv-entry__head"><a class="pv-strong pv-name-link" href="https://github.com/ihsan-sa/lesson-builder" target="_blank" rel="noopener noreferrer">lesson-builder</a><span class="pv-t-long">, course material into interactive lessons.</span><span class="pv-t-short">, courses into lessons.</span><button type="button" class="pv-entry__btn" aria-expanded="false" aria-controls="f-lesson" aria-label="More about lesson-builder"></button></p>
+      <div class="pv-fold" id="f-lesson" inert><div class="pv-fold__inner">
+        <p class="pv-result pv-fold__long">Course material into interactive lessons.</p>
+        <p class="pv-result">41 lessons built across 8 courses. Tested blind, its reviewer caught 12 of 12 planted mistakes.</p>
+        <p class="pv-docs"><span><a class="pv-link pv-doc" href="https://ihsan.cc/docs/lesson-builder-overview.pdf" target="_blank" rel="noopener noreferrer">Write-up</a></span><span> •&nbsp;<a class="pv-link pv-doc" href="https://ihsan.cc/docs/notes/lesson-builder.pdf" target="_blank" rel="noopener noreferrer">Technical note</a></span><span> •&nbsp;<a class="pv-link pv-doc" href="https://ihsan.cc/docs/notes/pdf-material-builder.pdf" target="_blank" rel="noopener noreferrer">pdf-material-builder note</a></span><span> •&nbsp;<span class="pv-pending">See a generated lesson (link needed)</span></span></p>
+      </div></div>
+    </div>
+
+    <div class="pv-entry">
+      <p class="pv-entry__head"><strong class="pv-strong">chip design flow</strong><span class="pv-t-long">, AI chip designers for digital, analog and mixed‑signal work.</span><span class="pv-t-short">, AI chip designers.</span><button type="button" class="pv-entry__btn" aria-expanded="false" aria-controls="f-chip" aria-label="More about chip design flow"></button></p>
+      <div class="pv-fold" id="f-chip" inert><div class="pv-fold__inner">
+        <p class="pv-result pv-fold__long">AI chip designers for digital, analog and mixed‑signal work.</p>
+        <p class="pv-result">/vde, /ade and /msde design digital, analog and mixed‑signal blocks for GF180 and Tiny Tapeout. A Verilog optimise loop cut a UART's area by about 30%, and each released design gets its own design‑document PDF. Two course chips — an R2R DAC and a charge‑pump PLL — are being designed with it now.</p>
+        <p class="pv-docs"><span><a class="pv-link pv-doc" href="https://ihsan.cc/docs/chip-design-flow.pdf" target="_blank" rel="noopener noreferrer">Brief</a></span><span> •&nbsp;<a class="pv-link pv-doc" href="https://ihsan.cc/docs/notes/chip-flow.pdf" target="_blank" rel="noopener noreferrer">Technical note</a></span><span> •&nbsp;<span class="pv-pending">Example design (publication under review)</span></span></p>
+      </div></div>
+    </div>
+  </section>
+
+  <!-- Newest first; the heading opens the full list. One sentence per essay, like the rows above. -->
+  <section class="pv-block">
+    <h2><a class="pv-strong" href="essays/index.html">Essays</a></h2>
+    <p><a class="pv-strong pv-name-link" href="essays/talking-to-my-server.html">Talking to my server all day</a>, what autobox is, what it runs and what I use it for. September ’26.</p>
+  </section>
+
+  <section class="pv-block">
+    <h2 class="pv-head-with-link">Projects <a class="pv-link pv-head-link" href="https://ihsan.cc/images/Ihsan_Salari_Portfolio.pdf" target="_blank" rel="noopener noreferrer">Hardware portfolio</a></h2>
+    <div class="pv-hw">
+      <a class="pv-hw__item" href="https://docs.ihsan.cc/Projects/IonicThruster/overview/" target="_blank" rel="noopener noreferrer"><img class="pv-hw__img" src="https://ihsan.cc/images/ionic.jpg" alt="" loading="lazy"><span class="pv-hw__title">Ionic thruster</span><span class="pv-hw__result">1.5 m/s of ionic wind and 40 mN of thrust.</span></a>
+      <a class="pv-hw__item" href="https://docs.ihsan.cc/Projects/GaN_DCDC_Converter/overview/" target="_blank" rel="noopener noreferrer"><img class="pv-hw__img" src="https://ihsan.cc/images/dcdc3500KHz.png" alt="" loading="lazy"><span class="pv-hw__title">3.5 MHz GaN converter</span><span class="pv-hw__result">10–50 V in, 20 V out.</span></a>
+      <a class="pv-hw__item" href="https://docs.ihsan.cc/Projects/LorentzSolver/overview/" target="_blank" rel="noopener noreferrer"><img class="pv-hw__img" src="https://ihsan.cc/images/solverImage1.png" alt="" loading="lazy"><span class="pv-hw__title">Lorentz E&amp;M solver</span><span class="pv-hw__result">C++ software that traces charged‑particle paths with a hybrid RK4 and Euler integrator.</span></a>
+      <a class="pv-hw__item" href="https://docs.ihsan.cc/Projects/USB-CTriggerBoards/Rev1/overview/" target="_blank" rel="noopener noreferrer"><img class="pv-hw__img" src="https://ihsan.cc/images/usb_c_trigger_board.jpg" alt="" loading="lazy"><span class="pv-hw__title">USB‑C trigger board</span><span class="pv-hw__result">140 W USB‑C Power Delivery on a 6‑layer board.</span></a>
+      <a class="pv-hw__item" href="https://docs.ihsan.cc/Projects/LEDLightPanels/WIWO_Light/overview/" target="_blank" rel="noopener noreferrer"><img class="pv-hw__img" src="https://ihsan.cc/images/quad_high_power_floodlight.jpg" alt="" loading="lazy"><span class="pv-hw__title">Quad LED floodlight</span></a>
+      <a class="pv-hw__item" href="https://docs.ihsan.cc/Projects/BusinessCard/Rev2/overview/" target="_blank" rel="noopener noreferrer"><img class="pv-hw__img" src="https://ihsan.cc/images/usb_business_card.jpg" alt="" loading="lazy"><span class="pv-hw__title">RP2040 business card</span></a>
+    </div>
+  </section>
+</main>
+
+<script src="site.js"></script>
+</body>
+</html>

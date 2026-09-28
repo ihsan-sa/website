@@ -89,15 +89,14 @@ function Inline({ nodes, notes, seen }) {
 
 function Figure({ block, notes, seen }) {
   const { kind, src, alt, caption, width, height, missing } = block;
-  // A wide diagram keeps a readable size on a phone and scrolls sideways instead.
-  const style = width > 640 ? { minWidth: 560 } : undefined;
+  // A diagram shrinks to fit the column on a phone rather than scrolling sideways.
   return (
     <figure className={`wr-figure wr-figure--${kind}`}>
       <div className="wr-figure__frame">
         {missing ? (
           <div className="wr-figure__missing">Figure not added yet: {src.split('/').pop()}</div>
         ) : (
-          <img className="wr-figure__img" src={src} alt={alt} width={width} height={height} style={style} loading="lazy" />
+          <img className="wr-figure__img" src={src} alt={alt} width={width} height={height} loading="lazy" />
         )}
       </div>
       <figcaption className="wr-figure__caption">
@@ -152,13 +151,13 @@ function Meta({ essay }) {
 }
 
 function Index({ essays, base, preview }) {
-  useHead({ title: 'Writing · Ihsan Salari', description: 'Essays on the AI systems I build.', noindex: preview });
+  useHead({ title: 'Essays · Ihsan Salari', description: 'Essays on the AI systems I build.', noindex: preview });
   return (
     <main className="wr wr-index">
       <nav className="wr-top">
         <a className="wr-top__link" href="/">Ihsan Salari</a>
       </nav>
-      <h1 className="wr-index__title">Writing</h1>
+      <h1 className="wr-index__title">Essays</h1>
       {essays.length === 0 ? (
         <p className="wr-index__empty">Nothing here yet.</p>
       ) : (
@@ -176,11 +175,6 @@ function Index({ essays, base, preview }) {
   );
 }
 
-function pdfNote({ note, pages }) {
-  const count = pages ? `${pages} page${pages === 1 ? '' : 's'}` : '';
-  return [note, count].filter(Boolean).join(' · ');
-}
-
 function Essay({ essay, older, newer, base, preview }) {
   useHead({ title: `${essay.title} · Ihsan Salari`, description: essay.summary, noindex: preview || essay.draft });
   const notes = essay.footnotes;
@@ -188,7 +182,7 @@ function Essay({ essay, older, newer, base, preview }) {
   return (
     <main className="wr wr-essay">
       <nav className="wr-top">
-        <a className="wr-top__link" href={`${base}/writing`}>Writing</a>
+        <a className="wr-top__link" href={`${base}/writing`}>Essays</a>
       </nav>
       <article>
         <header className="wr-head">
@@ -220,7 +214,7 @@ function Essay({ essay, older, newer, base, preview }) {
               {essay.furtherReading.map((r) => (
                 <li className="wr-reading__item" key={r.href}>
                   <a className="wr-reading__link" href={r.href} {...NEW_TAB}>{r.title}</a>
-                  <span className="wr-reading__note">{pdfNote(r)}</span>
+                  <span className="wr-reading__note">{r.note}</span>
                 </li>
               ))}
             </ul>
@@ -240,7 +234,7 @@ function Essay({ essay, older, newer, base, preview }) {
             <span className="wr-pager__title">{newer.title}</span>
           </a>
         )}
-        <a className="wr-pager__index" href={`${base}/writing`}>All writing</a>
+        <a className="wr-pager__index" href={`${base}/writing`}>All essays</a>
       </nav>
     </main>
   );
@@ -251,7 +245,7 @@ function NotFound({ base }) {
   return (
     <main className="wr wr-missing">
       <p className="wr-p">There's no essay at this address.</p>
-      <a className="wr-link" href={`${base}/writing`}>All writing</a>
+      <a className="wr-link" href={`${base}/writing`}>All essays</a>
     </main>
   );
 }

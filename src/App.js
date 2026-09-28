@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from 'react';
 import './Preview.css';
 import content from './content.json';
 import Writing, { matchWriting } from './writing/Writing';
+import allEssays from './writing/essays.generated.json';
 
 // All copy lives in content.json — edit there, not here.
 const { theme, preview, prototype } = content;
@@ -67,7 +68,7 @@ function useNoindex() {
 // Headings and names are Newsreader 600; index.html's font link does not carry
 // that weight, so the page asks Google Fonts for it at mount.
 const PREVIEW_FONT =
-  'https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap';
+  'https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&display=swap';
 
 function usePreviewFont() {
   useEffect(() => {
@@ -168,29 +169,47 @@ function Page() {
   );
 }
 
-// A PDF link says what it is and how long: "Showcase · PDF, 14 pages".
-function pdfLabel(label, pages) {
-  return `${label} · PDF, ${pages} ${pages === 1 ? 'page' : 'pages'}`;
-}
-
-function DocLink({ label, pages, href }) {
+// A PDF link on the prototype names what it is, with no page count.
+function DocLink({ label, href }) {
   return (
     <a className="pv-link pv-doc" href={href} {...NEW_TAB}>
-      {pdfLabel(label, pages)}
+      {label}
     </a>
   );
+}
+
+// A section heading with one document beside it (content.json `headLink`).
+function Heading({ heading, headLink }) {
+  if (!headLink) return <h2>{heading}</h2>;
+  return (
+    <h2 className="pv-head-with-link">
+      {heading}{' '}
+      <a className="pv-link pv-head-link" href={headLink.href} {...NEW_TAB}>
+        {headLink.label}
+      </a>
+    </h2>
+  );
+}
+
+// "September ’26", from an essay's YYYY-MM-DD date.
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+  'August', 'September', 'October', 'November', 'December'];
+function monthYear(iso) {
+  const [y, m] = iso.split('-');
+  return `${MONTHS[Number(m) - 1]} ’${y.slice(2)}`;
 }
 
 // A prototype row, folded to one line until opened: the linked name and what
 // it is. Opening it shows one concrete result, then optional longer sentences,
 // a small figure, the PDFs and a pointer to the one to open first. A doc with
-// no href is a spot still waiting for its link.
+// no href is a spot still waiting for its link. With a `short`, a phone shows
+// that on the line and the full text at the top of the fold (Preview.css).
 //
 // The toggle is a real button at the end of the line; its ::before stretches
 // over the whole line, so a click anywhere on it opens the row, while the name
 // link sits above that layer and still just opens its page. The panel is inert
 // while folded, so its links are neither tabbable nor read out.
-function ProtoEntry({ name: entryName, text, href, result, detail, figure, docs, start }) {
+function ProtoEntry({ name: entryName, text, short, href, result, detail, figure, docs, start }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const hasMore = Boolean(result || detail || figure || docs || start);
@@ -205,7 +224,14 @@ function ProtoEntry({ name: entryName, text, href, result, detail, figure, docs,
         ) : (
           <strong className="pv-strong">{entryName}</strong>
         )}
-        , {text}
+        {short ? (
+          <>
+            <span className="pv-t-long">, {text}</span>
+            <span className="pv-t-short">, {short}</span>
+          </>
+        ) : (
+          `, ${text}`
+        )}
         {hasMore && (
           <button
             type="button"
@@ -220,6 +246,7 @@ function ProtoEntry({ name: entryName, text, href, result, detail, figure, docs,
       {hasMore && (
         <div className="pv-fold" id={panelId} inert={!open}>
           <div className="pv-fold__inner">
+            {short && <p className="pv-result pv-fold__long">{text[0].toUpperCase() + text.slice(1)}</p>}
             {result && <p className="pv-result">{result}</p>}
             {detail && <p className="pv-detail">{detail}</p>}
             {figure && (
@@ -232,7 +259,7 @@ function ProtoEntry({ name: entryName, text, href, result, detail, figure, docs,
               <p className="pv-docs">
                 {docs.map((doc, i) => (
                   <span key={doc.label}>
-                    {i > 0 && ' •\u00a0'}
+                    {i > 0 && ' • '}
                     {doc.href ? (
                       <DocLink {...doc} />
                     ) : (
@@ -250,35 +277,47 @@ function ProtoEntry({ name: entryName, text, href, result, detail, figure, docs,
   );
 }
 
-// Same order as the front page, with the review's changes: a result under
-// every row, the AI rows in their own order, and the contact card moved out of
-// the top row to the foot of the page. Every experience and AI row starts
-// folded to one line; the sections themselves and the project grid stay open.
-function Prototype() {
+// Same order as the front page, with the review's changes: a two-row links
+// bar with the theme switch, a result under every row, the AI rows in their
+// own order, and an Essays list (drafts too: this is the preview path). Every
+// experience and AI row starts folded to one line; the sections themselves
+// and the project grid stay open.
+export function Prototype({ essays = allEssays }) {
   const [isDark, toggleTheme] = useTheme();
   useNoindex();
   usePreviewFont();
 
   const sections = [prototype.experience, prototype.aiWork];
+  const writing = `${PREVIEW_PATH}/writing`;
 
   return (
     <main className="pv pv-proto">
-      <nav className="pv-links" aria-label="Contact and profiles">
-        <a className="pv-link" href={`mailto:${prototype.email}`}>{prototype.email}</a>
-        {prototype.links.map(({ label, href, pages }) => (
-          <a key={label} className="pv-link" href={href} {...NEW_TAB}>
-            {pages ? pdfLabel(label, pages) : label}
-          </a>
-        ))}
-        <button
-          type="button"
-          className="pv-link pv-toggle"
-          onClick={toggleTheme}
-          aria-pressed={isDark}
-          aria-label={`Switch to ${isDark ? theme.toLight : theme.toDark} theme`}
-        >
-          {isDark ? theme.toLight : theme.toDark}
-        </button>
+      <nav className="pv-links pv-links--compact" aria-label="Contact and profiles">
+        <span className="pv-links__row">
+          <span className="pv-links__rest">
+            <a className="pv-link" href={`mailto:${prototype.email}`}>{prototype.email}</a>
+            <a className="pv-link" href={prototype.contactCard.href} download title={prototype.contactCard.title}>
+              {prototype.contactCard.label}
+            </a>
+          </span>
+          <button
+            type="button"
+            className="theme-switch"
+            role="switch"
+            aria-checked={isDark}
+            aria-label="Dark theme"
+            title="Dark theme"
+            onClick={toggleTheme}
+          />
+        </span>
+        <span className="pv-links__rest">
+          <a className="pv-link" href={writing}>{prototype.essays.heading}</a>
+          {prototype.links.map(({ label, href }) => (
+            <a key={label} className="pv-link" href={href} {...NEW_TAB}>
+              {label}
+            </a>
+          ))}
+        </span>
       </nav>
 
       <header className="pv-intro">
@@ -289,27 +328,31 @@ function Prototype() {
         ))}
       </header>
 
-      {sections.map(({ heading, docs, items }) => (
-        <section className="pv-block" key={heading}>
-          <h2>{heading}</h2>
-          {docs && (
-            <p className="pv-docs pv-head-docs">
-              {docs.map((doc, i) => (
-                <span key={doc.label}>
-                  {i > 0 && ' •\u00a0'}
-                  <DocLink {...doc} />
-                </span>
-              ))}
-            </p>
-          )}
-          {items.map((item) => (
+      {sections.map((section) => (
+        <section className="pv-block" key={section.heading}>
+          <Heading {...section} />
+          {section.items.map((item) => (
             <ProtoEntry key={item.name} {...item} />
           ))}
         </section>
       ))}
 
+      {essays.length > 0 && (
+        <section className="pv-block">
+          <h2>
+            <a className="pv-strong" href={writing}>{prototype.essays.heading}</a>
+          </h2>
+          {essays.map((e) => (
+            <p key={e.slug}>
+              <a className="pv-strong pv-name-link" href={`${writing}/${e.slug}`}>{e.title}</a>
+              , {e.blurb || e.summary} {monthYear(e.date)}.
+            </p>
+          ))}
+        </section>
+      )}
+
       <section className="pv-block">
-        <h2>{prototype.projects.heading}</h2>
+        <Heading {...prototype.projects} />
         <div className="pv-hw">
           {prototype.projects.items.map(({ title, href, image, result }) => (
             <a className="pv-hw__item" href={href} key={title} {...NEW_TAB}>
@@ -320,12 +363,6 @@ function Prototype() {
           ))}
         </div>
       </section>
-
-      <footer className="pv-foot">
-        <a className="pv-link" href={prototype.contactCard.href} download>
-          {prototype.contactCard.label}
-        </a>
-      </footer>
     </main>
   );
 }

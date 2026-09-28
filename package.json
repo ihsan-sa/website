@@ -22,7 +22,8 @@
     "pretest": "node scripts/writing.js build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "ui-check": "node scripts/ui-check.js"
+    "ui-check": "node scripts/ui-check.js",
+    "content-pdf": "node scripts/content-pdf.js"
   },
   "eslintConfig": {
     "extends": [

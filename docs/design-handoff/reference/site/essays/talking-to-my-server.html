@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Talking to my server all day · Ihsan Salari</title>
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../src/index.css">
+<link rel="stylesheet" href="../../../src/writing/Writing.css">
+<link rel="stylesheet" href="../demo.css"><!-- demo only -->
+<script>
+  try {
+    var t = localStorage.getItem('ihsan-theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<!-- Writing.js › Essay, static, rendered from content/writing/talking-to-my-server.md. -->
+<main class="wr wr-essay">
+  <nav class="wr-top">
+    <a class="wr-top__link" href="index.html">Essays</a>
+    <button type="button" class="theme-switch" role="switch" aria-checked="false" aria-label="Dark theme" title="Dark theme"></button>
+  </nav>
+  <article>
+    <header class="wr-head">
+      <h1 class="wr-title">Talking to my server all day</h1>
+      <p class="wr-meta"><time datetime="2026-09-28">28 September 2026</time><span class="wr-meta__sep"> · </span>5 min read<span class="wr-meta__draft"> · Draft</span></p>
+      <p class="wr-standfirst">One computer at home runs my projects, my coursework and my job search through Claude Code agents, and I steer it from Slack.</p>
+    </header>
+    <div class="wr-body">
+      <p class="wr-p">I get asked "are you working? why are you on slack?" Well i'm not, I'm just talking to my 80+ claude code sessions which run on my server via Autobox, my orchestration system.</p>
+      <p class="wr-p">That's the short version. This post is the longer one: what the server is, what it runs, and what I actually use it for.</p>
+      <h2 class="wr-h2">What it is</h2>
+      <p class="wr-p">autobox is one Linux machine at home that runs Claude Code sessions all day. It has no screen. I give it work from Slack, usually from my phone. Each project has a planning session, and that session hands pieces of work to agents that each get their own git worktree, so they can't overwrite each other. When an agent finishes, its change goes up as a pull request and waits to be landed.</p>
+      <p class="wr-p">From 26 August to 27 September it landed about 810 pull requests, and every one was written by an agent.<span class="wr-fn"><sup class="wr-fnref"><a href="#fn-1" id="fnref-1" aria-label="Note 1">1</a></sup><span class="wr-sidenote" aria-hidden="true"><span class="wr-sidenote__n">1</span> Counted on 27 September with <code class="wr-code">git log --first-parent --since=2026-08-26</code> on the server's repository, where every commit is one landing. The number moves every day.</span></span> Much of what it builds is its own tooling. The general part of it is public as ihsan-sa/autobox.</p>
+      <figure class="wr-figure wr-figure--diagram">
+        <div class="wr-figure__frame"><img class="wr-figure__img" src="../../public/writing/talking-to-my-server/autobox-arch.svg" alt="From my phone to the public repo: I talk to one planning session per project, it hands work to agents that each have their own copy of the code, a rule table checks every command they run, and the lander is the only way a change reaches the server's code. What gets published to GitHub passes an identity check first." width="553" height="302" loading="lazy"></div>
+        <figcaption class="wr-figure__caption">From my phone to the public repo: I talk to one planning session per project, it hands work to agents that each have their own copy of the code, a rule table checks every command they run, and the lander is the only way a change reaches the server's code. What gets published to GitHub passes an identity check first.</figcaption>
+      </figure>
+      <p class="wr-p">There is no manager agent. Creating worktrees, opening pull requests, keeping the task board and sending notifications are all scripts, and they cost no tokens. The model does the parts that need judgement: planning, writing and reviewing. That also keeps each session's context small, which on this server is most of what the work costs.</p>
+      <p class="wr-p">Starting a piece of work is one line. This one opens a track in my career project and hands it an instruction:</p>
+      <pre class="wr-pre" data-lang="sh"><code>cc career outreach --go "Draft the note to the infra team and put it in the outreach doc"</code></pre>
+      <h2 class="wr-h2">The lander</h2>
+      <p class="wr-p">Nobody reads these changes before they merge, so the tests have to run on exactly what will exist afterwards. The lander is the only thing on the server that merges. It combines the change with the latest main, runs the tests on that merged result rather than on the branch, and merges only when the suite passes and a model review of the diff passes too. If either one is missing or fails, the change stays open. After a merge it restarts only the parts that changed.</p>
+      <blockquote class="wr-pullquote">Merge queues at GitHub and GitLab already test the merged result for people's code; what I did was apply the same rule to work no person reads first.</blockquote>
+      <figure class="wr-figure wr-figure--diagram">
+        <div class="wr-figure__frame"><img class="wr-figure__img" src="../../public/writing/talking-to-my-server/autobox-loop.svg" alt="Every change reaches main the same way: a planning session splits the work, an agent builds it in its own copy on its own branch, the lander tests the merged result, and a change that fails is sent back to the agent with the reason." width="553" height="220" loading="lazy"></div>
+        <figcaption class="wr-figure__caption">Every change reaches main the same way: a planning session splits the work, an agent builds it in its own copy on its own branch, the lander tests the merged result, and a change that fails is sent back to the agent with the reason.</figcaption>
+      </figure>
+      <h2 class="wr-h2">The hook and the shared library</h2>
+      <p class="wr-p">Before an agent runs a command, a hook checks it against a permission table. When I changed one rule, I replayed 14,663 commands the agents had really run through the old and the new rules, and the change newly blocked 270 of them, 1.8%. That is a false-alarm number. It tells me what the rule would cost before it shipped. I don't yet have a number for how many harmful commands the hook stops.</p>
+      <p class="wr-p">Every agent also reads one shared library of the server's journals, decisions and landing records before it states a fact about the server. That lets a session stay small: when it gets long, it writes a journal and hands over to a fresh one, and the new session picks up where the last one stopped without carrying its whole history.</p>
+      <h2 class="wr-h2">How I build these</h2>
+      <p class="wr-p">In everything I build, the model's judgement does the planning, the design and the review, and deterministic scripts and gates sit between those steps. I call it soft, hard, soft. On autobox, scripts do the bookkeeping, a permission hook decides what an agent may run and the lander decides what merges. In hwde, my circuit board harness, subagents design the board and 57 scripts check it.</p>
+      <p class="wr-p">I also keep the harnesses thin: glue over Claude Code's own runtime, with short prompts and few fixed steps. Heavy prompts and fixed procedures get written around what today's model gets wrong, and they get in the way of the next one. I want a better model to make my systems better without a rewrite, so the server's own code is meant to shrink as the platform takes over what it does.</p>
+      <p class="wr-p">When something goes wrong, the session writes a record: what failed, and who or what noticed. On 27 September there were 1,664 records, and the server had caught 83% of them without me. Records that repeat get grouped, the groups that keep coming back get investigated, and the fix lands through the same lander as any other change.</p>
+      <p class="wr-p">I also pointed a sandboxed autoresearch loop at the part of the server that posts status to Slack. It ran 21 experiments on that mechanism and kept 16, and in the simulation it measured against, Slack API calls fell from 5,366 a day to 619. Those are simulated calls, not a month of live traffic. I don't call the server self-improving, because nothing I have measures that it gets better over time. What I can show is the mechanism.</p>
+      <h2 class="wr-h2">What I use it for</h2>
+      <p class="wr-p">hwde runs on it, and that harness has taken 16 boards from a written brief toward something you can order; 2 of them have been ordered. It has built 47 interactive lessons across 14 of my courses. A timer reads the course site every 10 minutes and files what's new, and each course keeps a record of where I'm weak that the lesson tutors read.</p>
+      <p class="wr-p">It writes and files its own documentation in a library with numbered revisions, which is where the notes below come from. It also handles my job applications: the resume variants, the letters, and the outreach plan all live in a project on it. Other people use it too. Members get a sandboxed workspace and their own lessons, and a question sent to it by e-mail comes back as a built explanation.</p>
+      <figure class="wr-figure wr-figure--image">
+        <div class="wr-figure__frame"><div class="wr-figure__missing">Figure not added yet: screenshot-slack.png</div></div>
+        <figcaption class="wr-figure__caption">A Slack thread on my phone: I ask one project's planning session where a piece of work stands, and it answers in the thread with what landed and what it's doing next.</figcaption>
+      </figure>
+      <p class="wr-p">So when I'm on Slack, that's usually what's happening. I'm reading a reply from one of those sessions and typing the next instruction.</p>
+    </div>
+    <section class="wr-footnotes" aria-label="Notes">
+      <ol>
+        <li id="fn-1">Counted on 27 September with <code class="wr-code">git log --first-parent --since=2026-08-26</code> on the server's repository, where every commit is one landing. The number moves every day. <a class="wr-footnotes__back" href="#fnref-1" aria-label="Back to note 1">↩</a></li>
+      </ol>
+    </section>
+    <section class="wr-reading">
+      <h2 class="wr-reading__head">Further reading</h2>
+      <ul class="wr-reading__list">
+        <li class="wr-reading__item"><a class="wr-reading__link" href="https://library.ihsan.cc/d/006-0032-A" target="_blank" rel="noopener noreferrer">autobox technical note</a><span class="wr-reading__note">how the server is put together and how a change gets from an agent's worktree to main</span></li>
+        <li class="wr-reading__item"><a class="wr-reading__link" href="https://library.ihsan.cc/d/001-0006-A" target="_blank" rel="noopener noreferrer">The agentic systems inside autobox (public)</a><span class="wr-reading__note">the agent systems that run on the server, written for a reader outside it</span></li>
+      </ul>
+    </section>
+  </article>
+  <nav class="wr-pager" aria-label="More essays">
+    <a class="wr-pager__index" href="index.html">All essays</a>
+  </nav>
+</main>
+
+<script src="../site.js"></script>
+</body>
+</html>

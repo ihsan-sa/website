@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import fs from 'fs';
 import path from 'path';
-import App, { PREVIEW_PATH } from './App';
+import App, { PREVIEW_PATH, Prototype } from './App';
 import content from './content.json';
 import shelved from './content.shelved.json';
 
@@ -176,10 +176,13 @@ test('the prototype renders only at its path, and asks not to be indexed', () =>
 test('the prototype puts a result under every experience row and AI project', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
+  // A heading with a document beside it reads "AI work AI portfolio".
+  const withLink = ({ heading, headLink }) => (headLink ? `${heading} ${headLink.label}` : heading);
   expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
-    prototype.experience.heading,
-    prototype.aiWork.heading,
-    prototype.projects.heading,
+    withLink(prototype.experience),
+    withLink(prototype.aiWork),
+    prototype.essays.heading,
+    withLink(prototype.projects),
   ]);
   prototype.experience.items.forEach(({ result }) => {
     expect(result).toBeTruthy();
@@ -219,35 +222,32 @@ test('the prototype orders AI work hwde, autobox, lesson-builder, then the chip 
   expect(container.querySelector('img[src="/images/hwde-lumina-carrier.jpg"]')).not.toBeNull();
 });
 
-test('every prototype PDF says what it is and how many pages', () => {
+test('every prototype PDF is named by what it is, with no page count', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
-  render(<App />);
+  const { container } = render(<App />);
   const pdfs = [
     ...prototype.links.filter(({ href }) => href.endsWith('.pdf')),
-    ...prototype.aiWork.docs,
+    ...[prototype.aiWork, prototype.projects].map(({ headLink }) => headLink),
     ...prototype.aiWork.items.flatMap(({ docs }) => docs || []).filter(({ href }) => href),
   ];
-  expect(pdfs).toHaveLength(15);
-  pdfs.forEach(({ label, href, pages }) => {
-    expect(Number.isInteger(pages)).toBe(true);
-    const name = `${label} · PDF, ${pages} ${pages === 1 ? 'page' : 'pages'}`;
+  expect(pdfs).toHaveLength(14);
+  pdfs.forEach(({ label, href }) => {
     // Every row's Technical note shares a name, so match on the href too.
-    const hrefs = screen.getAllByRole('link', { name }).map((a) => a.getAttribute('href'));
+    const hrefs = screen.getAllByRole('link', { name: label }).map((a) => a.getAttribute('href'));
     expect(hrefs).toContain(href);
   });
+  expect(container.querySelector('main').textContent).not.toMatch(/\bPDF, \d+ pages?\b/);
   expect(screen.getByText(prototype.aiWork.items[1].start)).toHaveClass('pv-start');
 });
 
-test('the prototype opens AI work with the AI portfolio, and pdf-material-builder is a note, not a row', () => {
+test('the prototype puts the AI portfolio beside the AI work heading, and pdf-material-builder is a note, not a row', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
-  const head = screen.getByRole('link', { name: 'AI portfolio · PDF, 5 pages' });
+  const head = screen.getByRole('link', { name: 'AI portfolio' });
   expect(head).toHaveAttribute('href', '/docs/ai-portfolio.pdf');
+  expect(head.closest('h2')).toHaveTextContent(prototype.aiWork.heading);
   expect(read('public', 'docs', 'ai-portfolio.pdf').startsWith('%PDF')).toBe(true);
-  // It comes before the first AI row.
-  const first = screen.getByRole('link', { name: prototype.aiWork.items[0].name });
-  // eslint-disable-next-line no-bitwise
-  expect(head.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(screen.getByRole('link', { name: 'Hardware portfolio' }).closest('h2')).toHaveTextContent(prototype.projects.heading);
   // Its note hangs off the lesson-builder row; it has no row of its own.
   expect(prototype.aiWork.items.map(({ name }) => name)).not.toContain('pdf-material-builder');
   const lessons = prototype.aiWork.items.find(({ name }) => name === 'lesson-builder');
@@ -262,22 +262,65 @@ test('each portfolio note is on the page, is a PDF, and sits on its own row', ()
     const { docs } = prototype.aiWork.items.find(({ name }) => name === row);
     expect(docs).toContainEqual(expect.objectContaining({ label: 'Technical note', href: `/docs/notes/${file}.pdf` }));
   });
-  expect(prototype.aiWork.docs.map(({ href }) => href)).toEqual(['/docs/ai-portfolio.pdf', '/docs/notes/overview.pdf']);
   ['overview', 'autobox', 'hwde', 'chip-flow', 'lesson-builder', 'pdf-material-builder'].forEach((n) => {
     expect(read('public', 'docs', 'notes', `${n}.pdf`).startsWith('%PDF')).toBe(true);
   });
 });
 
-test('the prototype moves the contact card out of the top links to the foot', () => {
+test('the prototype links bar: email and contact card beside the switch, then Essays and the profiles', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
   const nav = screen.getByRole('navigation', { name: /contact and profiles/i });
-  expect(nav.querySelector('a[download]')).toBeNull();
+  const [first, second] = nav.querySelectorAll(':scope > span');
+  expect([...first.querySelectorAll('a')].map((a) => a.textContent)).toEqual([prototype.email, prototype.contactCard.label]);
   const card = screen.getByRole('link', { name: prototype.contactCard.label });
   expect(card).toHaveAttribute('download');
   expect(card).toHaveAttribute('href', prototype.contactCard.href);
-  // eslint-disable-next-line no-bitwise
-  expect(nav.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(first).toContainElement(screen.getByRole('switch', { name: 'Dark theme' }));
+  expect([...second.querySelectorAll('a')].map((a) => a.textContent)).toEqual([
+    prototype.essays.heading, ...prototype.links.map(({ label }) => label)]);
+  expect(document.querySelector('.pv-foot')).toBeNull();
+});
+
+test('the prototype theme switch says whether dark is on and persists the choice', () => {
+  localStorage.clear();
+  document.documentElement.removeAttribute('data-theme');
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  const sw = screen.getByRole('switch', { name: 'Dark theme' });
+  expect(sw).toHaveAttribute('aria-checked', 'false');
+  fireEvent.click(sw);
+  expect(sw).toHaveAttribute('aria-checked', 'true');
+  expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
+  expect(localStorage.getItem('ihsan-theme')).toBe('dark');
+  document.documentElement.removeAttribute('data-theme');
+  localStorage.clear();
+});
+
+test('a prototype row with a short text carries both, and the fold opens on the full one', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  ROWS().filter(({ short }) => short).forEach(({ name, text, short }) => {
+    const head = rowButton(name).closest('.pv-entry__head');
+    expect(head.querySelector('.pv-t-long')).toHaveTextContent(`, ${text}`);
+    expect(head.querySelector('.pv-t-short')).toHaveTextContent(`, ${short}`);
+    expect(rowPanel(name).querySelector('.pv-fold__long').textContent).toBe(text[0].toUpperCase() + text.slice(1));
+  });
+  expect(ROWS().every(({ short }) => short)).toBe(true);
+});
+
+test('the prototype lists each essay newest first, linked, with its month', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  const essays = [
+    { slug: 'b', title: 'Second', blurb: 'the newer one.', summary: 'S.', date: '2026-10-02' },
+    { slug: 'a', title: 'First', summary: 'the older one.', date: '2026-09-01' },
+  ];
+  render(<Prototype essays={essays} />);
+  const heading = screen.getByRole('heading', { name: prototype.essays.heading });
+  expect(heading.querySelector('a')).toHaveAttribute('href', `${PREVIEW_PATH}/writing`);
+  const rows = [...heading.closest('section').querySelectorAll('p')].map((p) => p.textContent);
+  expect(rows).toEqual(['Second, the newer one. October ’26.', 'First, the older one. September ’26.']);
+  expect(screen.getByRole('link', { name: 'Second' })).toHaveAttribute('href', `${PREVIEW_PATH}/writing/b`);
 });
 
 test('the prototype linked names are marked visibly clickable, and Projects covers the solver', () => {
