@@ -22,3 +22,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 /ui-check-out
+
+# built from content/writing/ by scripts/writing.js
+/src/writing/essays.generated.json
