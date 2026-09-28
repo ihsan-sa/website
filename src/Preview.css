@@ -257,13 +257,14 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pv-proto .pv-entry__head:hover .pv-entry__btn { color: var(--ink); }
 .pv-proto .pv-entry__head:hover .pv-entry__btn::after { opacity: 1; }
 
-/* Softer ink on the prototype: a warm dark grey instead of near-black, still
-   well above 4.5:1 on paper in both themes. Scoped to .pv-proto only. */
-.pv-proto { --pv-ink: #3a352f; color: var(--pv-ink); }
+/* Prototype ink, chosen on the demo's ink slider (setting 0): a warm near-black,
+   oklch(0.21 0.012 70), and in dark oklch(0.95 0.012 85). Replaces the earlier
+   placeholder grey (#3a352f / #dcd7cb). Scoped to .pv-proto only. */
+.pv-proto { --pv-ink: #1c1712; color: var(--pv-ink); }
 .pv-proto .pv-icon, .pv-proto .theme-switch { color: var(--pv-ink); }
-[data-theme="dark"] .pv-proto { --pv-ink: #dcd7cb; }
+[data-theme="dark"] .pv-proto { --pv-ink: #f2eee6; }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .pv-proto { --pv-ink: #dcd7cb; }
+  :root:not([data-theme="light"]) .pv-proto { --pv-ink: #f2eee6; }
 }
 
 /* Row text in two lengths. On a phone each row shows its short version, which fits
