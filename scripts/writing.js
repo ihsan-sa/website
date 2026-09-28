@@ -314,6 +314,7 @@ function build() {
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 // Swap the head tags a link preview reads, in build/index.html, for one page's own.
+// scripts/build-static.js uses it too, for its plain-HTML essay pages.
 function withMeta(html, { title, description, url, type, image }) {
   const set = (re, tag) => {
     if (!re.test(html)) throw new Error(`writing: build/index.html has no ${re}`);
@@ -355,7 +356,7 @@ function pages(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
   console.log(`writing: link-preview pages for /writing and ${live.length} essay(s)`);
 }
 
-module.exports = { parseEssay, parseReading, loadEssays, pages };
+module.exports = { parseEssay, parseReading, loadEssays, pages, withMeta };
 
 if (require.main === module) {
   const cmd = process.argv[2];

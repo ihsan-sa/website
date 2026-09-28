@@ -1,16 +1,21 @@
 #!/usr/bin/env node
-// UI check: serves build/ the way public/_redirects does, then drives the
-// pages (front page, the preview path, /writing and the draft essays under the
-// preview path) with Playwright at phone and
-// desktop widths, in light and dark. It screenshots each page, opens every
-// folded row, flips the theme, and checks every href on the page for a 2xx.
+// UI check: serves build/ the way the host does, then drives the pages (front
+// page, the preview path, /writing, the draft essays under the preview path,
+// and the static front page, draft, /writing and essays that
+// scripts/build-static.js writes)
+// with Playwright at phone and desktop widths, in light and dark. It
+// screenshots each page, opens every folded row, flips the theme, and checks
+// every href on the page for a 2xx. Then it loads each static page with
+// JavaScript off and checks that all its text (from content.json, or the
+// essay's markdown) is in the raw HTML and on screen, and that no React ships.
 //
 //   npm run build && node scripts/ui-check.js [outDir]
 //
 // Screenshots and report.json go to outDir (default ui-check-out/, ignored).
 // Exit 1 when anything is off: a console error, a failed request, sideways
 // scroll, a local link or PDF that is not 200, a fold that does not open, or
-// a standalone tap target under 24px on the phone. External links that answer 4xx/5xx
+// a standalone tap target under 24px on the phone, or a static page missing
+// text without JavaScript. External links that answer 4xx/5xx
 // are listed as warnings only, since LinkedIn and friends refuse bots.
 
 const http = require('http');
@@ -31,12 +36,31 @@ const ESSAYS = fs.readdirSync(path.join(ROOT, 'content/writing'))
   .filter((f) => f.endsWith('.md'))
   .map((f) => f.slice(0, -3));
 
+const { STATIC_PATH, DRAFT_PATH } = require('./build-static');
+const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/content.json'), 'utf8'));
+
 const PAGES = [
   { name: 'front', path: '/' },
   { name: 'preview', path: PREVIEW_PATH },
   { name: 'writing', path: '/writing' },
   ...ESSAYS.map((slug) => ({ name: `essay-${slug}`, path: `${PREVIEW_PATH}/writing/${slug}` })),
+  { name: 'static', path: STATIC_PATH, block: content.preview },
+  { name: 'static-draft', path: DRAFT_PATH, block: content.prototype },
+  { name: 'static-writing', path: `${STATIC_PATH}writing/`, index: true },
+  ...ESSAYS.map((slug) => ({ name: `static-essay-${slug}`, path: `${STATIC_PATH}writing/${slug}/`, essay: slug })),
 ];
+
+// Every piece of copy a page shows, from its content.json block.
+const TEXT_KEYS = new Set(['name', 'subtitle', 'about', 'email', 'heading', 'text', 'label', 'title',
+  'result', 'detail', 'caption', 'start', 'pending']);
+function copyOf(node, key, out = []) {
+  if (typeof node === 'string') { if (TEXT_KEYS.has(key)) out.push(node); }
+  else if (Array.isArray(node)) node.forEach((v) => copyOf(v, key, out));
+  else if (node && typeof node === 'object') {
+    for (const [k, v] of Object.entries(node)) if (!k.startsWith('_')) copyOf(v, k, out);
+  }
+  return out;
+}
 const VIEWPORTS = [
   { name: 'phone', width: 390, height: 844, isMobile: true, hasTouch: true },
   { name: 'desktop', width: 1440, height: 900 },
@@ -157,7 +181,7 @@ async function main() {
             if (r.width && r.right > vw + 1) out.overflow.push(`${el.tagName.toLowerCase()}.${el.className} right=${Math.round(r.right)}`);
           }
           for (const img of document.images) {
-            if (img.closest('[inert]')) continue; // lazy, loads when its fold opens
+            if (img.closest('[inert], details:not([open])')) continue; // lazy, loads when its fold opens
             if (!img.complete || img.naturalWidth === 0) out.brokenImgs.push(img.getAttribute('src'));
           }
           // Inline links inside a sentence are exempt (WCAG 2.5.8); the fold
@@ -251,6 +275,47 @@ async function main() {
           }
         }
 
+        // Static draft: every <details> row opens on a click on its line away
+        // from the link, shows its panel, and closes again; the name link opens
+        // its page without opening the row.
+        const rows = page.locator('details.pv-entry');
+        const nd = await rows.count();
+        for (let i = 0; i < nd; i++) {
+          const row = rows.nth(i);
+          await row.locator('summary .pv-entry__mark').click();
+          if (!(await row.evaluate((d) => d.open))) { problems.push(where(`details ${i} did not open`)); continue; }
+          const h = await row.locator('.pv-fold__inner').evaluate((el) => el.getBoundingClientRect().height);
+          if (h < 10) problems.push(where(`details ${i} opened but is ${h}px tall`));
+          (await row.locator('.pv-fold__inner a[href]').evaluateAll((as) => as.map((a) => a.href))).forEach((u) => { if (!hrefs.has(u)) hrefs.set(u, tag); });
+        }
+        if (nd) {
+          await page.evaluate(async () => {
+            for (let y = 0; y < document.body.scrollHeight; y += 400) {
+              window.scrollTo(0, y);
+              await new Promise((r) => setTimeout(r, 30));
+            }
+            window.scrollTo(0, 0);
+          });
+          await page.waitForLoadState('networkidle');
+          const broken = await page.evaluate(() => [...document.images].filter((i) => !i.complete || i.naturalWidth === 0).map((i) => i.getAttribute('src')));
+          broken.forEach((s) => problems.push(where(`image did not load with rows open: ${s}`)));
+          const openShot = path.join(OUT, `${tag}-open.png`);
+          await page.screenshot({ path: openShot, fullPage: true });
+          shots.push(openShot);
+          for (let i = 0; i < nd; i++) {
+            const row = rows.nth(i);
+            await row.locator('summary .pv-entry__mark').click();
+            if (await row.evaluate((d) => d.open)) problems.push(where(`details ${i} did not close`));
+          }
+          const link = page.locator('details.pv-entry summary a.pv-name-link').first();
+          if (await link.count()) {
+            const [popup] = await Promise.all([context.waitForEvent('page', { timeout: 5000 }).catch(() => null), link.click()]);
+            if (!popup) problems.push(where('name link did not open a new tab'));
+            else await popup.close();
+            if (await link.evaluate((a) => a.closest('details').open)) problems.push(where('clicking the name link also opened the row'));
+          }
+        }
+
         // Theme toggle flips data-theme and the page background. The essay
         // pages have no toggle yet.
         const toggle = page.locator('.pv-toggle');
@@ -270,6 +335,55 @@ async function main() {
         await context.close();
       }
     }
+  }
+
+  // JavaScript off: each static page's copy is in the HTML the server sends
+  // (what a scraper or link previewer reads), its visible copy is on screen,
+  // and no script bundle ships.
+  const decode = (s) => s.replace(/&nbsp;/g, '\u00a0').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+  const essays = require('./writing').loadEssays();
+  const leaves = (nodes) => nodes.flatMap((n) => (n.c ? leaves(n.c) : n.t === 'text' || n.t === 'code' ? [n.v] : []));
+  for (const pg of PAGES.filter((p) => p.essay || p.index)) {
+    const where = (msg) => `${pg.name}-nojs: ${msg}`;
+    const raw = decode(await (await fetch(base + pg.path)).text());
+    const shown = pg.index ? essays : essays.filter((e) => e.slug === pg.essay);
+    const copy = pg.index
+      ? shown.flatMap((e) => [e.title, e.summary])
+      : shown.flatMap((e) => [e.title, e.standfirst, ...e.blocks.flatMap((b) => leaves(b.c || b.caption || (b.items || []).flat())),
+        ...e.furtherReading.map((r) => r.title)]);
+    copy.filter((t) => t.trim() && !raw.includes(t)).forEach((t) => problems.push(where(`not in the raw HTML: "${t.slice(0, 60)}"`)));
+    if (!/<meta name="robots" content="noindex"/.test(raw)) problems.push(where('no noindex meta'));
+    if (/<script[^>]+src="\/static\/js\//.test(raw)) problems.push(where('ships the React bundle'));
+    const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+    const page = await context.newPage();
+    await page.goto(base + pg.path, { waitUntil: 'networkidle' });
+    const seen = await page.evaluate(() => document.querySelector('main').innerText.replace(/\s+/g, ' '));
+    shown.flatMap((e) => (pg.index ? [e.title] : [e.title, e.standfirst]))
+      .filter((t) => !seen.includes(t.replace(/\s+/g, ' '))).forEach((t) => problems.push(where(`not on screen: "${t.slice(0, 60)}"`)));
+    const shot = path.join(OUT, `${pg.name}-nojs.png`);
+    await page.screenshot({ path: shot, fullPage: true });
+    shots.push(shot);
+    await context.close();
+  }
+  for (const pg of PAGES.filter((p) => p.block)) {
+    const where = (msg) => `${pg.name}-nojs: ${msg}`;
+    const raw = decode(await (await fetch(base + pg.path)).text());
+    const copy = copyOf(pg.block).concat(content.theme.toDark);
+    copy.filter((t) => !raw.includes(t)).forEach((t) => problems.push(where(`not in the raw HTML: "${t.slice(0, 60)}"`)));
+    if (/<script[^>]+src="\/static\/js\//.test(raw)) problems.push(where('ships the React bundle'));
+    const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+    const page = await context.newPage();
+    await page.goto(base + pg.path, { waitUntil: 'networkidle' });
+    const seen = await page.evaluate(() => document.querySelector('main').innerText.replace(/\s+/g, ' '));
+    const heads = [pg.block.name, pg.block.subtitle, ...pg.block.about, pg.block.experience.heading,
+      ...pg.block.experience.items.map((i) => i.text), ...pg.block.aiWork.items.map((i) => i.name)];
+    heads.filter((t) => !seen.includes(t.replace(/\s+/g, ' '))).forEach((t) => problems.push(where(`not on screen: "${t.slice(0, 60)}"`)));
+    if (await page.locator('.pv-toggle:visible').count()) problems.push(where('theme toggle shows with JavaScript off'));
+    const shot = path.join(OUT, `${pg.name}-nojs.png`);
+    await page.screenshot({ path: shot, fullPage: true });
+    shots.push(shot);
+    await context.close();
   }
 
   // Every href once. Local ones must be 200; mailto is checked for shape.
