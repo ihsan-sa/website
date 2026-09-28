@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// UI check: serves build/ the way public/_redirects does, then drives both
-// pages (front page and the preview path) with Playwright at phone and
+// UI check: serves build/ the way public/_redirects does, then drives the
+// pages (front page, the preview path, /writing and the draft essays under the
+// preview path) with Playwright at phone and
 // desktop widths, in light and dark. It screenshots each page, opens every
 // folded row, flips the theme, and checks every href on the page for a 2xx.
 //
@@ -25,9 +26,16 @@ const { PREVIEW_PATH } = (() => {
   return { PREVIEW_PATH: src.match(/PREVIEW_PATH = '([^']+)'/)[1] };
 })();
 
+// Every essay, drafts included, is checked at the preview path.
+const ESSAYS = fs.readdirSync(path.join(ROOT, 'content/writing'))
+  .filter((f) => f.endsWith('.md'))
+  .map((f) => f.slice(0, -3));
+
 const PAGES = [
   { name: 'front', path: '/' },
   { name: 'preview', path: PREVIEW_PATH },
+  { name: 'writing', path: '/writing' },
+  ...ESSAYS.map((slug) => ({ name: `essay-${slug}`, path: `${PREVIEW_PATH}/writing/${slug}` })),
 ];
 const VIEWPORTS = [
   { name: 'phone', width: 390, height: 844, isMobile: true, hasTouch: true },
@@ -46,13 +54,17 @@ const TYPES = {
   '.txt': 'text/plain', '.svg': 'image/svg+xml', '.map': 'application/json',
 };
 
-// Static server: a real file wins, the preview path gets index.html (as
+// Static server: a real file (or a directory's index.html) wins, the preview
+// path, anything under it and any other /writing path get index.html (as
 // _redirects says), and anything else is a 404 so broken links show up.
 function serve() {
   const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url.split('?')[0]);
     let file = path.join(BUILD, url);
-    if (url === '/' || url === PREVIEW_PATH) file = path.join(BUILD, 'index.html');
+    if (fs.existsSync(path.join(file, 'index.html'))) file = path.join(file, 'index.html');
+    else if (url === '/' || url === PREVIEW_PATH || url.startsWith(`${PREVIEW_PATH}/writing`) || url.startsWith('/writing/')) {
+      if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) file = path.join(BUILD, 'index.html');
+    }
     if (!file.startsWith(BUILD) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
       res.writeHead(404);
       return res.end('not found');
@@ -139,6 +151,8 @@ async function main() {
           const vw = document.documentElement.clientWidth;
           if (document.documentElement.scrollWidth > vw) out.overflow.push(`page scrollWidth ${document.documentElement.scrollWidth} > ${vw}`);
           for (const el of document.querySelectorAll('main *')) {
+            // A wide diagram or code line scrolls sideways inside its own box, by design.
+            if (el.closest('.wr-figure__frame, .wr-pre')) continue;
             const r = el.getBoundingClientRect();
             if (r.width && r.right > vw + 1) out.overflow.push(`${el.tagName.toLowerCase()}.${el.className} right=${Math.round(r.right)}`);
           }
@@ -237,8 +251,13 @@ async function main() {
           }
         }
 
-        // Theme toggle flips data-theme and the page background.
+        // Theme toggle flips data-theme and the page background. The essay
+        // pages have no toggle yet.
         const toggle = page.locator('.pv-toggle');
+        if (!(await toggle.count())) {
+          await context.close();
+          continue;
+        }
         const before = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
         await toggle.click();
         const after = await page.evaluate(() => ({ bg: getComputedStyle(document.body).backgroundColor, t: document.documentElement.dataset.theme }));

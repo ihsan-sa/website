@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from 'react';
 import './Preview.css';
 import content from './content.json';
+import Writing, { matchWriting } from './writing/Writing';
 
 // All copy lives in content.json — edit there, not here.
 const { theme, preview, prototype } = content;
@@ -331,7 +332,10 @@ function Prototype() {
 
 function App() {
   // Read at render, not at import, so a test can pushState before rendering.
-  return window.location.pathname === PREVIEW_PATH ? <Prototype /> : <Page />;
+  const { pathname } = window.location;
+  const writing = matchWriting(pathname, PREVIEW_PATH);
+  if (writing) return <Writing route={writing} previewPath={PREVIEW_PATH} />;
+  return pathname === PREVIEW_PATH ? <Prototype /> : <Page />;
 }
 
 export default App;

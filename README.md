@@ -27,6 +27,21 @@ PDFs go in `public/docs/`: `/docs/foo.pdf` in the JSON means `public/docs/foo.pd
 To see your changes: `npm start`, then open http://localhost:3000. The page reloads as you
 save. To publish them you still need `npm run build`.
 
+## Essays (/writing)
+
+Each essay is a markdown file, `content/writing/<slug>.md`, served at `/writing/<slug>`. Its
+figures go in `public/writing/<slug>/` and the markdown names them by file name:
+`![caption](diagram.svg)` alone on a line. An `.svg` is shown as a diagram, anything else as
+an image. The file starts with `title`, `date`, `summary`, `standfirst` and `draft` lines
+between `---`, and a `## Further reading` list of `- [title](pdf link): note (N pages)`
+becomes the reading block. The header of
+[`scripts/writing.js`](scripts/writing.js) has the full format.
+
+An essay with `draft: true` is kept off `/writing`. You can read it only at the preview path,
+under `<preview>/writing/<slug>`. To publish an essay, delete its draft line and update the
+last test in `src/writing/Writing.test.js`, which is there so nothing goes out by accident.
+The look lives in `src/writing/Writing.css` alone.
+
 ## Checks
 
 Every pull request and every push to `main` runs the tests and a production build on
@@ -36,7 +51,8 @@ commit, and the PR's **Checks** tab; the full logs are under the repo's
 it replaces. Nothing is deployed from there.
 
 To check the pages in a real browser: `npm run build && npm run ui-check`. It serves the
-build, opens the front page and the preview at phone (390×844) and desktop (1440×900)
+build, opens the front page, the preview, `/writing` and every essay (drafts at the preview
+path) at phone (390×844) and desktop (1440×900)
 widths in light and dark, opens every folded row, flips the theme, and checks every link
 and PDF answers. Screenshots and `report.json` land in `ui-check-out/`; it exits non-zero
 when something is off. It needs Playwright's Chromium 1234 (`npx playwright-core@1.62.1

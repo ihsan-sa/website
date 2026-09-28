@@ -1,0 +1,164 @@
+/* The look of /writing. A placeholder until the Claude Design pass: swap this
+   file whole. It reads only the tokens in index.css plus the few below, and
+   Writing.js carries no styling of its own. Mobile first; wider screens add to it. */
+
+.wr {
+  --wr-column: 680px;
+  --wr-text: 19px;
+  --wr-sidenote: 230px;
+  --wr-diagram-paper: #faf8f3; /* the diagram tool's own paper, kept in dark mode */
+
+  max-width: calc(var(--wr-column) + 40px);
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+  color: var(--ink);
+  font-size: var(--wr-text);
+  line-height: 1.6;
+}
+
+.wr-top { margin-bottom: var(--gap-block); }
+.wr-top__link,
+.wr-meta,
+.wr-pager__label,
+.wr-pager__index,
+.wr-reading__head {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--label);
+}
+.wr-top__link { text-decoration: none; }
+.wr-top__link:hover { color: var(--ink); }
+
+.wr-link,
+.wr-index__link,
+.wr-reading__link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-rule);
+  text-underline-offset: 3px;
+}
+.wr-link:hover,
+.wr-reading__link:hover { text-decoration-color: currentColor; }
+
+/* ---- index ---- */
+.wr-index__title,
+.wr-title { font-weight: 400; line-height: 1.2; margin: 0 0 12px; }
+.wr-index__title { font-size: 32px; }
+.wr-index__list { list-style: none; margin: 0; padding: 0; }
+.wr-index__item { padding: 22px 0; border-top: 1px solid var(--rule); }
+.wr-index__link { font-size: 22px; color: var(--ink); text-decoration-color: var(--link-rule); }
+.wr-index__summary { margin: 6px 0; color: var(--ink-soft); }
+.wr-index__empty { color: var(--ink-soft); }
+
+/* ---- essay head ---- */
+.wr-title { font-size: 34px; }
+.wr-meta { margin: 0; }
+.wr-meta__draft { color: var(--accent); }
+.wr-standfirst { font-size: 22px; line-height: 1.45; color: var(--ink-soft); margin: 18px 0 var(--gap-block); }
+
+/* ---- body ---- */
+.wr-body > * { margin: 0 0 24px; }
+.wr-h2 { font-size: 24px; font-weight: 500; line-height: 1.3; margin-top: var(--gap-block); }
+.wr-h3 { font-size: 20px; font-weight: 500; }
+.wr-list { padding-left: 1.3em; }
+.wr-rule { border: 0; border-top: 1px solid var(--rule); }
+
+.wr-code,
+.wr-pre {
+  font-family: var(--mono);
+  font-size: 0.8em;
+  background: var(--tint);
+  border-radius: 3px;
+}
+.wr-code { padding: 1px 4px; }
+.wr-pre { padding: 14px 16px; overflow-x: auto; line-height: 1.5; }
+.wr-pre code { font: inherit; }
+
+.wr-pullquote {
+  margin: var(--gap-block) 0;
+  padding: 0 0 0 18px;
+  border-left: 1px solid var(--rule);
+  font-size: 22px;
+  line-height: 1.45;
+  font-style: italic;
+  color: var(--ink-soft);
+}
+
+.wr-figure { margin: var(--gap-block) 0; }
+.wr-figure__frame { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.wr-figure__img { display: block; width: 100%; height: auto; }
+.wr-figure--diagram .wr-figure__frame { background: var(--wr-diagram-paper); }
+.wr-figure--image .wr-figure__img { border: 1px solid var(--rule); }
+.wr-figure__missing {
+  padding: 48px 16px;
+  background: var(--thumb-bg);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--label);
+  text-align: center;
+}
+.wr-figure__caption { margin-top: 10px; font-size: 16px; line-height: 1.5; font-style: italic; color: var(--ink-soft); }
+
+/* Dark page, light diagram: never invert the house-style figures. */
+[data-theme="dark"] .wr-figure--diagram .wr-figure__frame { border-radius: 4px; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .wr-figure--diagram .wr-figure__frame { border-radius: 4px; }
+}
+
+/* ---- notes: footnotes on a phone, sidenotes in the margin when there is room ---- */
+.wr-fnref { font-family: var(--mono); font-size: 0.6em; line-height: 0; }
+.wr-fnref a { color: var(--accent); text-decoration: none; padding: 0 2px; }
+.wr-sidenote { display: none; }
+
+.wr-footnotes {
+  margin-top: var(--gap-block);
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+.wr-footnotes ol { margin: 0; padding-left: 1.3em; }
+.wr-footnotes__back { color: var(--accent); text-decoration: none; }
+
+@media (min-width: 1200px) {
+  .wr-sidenote {
+    display: block;
+    float: right;
+    clear: right;
+    width: var(--wr-sidenote);
+    margin-right: calc(-1 * var(--wr-sidenote) - 40px);
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+  .wr-sidenote__n { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .wr-footnotes { display: none; }
+}
+
+/* ---- further reading ---- */
+.wr-reading { margin-top: var(--gap-block); padding-top: 18px; border-top: 1px solid var(--rule); }
+.wr-reading__head { font-weight: 400; margin: 0 0 12px; }
+.wr-reading__list { list-style: none; margin: 0; padding: 0; }
+.wr-reading__item { margin-bottom: 14px; }
+.wr-reading__note { display: block; font-size: 16px; color: var(--ink-soft); }
+
+/* ---- next / previous ---- */
+.wr-pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 24px;
+  margin-top: var(--gap-block);
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+}
+.wr-pager__link { flex: 1 1 240px; display: flex; flex-direction: column; text-decoration: none; }
+.wr-pager__link--next { text-align: right; }
+.wr-pager__title { color: var(--ink); }
+.wr-pager__link:hover .wr-pager__title { text-decoration: underline; text-decoration-color: var(--link-rule); }
+.wr-pager__index { flex-basis: 100%; }
+
+@media (min-width: 720px) {
+  .wr { padding-top: 64px; }
+  .wr-title { font-size: 42px; }
+}
