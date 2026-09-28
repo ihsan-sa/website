@@ -54,7 +54,8 @@ To check the pages in a real browser: `npm run build && npm run ui-check`. It se
 build, opens the front page, the preview, `/writing` and every essay (drafts at the preview
 path) at phone (390×844) and desktop (1440×900)
 widths in light and dark, opens every folded row, flips the theme, and checks every link
-and PDF answers. Screenshots and `report.json` land in `ui-check-out/`; it exits non-zero
+and PDF answers. It covers the two static pages too, and loads each with JavaScript off to
+check that all its `content.json` copy is in the raw HTML and on screen. Screenshots and `report.json` land in `ui-check-out/`; it exits non-zero
 when something is off. It needs Playwright's Chromium 1234 (`npx playwright-core@1.62.1
 install chromium`); it runs on this machine, not in CI.
 
@@ -68,6 +69,20 @@ A draft of the next front page renders from the `prototype` block, only at the u
 `noindex` at runtime, and nothing links to it. A snapshot test holds the front page unchanged.
 On the draft, each experience and AI row starts folded to its one line and opens on a click;
 the project grid is never folded.
+
+### The static version (under review)
+
+`npm run build` also runs `scripts/build-static.js`, which writes the same two pages from
+`content.json` as plain HTML + CSS, with no React: the front page at `STATIC_PATH` in that
+script and the draft at `STATIC_PATH/draft/`. It writes `/writing` and each essay there too,
+at `STATIC_PATH/writing/`, styled by `src/writing/Writing.css` alone; as at the preview
+path, drafts are listed there, marked Draft. They read in full with JavaScript off, so
+scrapers, crawlers and link previewers see the text. The only script is the theme toggle's
+few lines (hidden until it runs; without it the OS theme applies), and the draft's rows fold
+with `<details>`. The `<head>` (tab title, link-preview tags, fonts) and the analytics beacon
+are copied from `public/index.html`. Both pages carry a `noindex` meta, nothing links to
+them and robots.txt does not name them; they are real files, so no `_redirects` rule is
+needed. `/` stays the React page until the owner approves the switch.
 
 ## Where everything else lives
 

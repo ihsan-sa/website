@@ -26,7 +26,11 @@
     "",
     "`prototype` is the draft of the next front page, served only at the hidden",
     "path in App.js (PREVIEW_PATH). Same shape as `preview`, plus a `result` line",
-    "per row, `pages` on each PDF and the AI portfolio at the head of `aiWork`. The PDFs under /docs/notes/ come from the career repo; refresh them with scripts/sync-portfolio-notes.sh, never edit them here. It does not change the front page."
+    "per row, `pages` on each PDF and the AI portfolio at the head of `aiWork`. The PDFs under /docs/notes/ come from the career repo; refresh them with scripts/sync-portfolio-notes.sh, never edit them here. It does not change the front page.",
+    "",
+    "`npm run build` also writes both pages, and the essays, as plain HTML with no",
+    "JavaScript needed (scripts/build-static.js), at a second hidden path. It reads",
+    "this same file and content/writing/, so there is nothing extra to edit."
   ],
 
   "theme": {

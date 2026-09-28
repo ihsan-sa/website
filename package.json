@@ -18,7 +18,7 @@
     "start": "react-scripts start",
     "prebuild": "node scripts/writing.js build",
     "build": "react-scripts build",
-    "postbuild": "node scripts/writing.js pages",
+    "postbuild": "node scripts/writing.js pages && node scripts/build-static.js",
     "pretest": "node scripts/writing.js build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
