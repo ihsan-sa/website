@@ -144,6 +144,9 @@ test('the prototype path is unguessable, served by its own rules and published n
   // The path itself, the draft essays under it, and the app for any /writing
   // path the build wrote no page for.
   expect(read('public', '_redirects').trim().split('\n')).toEqual([
+    '/hwportfolio    /images/Ihsan_Salari_Portfolio.pdf    302',
+    '/portfolio    /hwportfolio    302',
+    '/aiportfolio    /images/Ihsan_Salari_AI_Portfolio.pdf    302',
     `${PREVIEW_PATH}    /index.html    200`,
     `${PREVIEW_PATH}/writing    /index.html    200`,
     `${PREVIEW_PATH}/writing/*    /index.html    200`,
@@ -246,9 +249,9 @@ test('the prototype puts the AI portfolio beside the AI work heading, and pdf-ma
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
   const head = screen.getByRole('link', { name: 'AI portfolio' });
-  expect(head).toHaveAttribute('href', '/docs/ai-portfolio.pdf');
+  expect(head).toHaveAttribute('href', '/aiportfolio');
   expect(head.closest('h2')).toHaveTextContent(prototype.aiWork.heading);
-  expect(read('public', 'docs', 'ai-portfolio.pdf').startsWith('%PDF')).toBe(true);
+  expect(read('public', 'images', 'Ihsan_Salari_AI_Portfolio.pdf').startsWith('%PDF')).toBe(true);
   expect(screen.getByRole('link', { name: 'Hardware portfolio' }).closest('h2')).toHaveTextContent(prototype.projects.heading);
   // Its note hangs off the lesson-builder row; it has no row of its own.
   expect(prototype.aiWork.items.map(({ name }) => name)).not.toContain('pdf-material-builder');
