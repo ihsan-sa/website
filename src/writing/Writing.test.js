@@ -54,7 +54,7 @@ test('a further-reading item may leave out its note and page count', () => {
 });
 
 test('the parser names each problem: missing figure, loose footnotes, two pull quotes, no summary', () => {
-  const src = essay('title: T\ndate: 2026-09-01\nstandfirst: S', [
+  const src = essay('title: T\ndate: 2026-09-01\nstandfirst: S\ndraft: true', [
     '![cap](gone.svg)', '', 'Ref.[^x]', '', '> one', '', '> two', '', '[^y]: unused',
   ].join('\n'));
   const { problems } = parseEssay(src, 't', () => ({ exists: false }));
@@ -188,9 +188,22 @@ test('the app routes /writing to the essays and leaves the front page and protot
   expect(proto.container.querySelector('.wr')).toBeNull();
 });
 
-test('every essay in the repo is a draft until the owner approves it', () => {
-  // Flip this when an essay is approved and its draft line removed.
-  expect(generated.filter((e) => !e.draft).map((e) => e.slug)).toEqual([]);
+test('a published essay needs its library revision and the owner\'s recorded OK; a draft does not', () => {
+  const MANIFEST = 'library: 012-0003\nrevision: B\npdf: https://library.ihsan.cc/files/012-0003-B.pdf';
+  const OK = 'approved_by: Ihsan\napproved_at: 2026-09-29';
+  expect(parseEssay(essay(`${FRONT}\n${MANIFEST}\n${OK}`, 'Text.'), 't').problems).toEqual([]);
+  expect(parseEssay(essay(`${FRONT}\ndraft: true`, 'Text.'), 't').problems).toEqual([]);
+  expect(parseEssay(essay(`${FRONT}\n${MANIFEST}`, 'Text.'), 't').problems).toEqual([
+    'a published essay has no approved_by',
+    'a published essay has no approved_at',
+  ]);
+  expect(parseEssay(essay(`${FRONT}\n${OK}`, 'Text.'), 't').problems).toEqual([
+    'a published essay has no library',
+    'a published essay has no revision',
+    'a published essay has no pdf',
+  ]);
+  expect(parseEssay(essay(`${FRONT}\n${MANIFEST}\napproved_by: Ihsan\napproved_at: soon`, 'Text.'), 't').problems)
+    .toEqual(['approved_at "soon" is not YYYY-MM-DD']);
 });
 
 test('the worked example parses, its diagrams found beside it, and never reaches the site', () => {

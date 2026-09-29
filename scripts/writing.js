@@ -14,7 +14,10 @@
 //   blurb (optional: the clause after the title in the draft front page's Essays list;
 //   the summary stands in without it),
 //   standfirst (one line under the title), draft (true keeps it off /writing), image (optional
-//   link-preview image path under public/).
+//   link-preview image path under public/), and the manifest scripts/publish-essay.js writes:
+//   library (PPP-NNNN), revision (its letter) and pdf (that revision in the library), with
+//   approved_by and approved_at (YYYY-MM-DD), the owner's OK. An essay without draft: true is
+//   published, so it must carry all five; without them it is a problem, which fails the build.
 // The body is markdown: ## and ### headings, paragraphs, *em*, **strong**, `code`, [links](url),
 // - and 1. lists, ``` fenced code, one > pull quote, footnotes ([^id] with `[^id]: text` lines),
 // and figures: an image alone in its paragraph, `![caption](file)`. A .svg figure is a diagram,
@@ -126,6 +129,13 @@ function parseEssay(source, slug, assets = () => ({ exists: true })) {
     if (!meta[key]) problems.push(`front matter has no ${key}`);
   }
   if (meta.date && !/^\d{4}-\d{2}-\d{2}$/.test(meta.date)) problems.push(`date "${meta.date}" is not YYYY-MM-DD`);
+  // Nothing goes live without the owner's OK on a named library revision.
+  if (meta.draft !== true) {
+    for (const key of ['library', 'revision', 'pdf', 'approved_by', 'approved_at']) {
+      if (!meta[key]) problems.push(`a published essay has no ${key}`);
+    }
+    if (meta.approved_at && !/^\d{4}-\d{2}-\d{2}$/.test(meta.approved_at)) problems.push(`approved_at "${meta.approved_at}" is not YYYY-MM-DD`);
+  }
 
   const lines = body.split('\n');
   const blocks = [];
