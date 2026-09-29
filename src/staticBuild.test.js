@@ -47,11 +47,14 @@ test('the draft folds its rows with <details> and keeps the folded copy', () => 
   expect(html).toMatch(/<button[^>]*class="theme-switch" role="switch"[^>]*hidden/);
 });
 
-test('the draft lists the essays it is given, and leaves the section out with none', () => {
+test('the draft lists the essays it is given, and leaves the link and section out with none', () => {
   const html = decode(renderDraft(content, twoEssays()));
+  expect(html).toContain(`<a class="pv-link" href="${STATIC_PATH}writing/">Essays</a>`);
   expect(html).toContain(`<h2><a class="pv-strong" href="${STATIC_PATH}writing/">Essays</a></h2>`);
   expect(html).toContain(`<a class="pv-strong pv-name-link" href="${STATIC_PATH}writing/second/">Second</a>, About Second. September ’26.`);
-  expect(decode(renderDraft(content, []))).not.toContain('<h2><a class="pv-strong"');
+  const none = decode(renderDraft(content, []));
+  expect(none).not.toContain('<h2><a class="pv-strong"');
+  expect(none).not.toContain(`href="${STATIC_PATH}writing/"`);
 });
 
 // Each case builds its own two essays: one published, one draft.

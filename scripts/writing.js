@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // The essay pipeline for /writing. Essays are markdown files in
 // content/writing/<slug>.md; their figures sit in public/writing/<slug>/.
+// Only those top-level .md files are read: content/writing/_examples/ holds the worked
+// example of the format (its figures beside it), which the tests parse and the site never shows.
 //
 //   node scripts/writing.js build   parse every essay into src/writing/essays.generated.json
 //                                   (run by prestart, prebuild and pretest; the file is ignored)
@@ -26,6 +28,7 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const CONTENT = path.join(ROOT, 'content', 'writing');
 const PUBLIC = path.join(ROOT, 'public');
+const EXAMPLES = path.join(CONTENT, '_examples');
 const OUT = path.join(ROOT, 'src', 'writing', 'essays.generated.json');
 const SITE = 'https://ihsan.cc';
 const WORDS_PER_MINUTE = 230;
@@ -359,7 +362,7 @@ function pages(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
   console.log(`writing: link-preview pages for /writing and ${live.length} essay(s)`);
 }
 
-module.exports = { parseEssay, parseReading, loadEssays, pages, withMeta };
+module.exports = { parseEssay, parseReading, loadEssays, pages, withMeta, EXAMPLES };
 
 if (require.main === module) {
   const cmd = process.argv[2];

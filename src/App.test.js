@@ -173,9 +173,11 @@ test('the prototype renders only at its path, and asks not to be indexed', () =>
   front.unmount();
 });
 
+const ONE_ESSAY = [{ slug: 'a', title: 'First', summary: 'the one.', date: '2026-09-01' }];
+
 test('the prototype puts a result under every experience row and AI project', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
-  render(<App />);
+  render(<Prototype essays={ONE_ESSAY} />);
   // A heading with a document beside it reads "AI work AI portfolio".
   const withLink = ({ heading, headLink }) => (headLink ? `${heading} ${headLink.label}` : heading);
   expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
@@ -269,7 +271,7 @@ test('each portfolio note is on the page, is a PDF, and sits on its own row', ()
 
 test('the prototype links bar: email and contact card beside the switch, then Essays and the profiles', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
-  render(<App />);
+  render(<Prototype essays={ONE_ESSAY} />);
   const nav = screen.getByRole('navigation', { name: /contact and profiles/i });
   const [first, second] = nav.querySelectorAll(':scope > span');
   expect([...first.querySelectorAll('a')].map((a) => a.textContent)).toEqual([prototype.email, prototype.contactCard.label]);
@@ -280,6 +282,14 @@ test('the prototype links bar: email and contact card beside the switch, then Es
   expect([...second.querySelectorAll('a')].map((a) => a.textContent)).toEqual([
     prototype.essays.heading, ...prototype.links.map(({ label }) => label)]);
   expect(document.querySelector('.pv-foot')).toBeNull();
+});
+
+test('with no essays the prototype shows neither the Essays link nor its section', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<Prototype essays={[]} />);
+  expect(screen.queryByRole('link', { name: prototype.essays.heading })).toBeNull();
+  expect(screen.queryByRole('heading', { name: prototype.essays.heading })).toBeNull();
+  expect(screen.getByRole('link', { name: prototype.links[0].label })).toBeInTheDocument();
 });
 
 test('the prototype theme switch says whether dark is on and persists the choice', () => {

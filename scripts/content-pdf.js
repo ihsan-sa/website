@@ -234,9 +234,11 @@ function pull(tex) {
   return problems.length ? 1 : 0;
 }
 
-// A library number, a .tex or a source tarball, as the text of the .tex.
-function readSource(arg) {
-  if (arg.endsWith('.tex')) return fs.readFileSync(arg, 'utf8');
+// A library number, a .tex or a source tarball, as the .tex's path: a tarball (the kept source
+// of a numbered revision) is unpacked into a temporary directory, so the files beside the .tex
+// come with it. scripts/publish-essay.js reads essays the same way.
+function sourcePath(arg, fallback = 'site-content.tex') {
+  if (arg.endsWith('.tex')) return path.resolve(arg);
   let tarball = arg;
   if (/^\d{3}-\d{4}-[A-Z]+$/.test(arg)) {
     const pdf = execFileSync('cc-docs', ['find', arg], { encoding: 'utf8' }).trim().split(/\s+/).pop();
@@ -245,9 +247,10 @@ function readSource(arg) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'content-pdf-'));
   execFileSync('tar', ['-xzf', tarball, '-C', dir]);
   const meta = path.join(dir, '.source.json');
-  const main = fs.existsSync(meta) ? JSON.parse(fs.readFileSync(meta, 'utf8')).main : 'site-content.tex';
-  return fs.readFileSync(path.join(dir, main), 'utf8');
+  return path.join(dir, fs.existsSync(meta) ? JSON.parse(fs.readFileSync(meta, 'utf8')).main : fallback);
 }
+
+const readSource = (arg) => fs.readFileSync(sourcePath(arg), 'utf8');
 
 function main([cmd, arg]) {
   if (cmd === 'tex' || cmd === 'file') {
@@ -269,4 +272,4 @@ function main([cmd, arg]) {
 
 if (require.main === module) process.exit(main(process.argv.slice(2)));
 
-module.exports = { toTex, fromTex, renderTex, applyEdits };
+module.exports = { toTex, fromTex, renderTex, applyEdits, sourcePath };

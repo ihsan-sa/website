@@ -423,7 +423,10 @@ async function main() {
   const REF_TOLERANCE = 0.03;
   const refs = [
     { name: 'draft', ours: DRAFT_PATH, ref: '/__ref/reference/site/index.html' },
-    { name: `essay-${REF_ESSAY}`, ours: `${STATIC_PATH}writing/${REF_ESSAY}/`, ref: `/__ref/reference/site/essays/${REF_ESSAY}.html` },
+    // The reference essay is the worked example now, off the site, so its pair runs only if it is published again.
+    ...(ESSAYS.includes(REF_ESSAY)
+      ? [{ name: `essay-${REF_ESSAY}`, ours: `${STATIC_PATH}writing/${REF_ESSAY}/`, ref: `/__ref/reference/site/essays/${REF_ESSAY}.html` }]
+      : []),
   ];
   const refReport = [];
   for (const pair of refs) {
