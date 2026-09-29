@@ -31,6 +31,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const { loadEssays, withMeta } = require('./writing');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -102,14 +103,19 @@ function toggleButton(theme) {
   return `<button type="button" id="theme-toggle" class="pv-link pv-toggle" hidden data-to-dark="${esc(theme.toDark)}" data-to-light="${esc(theme.toLight)}">${esc(theme.toDark)}</button>`;
 }
 
+// Browsers keep a stylesheet for hours, so each link carries a hash of the
+// file's contents and a changed stylesheet is fetched at once. build() sets it.
+const cssVersion = { site: '', writing: '' };
+const versionOf = (text) => `?v=${crypto.createHash('sha256').update(text).digest('hex').slice(0, 10)}`;
+
 // `meta` swaps in one page's own title and link-preview tags (the essays).
 function page({ head, beacon }, { mainClass, body, noindex, meta, essay = false }) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 ${meta ? withMeta(head, meta) : head}
-${noindex ? '<meta name="robots" content="noindex" />\n' : ''}<link href="${PAGE_FONT}" rel="stylesheet" />\n<link rel="stylesheet" href="${STATIC_PATH}site.css" />
-${essay ? `<link rel="stylesheet" href="${STATIC_PATH}writing.css" />\n` : ''}</head>
+${noindex ? '<meta name="robots" content="noindex" />\n' : ''}<link href="${PAGE_FONT}" rel="stylesheet" />\n<link rel="stylesheet" href="${STATIC_PATH}site.css${cssVersion.site}" />
+${essay ? `<link rel="stylesheet" href="${STATIC_PATH}writing.css${cssVersion.writing}" />\n` : ''}</head>
 <body>
 <main class="${mainClass}">
 ${body}
@@ -436,12 +442,15 @@ function build(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
     .join('\n') + STATIC_CSS;
   const out = path.join(buildDir, STATIC_PATH);
   fs.mkdirSync(path.join(buildDir, DRAFT_PATH), { recursive: true });
+  const writingCss = fs.readFileSync(path.join(ROOT, 'src/writing/Writing.css'), 'utf8');
+  cssVersion.site = versionOf(css);
+  cssVersion.writing = versionOf(writingCss);
   fs.writeFileSync(path.join(out, 'site.css'), css);
   fs.writeFileSync(path.join(out, 'index.html'),
     page(shell, { mainClass: 'pv', body: renderFront(content), noindex: true }));
   fs.writeFileSync(path.join(buildDir, DRAFT_PATH, 'index.html'),
     page(shell, { mainClass: 'pv pv-proto', body: renderDraft(content, essays), noindex: true }));
-  fs.copyFileSync(path.join(ROOT, 'src/writing/Writing.css'), path.join(out, 'writing.css'));
+  fs.writeFileSync(path.join(out, 'writing.css'), writingCss);
   for (const { rel, html } of renderWriting(essays, shell)) {
     fs.mkdirSync(path.join(out, rel), { recursive: true });
     fs.writeFileSync(path.join(out, rel, 'index.html'), html);
