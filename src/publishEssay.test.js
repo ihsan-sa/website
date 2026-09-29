@@ -24,10 +24,34 @@ test('the template converts with nothing to settle, and the site parses every pi
   expect(e.furtherReading).toEqual([{ title: 'A library document', href: 'https://library.ihsan.cc/d/006-0032-A', note: 'what the reader finds in it', pages: 4 }]);
 });
 
-test('draft false publishes: the draft line is left out, and anything but false keeps it', () => {
-  expect(convert(doc(`${DETAILS}\\essaydraft{false}\nText.`)).markdown).not.toMatch(/^draft:/m);
-  expect(convert(doc(`${DETAILS}\\essaydraft{no}\nText.`)).markdown).toMatch(/^draft: true$/m);
-  expect(convert(doc(`${DETAILS}\nText.`)).markdown).toMatch(/^draft: true$/m);
+test('a library revision is recorded in the front matter, and a .tex or tarball records none', () => {
+  const { markdown } = convert(doc(`${DETAILS}\nText.`), { from: '012-0003-B' });
+  expect(markdown).toMatch(/^library: 012-0003\nrevision: B\npdf: https:\/\/library\.ihsan\.cc\/files\/012-0003-B\.pdf\ndraft: true$/m);
+  expect(convert(doc(`${DETAILS}\nText.`)).markdown).not.toMatch(/^(library|revision|pdf):/m);
+});
+
+test('draft false publishes only with the owner\'s recorded OK on a library revision', () => {
+  const live = doc(`${DETAILS}\\essaydraft{false}\nText.`);
+  const ok = { from: '012-0003-B', approval: { by: 'Ihsan', at: '2026-09-29' } };
+  const published = convert(live, ok);
+  expect(published.problems).toEqual([]);
+  expect(published.markdown).not.toMatch(/^draft:/m);
+  expect(published.markdown).toMatch(/^approved_by: Ihsan\napproved_at: 2026-09-29$/m);
+  expect(parseEssay(published.markdown, 's').problems).toEqual([]);
+  // Any piece missing keeps it a draft, with no approval line, and says why.
+  for (const [opts, gap] of [
+    [{ from: '012-0003-B' }, '--approved-by is missing; --approved-at is not YYYY-MM-DD'],
+    [{ ...ok, approval: { by: 'Ihsan', at: 'today' } }, '--approved-at is not YYYY-MM-DD'],
+    [{ approval: ok.approval }, 'it is not converted from a library revision (PPP-NNNN-R)'],
+  ]) {
+    const { markdown, problems } = convert(live, opts);
+    expect(markdown).toMatch(/^draft: true$/m);
+    expect(markdown).not.toMatch(/^approved_/m);
+    expect(problems).toEqual([`\\essaydraft{false} but written as a draft: ${gap}`]);
+  }
+  // An approval does not publish an essay that still says draft.
+  expect(convert(doc(`${DETAILS}\\essaydraft{no}\nText.`), ok).markdown).toMatch(/^draft: true$/m);
+  expect(convert(doc(`${DETAILS}\nText.`), ok).markdown).not.toMatch(/^approved_/m);
 });
 
 test('inline LaTeX becomes markdown, and a command the site has no form for is listed', () => {

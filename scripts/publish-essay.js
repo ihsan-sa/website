@@ -3,6 +3,7 @@
 // site's format. See docs/publish-essay.md.
 //
 //   node scripts/publish-essay.js <PPP-NNNN-R | essay.tex | source.tar.gz> [--out DIR]
+//                                 [--approved-by <who> --approved-at <YYYY-MM-DD>]
 //   node scripts/publish-essay.js start "<title>" [--no-file]
 //
 // `start` begins an essay: it copies content/essay-template/ to a new temporary directory,
@@ -19,7 +20,8 @@
 //
 //   \essayslug \essaydate \essaysummary \essayblurb \essaytitle \essaystandfirst
 //                                  front matter (a blurb left empty is left out)
-//   \essaydraft{true|false}        `draft: true`, or no draft line when it says false
+//   \essaydraft{true|false}        `draft: true`, or no draft line when it says false and the
+//                                  approval is given (below)
 //   \section \subsection           ## and ###
 //   \emph \textbf \texttt \href    *em*, **strong**, `code`, [text](url)
 //   itemize, enumerate             - and 1. lists
@@ -30,6 +32,12 @@
 //   \essaynote{...}                [^n] where it is cited, [^n]: text at the end
 //   essayreading, \readingitem{title}{href}{note}{pages}
 //                                  ## Further reading, - [title](href): note (N pages).
+//
+// Converted from a library revision, the front matter also records which one is live:
+// `library: PPP-NNNN`, `revision: R` and `pdf:`, that revision's file in the library. An essay
+// is published only on the owner's explicit OK: \essaydraft{false} together with --approved-by
+// and --approved-at (the date he gave it), written as `approved_by:` and `approved_at:`, from a
+// library revision. Without all of that it goes up as a draft and the gap is listed.
 //
 // Anything else with a backslash is left in the markdown and listed as `by hand`, and so is
 // a figure whose file is not in the source. The written essay is then parsed as the build
@@ -43,6 +51,8 @@ const { parseEssay } = require('./writing');
 
 const ROOT = path.resolve(__dirname, '..');
 const rel = (p) => (p.startsWith(`${ROOT}/`) ? path.relative(ROOT, p) : p);
+const LIBRARY = 'https://library.ihsan.cc';
+const REVISION = /^(\d{3}-\d{4})-([A-Z]+)$/;
 const META = ['slug', 'date', 'summary', 'blurb', 'draft', 'title', 'standfirst'];
 
 // The braced argument at s[i] (after any spaces), as [text, index after the closing brace].
@@ -89,7 +99,9 @@ function args(s, i, n) {
 const CHARS = { '&': '&', '%': '%', $: '$', '#': '#', _: '_', '{': '{', '}': '}', ' ': ' ', ',': ' ', '\\': ' ' };
 const WORDS = { textperiodcentered: '·', ldots: '…', dots: '…', textbackslash: '\\', textasciitilde: '~', LaTeX: 'LaTeX', TeX: 'TeX' };
 
-function convert(tex) {
+// `from` is the library revision converted (PPP-NNNN-R), if it was one; `approval` is
+// {by, at}, the owner's OK to publish.
+function convert(tex, { from = '', approval = {} } = {}) {
   const problems = [];
   const figures = [];
   const notes = [];
@@ -246,8 +258,18 @@ function convert(tex) {
     const v = para(meta[key] || '');
     if (v) front.push(`${key}: ${v}`);
   }
-  // "\essaydraft{true|false}": only false takes the essay off the preview path and onto /writing.
-  if ((meta.draft || 'true').trim() !== 'false') front.push('draft: true');
+  const rev = from.match(REVISION);
+  if (rev) front.push(`library: ${rev[1]}`, `revision: ${rev[2]}`, `pdf: ${LIBRARY}/files/${from}.pdf`);
+  // "\essaydraft{true|false}": only false, with the owner's recorded OK, takes the essay off
+  // the preview path and onto /writing.
+  const wantsLive = (meta.draft || 'true').trim() === 'false';
+  const gaps = [];
+  if (wantsLive && !rev) gaps.push('it is not converted from a library revision (PPP-NNNN-R)');
+  if (wantsLive && !(approval.by || '').trim()) gaps.push('--approved-by is missing');
+  if (wantsLive && !/^\d{4}-\d{2}-\d{2}$/.test(approval.at || '')) gaps.push('--approved-at is not YYYY-MM-DD');
+  if (wantsLive && !gaps.length) front.push(`approved_by: ${approval.by.trim()}`, `approved_at: ${approval.at}`);
+  else front.push('draft: true');
+  if (gaps.length) problems.push(`\\essaydraft{false} but written as a draft: ${gaps.join('; ')}`);
   front.push('---');
 
   const parts = [front.join('\n'), ...blocks];
@@ -287,15 +309,21 @@ function main(argv) {
     if (!title) { console.error('usage: publish-essay.js start "<title>" [--no-file]'); return 2; }
     return start(title, !argv.includes('--no-file'));
   }
-  const outAt = argv.indexOf('--out');
-  const out = outAt >= 0 ? path.resolve(argv[outAt + 1] || '') : ROOT;
-  const src = argv.find((a, k) => !a.startsWith('--') && k !== outAt + 1);
-  if (!src || (outAt >= 0 && !argv[outAt + 1])) {
-    console.error('usage: publish-essay.js <PPP-NNNN-R | essay.tex | source.tar.gz> [--out DIR]');
+  const opt = (name) => {
+    const k = argv.indexOf(name);
+    return k >= 0 ? { k, v: argv[k + 1] } : null;
+  };
+  const opts = ['--out', '--approved-by', '--approved-at'].map(opt);
+  const [outOpt, byOpt, atOpt] = opts;
+  const out = outOpt ? path.resolve(outOpt.v || '') : ROOT;
+  const src = argv.find((a, k) => !a.startsWith('--') && !opts.some((o) => o && k === o.k + 1));
+  if (!src || opts.some((o) => o && !o.v)) {
+    console.error('usage: publish-essay.js <PPP-NNNN-R | essay.tex | source.tar.gz> [--out DIR] [--approved-by <who> --approved-at <YYYY-MM-DD>]');
     return 2;
   }
   const tex = sourcePath(src, 'essay.tex');
-  const { slug, markdown, figures, problems } = convert(fs.readFileSync(tex, 'utf8'));
+  const approval = { by: byOpt && byOpt.v, at: atOpt && atOpt.v };
+  const { slug, markdown, figures, problems } = convert(fs.readFileSync(tex, 'utf8'), { from: REVISION.test(src) ? src : '', approval });
   if (!markdown) {
     problems.forEach((p) => console.log(`by hand  ${p}`));
     return 1;

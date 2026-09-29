@@ -25,13 +25,18 @@ revision. `--no-file` builds the copy without filing it, to look at first.
    LaTeX source, writes `content/writing/<slug>.md`, and copies the figures into
    `public/writing/<slug>/`: each diagram as the SVG the build made beside its PDF, each
    image as it is. It prints `by hand <what>` for anything it could not map, then parses the
-   essay as the build will and lists that parser's problems too.
+   essay as the build will and lists that parser's problems too. The front matter records the
+   revision it came from: `library: 012-0003`, `revision: B` and `pdf:`, that revision's file
+   in the library, so the repo says which revision is live.
 3. Settle every `by hand` line in the markdown: a table or an equation has no form on the
    site, so write it as prose or a figure. The command exits 1 while any are listed.
 4. A revision that says `\essaydraft{true}` (the default) goes up as a draft, shown only at
-   the preview path. When it says `false`, the essay is published: also update the last test
-   in `src/writing/Writing.test.js`, which lists the published essays so none goes out by
-   accident.
+   the preview path. Nothing goes live without the owner's OK: to publish, the revision says
+   `\essaydraft{false}` and the command is given his OK explicitly,
+   `--approved-by Ihsan --approved-at <the date he gave it, YYYY-MM-DD>`. That writes
+   `approved_by:` and `approved_at:` and leaves out the draft line. Without both, or when the
+   source is a `.tex` or tarball rather than a library revision, it writes a draft and lists
+   why. The build refuses a published essay whose front matter lacks any of the five lines.
 5. Run `npm test`, read the markdown against the PDF, and open a PR. Its UI check screenshots
    every essay page.
 
@@ -44,7 +49,8 @@ markdown and the figures, so `git diff` shows what changed.
 |---|---|
 | `\essaytitle`, `\essaydate`, `\essaysummary`, `\essayblurb`, `\essaystandfirst` | the front matter lines of the same names (an empty blurb is left out) |
 | `\essayslug{s}` | the file name, `s.md`, and the address `/writing/s` |
-| `\essaydraft{true}` / `{false}` | `draft: true` / no draft line |
+| `\essaydraft{true}` / `{false}` | `draft: true` / no draft line, with `approved_by` and `approved_at` from the command's flags |
+| the revision converted, `012-0003-B` | `library: 012-0003`, `revision: B`, `pdf: https://library.ihsan.cc/files/012-0003-B.pdf` |
 | `\section{}`, `\subsection{}` | `##`, `###` |
 | `\emph{}`, `\textbf{}`, `\texttt{}`, `\href{url}{text}` | `*em*`, `**strong**`, `` `code` ``, `[text](url)` |
 | `itemize`, `enumerate` | `- ` and `1. ` lists |
