@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // UI check: serves build/ the way the host does, then drives the pages (front
 // page, the preview path, /writing, the draft essays under the preview path,
-// and the static front page, draft, /writing and essays that
+// and the static front page, both drafts, /writing and essays that
 // scripts/build-static.js writes)
 // with Playwright at 360, 414, 768, 1024, 1440 and 1920 px wide, in light and
 // dark. It screenshots each page, opens every folded row, flips the theme, and
@@ -39,7 +39,7 @@ const ESSAYS = fs.readdirSync(path.join(ROOT, 'content/writing'))
   .filter((f) => f.endsWith('.md'))
   .map((f) => f.slice(0, -3));
 
-const { STATIC_PATH, DRAFT_PATH } = require('./build-static');
+const { STATIC_PATH, DRAFT_PATH, DRAFT_V2_PATH } = require('./build-static');
 const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/content.json'), 'utf8'));
 
 const PAGES = [
@@ -49,6 +49,7 @@ const PAGES = [
   ...ESSAYS.map((slug) => ({ name: `essay-${slug}`, path: `${PREVIEW_PATH}/writing/${slug}` })),
   { name: 'static', path: STATIC_PATH, block: content.preview },
   { name: 'static-draft', path: DRAFT_PATH, block: content.prototype },
+  { name: 'static-draft-v2', path: DRAFT_V2_PATH, block: content.prototype, v2: true },
   { name: 'static-writing', path: `${STATIC_PATH}writing/`, index: true },
   ...ESSAYS.map((slug) => ({ name: `static-essay-${slug}`, path: `${STATIC_PATH}writing/${slug}/`, essay: slug })),
 ];
@@ -340,6 +341,27 @@ async function main() {
           }
         }
 
+        // Second draft: a click on the row's name opens it (the whole line is
+        // the control), each + sits on the column's right edge, the grid is
+        // two across, and Save contact shows on phones only.
+        if (pg.v2) {
+          const row = rows.first();
+          await row.locator('summary .pv-strong').click();
+          if (!(await row.evaluate((d) => d.open))) problems.push(where('clicking the row name did not open it'));
+          await row.locator('summary .pv-strong').click();
+          if (await row.evaluate((d) => d.open)) problems.push(where('clicking the row name did not close it'));
+          if (await page.locator('summary a').count()) problems.push(where('a row line still holds a link'));
+          const edges = await page.evaluate(() => {
+            const col = document.querySelector('.pv-block').getBoundingClientRect().right;
+            return [...document.querySelectorAll('.pv-entry__mark')].map((m) => Math.round(col - m.getBoundingClientRect().right));
+          });
+          if (edges.some((d) => Math.abs(d) > 1)) problems.push(where(`fold markers off the right edge by ${edges.join(',')}px`));
+          const cols = await page.evaluate(() => getComputedStyle(document.querySelector('.pv-hw')).gridTemplateColumns.split(' ').length);
+          if (cols !== 2) problems.push(where(`projects grid is ${cols} across, not 2`));
+          const card = await page.locator('.pv-contact').isVisible();
+          if (card !== (vp.width <= 640)) problems.push(where(`Save contact ${card ? 'shows' : 'is hidden'} at ${vp.width}px`));
+        }
+
         // Theme toggle flips data-theme and the page background; a switch
         // also flips aria-checked.
         const toggle = page.locator('.pv-toggle, .theme-switch');
@@ -396,7 +418,9 @@ async function main() {
   for (const pg of PAGES.filter((p) => p.block)) {
     const where = (msg) => `${pg.name}-nojs: ${msg}`;
     const raw = decode(await (await fetch(base + pg.path)).text());
-    const copy = copyOf(pg.block).concat(pg.block === content.preview ? content.theme.toDark : []);
+    // With no essay built, the draft rightly leaves its Essays link and section out.
+    const block = pg.block.essays && !essays.length ? { ...pg.block, essays: undefined } : pg.block;
+    const copy = copyOf(block).concat(pg.block === content.preview ? content.theme.toDark : []);
     copy.filter((t) => !raw.includes(t)).forEach((t) => problems.push(where(`not in the raw HTML: "${t.slice(0, 60)}"`)));
     if (/<script[^>]+src="\/static\/js\//.test(raw)) problems.push(where('ships the React bundle'));
     const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });

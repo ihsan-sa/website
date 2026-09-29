@@ -1,7 +1,7 @@
 // The static pages scripts/build-static.js writes: all copy in the HTML
 // itself, no React bundle, hidden from search, the draft's rows as <details>,
 // and /writing with drafts shown only in the review copy.
-const { renderFront, renderDraft, renderWriting, page, headFrom, STATIC_PATH } = require('../scripts/build-static');
+const { renderFront, renderDraft, renderWriting, page, headFrom, STATIC_PATH, DRAFT_V2_PATH } = require('../scripts/build-static');
 const fs = require('fs');
 const path = require('path');
 const content = require('./content.json');
@@ -55,6 +55,31 @@ test('the draft lists the essays it is given, and leaves the link and section ou
   const none = decode(renderDraft(content, []));
   expect(none).not.toContain('<h2><a class="pv-strong"');
   expect(none).not.toContain(`href="${STATIC_PATH}writing/"`);
+});
+
+test('the second draft is hidden, and opens each row on its whole line', () => {
+  expect(DRAFT_V2_PATH).toMatch(/^\/[a-z0-9]{32}\/$/);
+  expect(DRAFT_V2_PATH).not.toBe(STATIC_PATH);
+  const body = renderDraft(content, [], { v2: true });
+  const html = page(shell, { mainClass: 'pv pv-proto pv-v2', body, noindex: true, extraCss: `${DRAFT_V2_PATH}v2.css` });
+  expect(html).toContain('<meta name="robots" content="noindex" />');
+  expect(html).toContain(`<link rel="stylesheet" href="${DRAFT_V2_PATH}v2.css" />`);
+  const rows = [...content.prototype.experience.items, ...content.prototype.aiWork.items];
+  const folded = rows.filter((r) => r.result || r.detail || r.figure || r.docs || r.start);
+  expect(body.match(/<details class="pv-entry">\n<summary class="pv-entry__head">/g)).toHaveLength(folded.length);
+  // No link in any row's line: the name is text, its link sits in the panel, labelled.
+  body.match(/<summary[\s\S]*?<\/summary>/g).forEach((line) => expect(line).not.toContain('<a '));
+  const linked = folded.find((r) => /^https:\/\/github\.com\//.test(r.href));
+  expect(body).toContain(`<summary class="pv-entry__head"><strong class="pv-strong">${linked.name}</strong>`);
+  expect(body).toContain(`<a class="pv-link pv-doc pv-row-link" href="${linked.href}" target="_blank" rel="noopener noreferrer">GitHub</a>`);
+  // The contact card carries the class the desktop rule hides; the first draft's does not.
+  expect(body).toContain('<a class="pv-link pv-contact" href="');
+  expect(renderDraft(content)).not.toContain('pv-contact');
+  // Nothing the site ships names the path.
+  const read = (f) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+  ['public/robots.txt', 'public/_redirects', 'public/index.html', 'src/content.json', 'src/App.js'].forEach((f) =>
+    expect(read(f)).not.toContain(DRAFT_V2_PATH.slice(1, -1)));
+  expect(renderDraft(content)).not.toContain(DRAFT_V2_PATH);
 });
 
 // Each case builds its own two essays: one published, one draft.
