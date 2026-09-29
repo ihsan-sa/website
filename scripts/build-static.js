@@ -11,6 +11,9 @@
 //   STATIC_PATH/index.html                the front page (content.json `preview`)
 //   STATIC_PATH/draft/index.html          the draft (content.json `prototype`, and an
 //                                         Essays list from content/writing/*.md)
+//   DRAFT_V2_PATH/index.html              the second draft: the same `prototype` block, laid
+//                                         out for phones first (renderDraft's v2 option)
+//   DRAFT_V2_PATH/v2.css                  its own rules, on top of site.css
 //   STATIC_PATH/writing/index.html        the essay list (content/writing/*.md)
 //   STATIC_PATH/writing/<slug>/index.html each essay
 //   STATIC_PATH/site.css                  src/index.css + src/Preview.css + the static-only rules
@@ -22,7 +25,7 @@
 // renderWriting(essays, { preview: false }) is the public /writing rule, where
 // a draft is neither listed nor given a page.
 //
-// STATIC_PATH is unguessable while the owner reviews it: nothing links to it,
+// STATIC_PATH and DRAFT_V2_PATH are unguessable while the owner reviews it: nothing links to it,
 // robots.txt does not name it, and every page carries a noindex meta. The
 // files are real, so the host serves them without a _redirects rule. The
 // <head> (tab title, link-preview tags, fonts, pre-paint theme script) and the
@@ -37,6 +40,9 @@ const { loadEssays, withMeta } = require('./writing');
 const ROOT = path.resolve(__dirname, '..');
 const STATIC_PATH = '/fbl6b84nx8v09rotjh22t1jm6jpinmmk/';
 const DRAFT_PATH = `${STATIC_PATH}draft/`;
+// The second draft stands at its own path, so the first one's page and
+// site.css stay exactly as they are.
+const DRAFT_V2_PATH = '/h3e10faevt7op765cyaopvoli0w1wgo5/';
 
 // Headings and names are Newsreader 600 and captions italic 400, which
 // index.html's font link lacks.
@@ -105,17 +111,18 @@ function toggleButton(theme) {
 
 // Browsers keep a stylesheet for hours, so each link carries a hash of the
 // file's contents and a changed stylesheet is fetched at once. build() sets it.
-const cssVersion = { site: '', writing: '' };
+const cssVersion = { site: '', writing: '', v2: '' };
 const versionOf = (text) => `?v=${crypto.createHash('sha256').update(text).digest('hex').slice(0, 10)}`;
 
-// `meta` swaps in one page's own title and link-preview tags (the essays).
-function page({ head, beacon }, { mainClass, body, noindex, meta, essay = false }) {
+// `meta` swaps in one page's own title and link-preview tags (the essays);
+// `extraCss` is one more stylesheet after site.css (the second draft's).
+function page({ head, beacon }, { mainClass, body, noindex, meta, essay = false, extraCss }) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 ${meta ? withMeta(head, meta) : head}
 ${noindex ? '<meta name="robots" content="noindex" />\n' : ''}<link href="${PAGE_FONT}" rel="stylesheet" />\n<link rel="stylesheet" href="${STATIC_PATH}site.css${cssVersion.site}" />
-${essay ? `<link rel="stylesheet" href="${STATIC_PATH}writing.css${cssVersion.writing}" />\n` : ''}</head>
+${extraCss ? `<link rel="stylesheet" href="${extraCss}" />\n` : ''}${essay ? `<link rel="stylesheet" href="${STATIC_PATH}writing.css${cssVersion.writing}" />\n` : ''}</head>
 <body>
 <main class="${mainClass}">
 ${body}
@@ -178,10 +185,11 @@ ${hw}
 </section>`;
 }
 
-// The draft names each PDF by what it is, with no page count.
-function docList(docs) {
+// The draft names each PDF by what it is, with no page count. `after` says
+// something precedes the list on its line, so the first PDF gets a bullet too.
+function docList(docs, after = false) {
   return docs
-    .map((d, i) => `<span>${i > 0 ? BULLET : ''}${d.href
+    .map((d, i) => `<span>${i > 0 || after ? BULLET : ''}${d.href
       ? `<a class="pv-link pv-doc" href="${esc(d.href)}"${NEW_TAB}>${esc(d.label)}</a>`
       : `<span class="pv-pending">${esc(d.label)} (${esc(d.pending)})</span>`}</span>`)
     .join('');
@@ -196,20 +204,30 @@ function rowText({ text, short }) {
     : `, ${esc(text)}`;
 }
 
+// The second draft names a row's own link by where it goes.
+const linkLabel = (href) => (/^https:\/\/github\.com\//.test(href) ? 'GitHub' : 'Project page');
+
 // A draft row: its one line is the <summary>, and opening it shows the result,
-// the longer sentences, the figure, the PDFs and where to start.
-function protoEntry(item) {
-  const { text, short, result, detail, figure, docs, start } = item;
-  const line = `${nameHtml(item, 'pv-strong pv-name-link')}${rowText(item)}`;
-  if (!(result || detail || figure || docs || start)) {
+// the longer sentences, the figure, the PDFs and where to start. In the second
+// draft (v2) the whole line opens the row: the name is plain text, and its
+// link waits in the panel, labelled, ahead of the PDFs.
+function protoEntry(item, v2 = false) {
+  const { text, short, result, detail, figure, docs, start, href } = item;
+  const folds = result || detail || figure || docs || start;
+  const name = v2 && folds ? `<strong class="pv-strong">${esc(item.name)}</strong>` : nameHtml(item, 'pv-strong pv-name-link');
+  const line = `${name}${rowText(item)}`;
+  if (!folds) {
     return `<div class="pv-entry"><p class="pv-entry__head">${line}</p></div>`;
   }
+  const own = v2 && href
+    ? `<span><a class="pv-link pv-doc pv-row-link" href="${esc(href)}"${NEW_TAB}>${linkLabel(href)}</a></span>`
+    : '';
   const inner = [
     short && `<p class="pv-result pv-fold__long">${esc(text[0].toUpperCase() + text.slice(1))}</p>`,
     result && `<p class="pv-result">${esc(result)}</p>`,
     detail && `<p class="pv-detail">${esc(detail)}</p>`,
     figure && `<figure class="pv-figure"><img src="${esc(figure.image)}" alt="${esc(figure.alt)}" loading="lazy" /><figcaption>${esc(figure.caption)}</figcaption></figure>`,
-    docs && `<p class="pv-docs">${docList(docs)}</p>`,
+    (own || docs) && `<p class="pv-docs">${own}${docs ? docList(docs, !!own) : ''}</p>`,
     start && `<p class="pv-start">${esc(start)}</p>`,
   ].filter(Boolean).join('\n');
   return `<details class="pv-entry">
@@ -237,15 +255,17 @@ function monthYear(iso) {
 
 // `essays` is newest first. Drafts are listed, because the whole of
 // STATIC_PATH is the noindex review copy. With none, the Essays link in the
-// bar and the Essays section are both left out.
-function renderDraft(content, essays = []) {
+// bar and the Essays section are both left out. `v2` renders the second
+// draft: rows that open on their whole line, and a contact card V2_CSS hides
+// on desktop.
+function renderDraft(content, essays = [], { v2 = false } = {}) {
   const { prototype: pt } = content;
   const writing = `${STATIC_PATH}writing/`;
   const link = ({ label, href }) => `<a class="pv-link" href="${esc(href)}"${NEW_TAB}>${esc(label)}</a>`;
   const sections = [pt.experience, pt.aiWork]
     .map((sec) => `<section class="pv-block">
 ${heading(sec)}
-${sec.items.map(protoEntry).join('\n')}
+${sec.items.map((item) => protoEntry(item, v2)).join('\n')}
 </section>`)
     .join('\n');
   const essayRows = essays
@@ -259,7 +279,7 @@ ${sec.items.map(protoEntry).join('\n')}
 <span class="pv-links__row">
 <span class="pv-links__rest">
 <a class="pv-link" href="mailto:${esc(pt.email)}">${esc(pt.email)}</a>
-<a class="pv-link" href="${esc(pt.contactCard.href)}" download title="${esc(pt.contactCard.title)}">${esc(pt.contactCard.label)}</a>
+<a class="pv-link${v2 ? ' pv-contact' : ''}" href="${esc(pt.contactCard.href)}" download title="${esc(pt.contactCard.title)}">${esc(pt.contactCard.label)}</a>
 </span>
 ${THEME_SWITCH}
 </span>
@@ -434,6 +454,24 @@ const STATIC_CSS = `
 @media print { .pv-proto .pv-entry__mark { display: none; } }
 `;
 
+// The second draft's own rules, on top of site.css. Phones (640px and under)
+// are the main view, since an NFC card opens the site there: they keep the
+// contact card in the top row and the two-across grid, and nothing here makes
+// them taller. Wider screens drop the card and get bigger photos.
+const V2_CSS = `/* Second draft: the fold marker sits on the column's right edge, level with the first line. */
+.pv-v2 summary.pv-entry__head { position: relative; padding-right: 22px; }
+.pv-v2 .pv-entry__mark { position: absolute; right: 0; top: calc((1.6em - 14px) / 2); margin-left: 0; }
+.pv-v2 summary.pv-entry__head:hover .pv-strong { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--pv-link-rule); }
+/* Projects two across at every width: on a phone that shows more per screen than one. */
+.pv-v2 .pv-hw { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (min-width: 641px) {
+  .pv-v2 .pv-hw { gap: 26px 22px; }
+  .pv-v2 .pv-hw__item { font-size: 16px; }
+  /* Save contact is for the phone the card opens on; a desktop has no use for it. */
+  .pv-v2 .pv-contact { display: none; }
+}
+`;
+
 function build(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
   const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/content.json'), 'utf8'));
   const shell = headFrom(fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8'));
@@ -450,6 +488,14 @@ function build(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
     page(shell, { mainClass: 'pv', body: renderFront(content), noindex: true }));
   fs.writeFileSync(path.join(buildDir, DRAFT_PATH, 'index.html'),
     page(shell, { mainClass: 'pv pv-proto', body: renderDraft(content, essays), noindex: true }));
+  fs.mkdirSync(path.join(buildDir, DRAFT_V2_PATH), { recursive: true });
+  cssVersion.v2 = versionOf(V2_CSS);
+  fs.writeFileSync(path.join(buildDir, DRAFT_V2_PATH, 'v2.css'), V2_CSS);
+  fs.writeFileSync(path.join(buildDir, DRAFT_V2_PATH, 'index.html'),
+    page(shell, {
+      mainClass: 'pv pv-proto pv-v2', body: renderDraft(content, essays, { v2: true }), noindex: true,
+      extraCss: `${DRAFT_V2_PATH}v2.css${cssVersion.v2}`,
+    }));
   fs.writeFileSync(path.join(out, 'writing.css'), writingCss);
   for (const { rel, html } of renderWriting(essays, shell)) {
     fs.mkdirSync(path.join(out, rel), { recursive: true });
@@ -458,7 +504,7 @@ function build(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
   return out;
 }
 
-module.exports = { STATIC_PATH, DRAFT_PATH, build, renderFront, renderDraft, renderWriting, headFrom, page };
+module.exports = { STATIC_PATH, DRAFT_PATH, DRAFT_V2_PATH, build, renderFront, renderDraft, renderWriting, headFrom, page };
 
 if (require.main === module) {
   console.log(`static pages -> ${build(process.argv[2] && path.resolve(process.argv[2]))}`);
