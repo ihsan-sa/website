@@ -1,0 +1,137 @@
+% !TEX program = lualatex
+% An essay for ihsan.cc/writing, written in the library. Each essay starts as a
+% copy of this template (docs/publish-essay.md in the website repo). Replace the
+% placeholder text, keep the macros, and say "publish essay <number> rev <R>":
+% a session turns that revision into the site's markdown and opens a PR.
+%
+% What the site can show, and the macro for each:
+%   \essayslug{...} \essaydate{YYYY-MM-DD} \essaysummary{...} \essayblurb{...}
+%   \essaydraft{true|false} \essaytitle{...} \essaystandfirst{...}
+%                                   the essay's details, set once at the top
+%   \section{...} \subsection{...}  headings (a subsection is the smaller one)
+%   \emph{} \textbf{} \texttt{} \href{url}{text}   inside a paragraph
+%   itemize and enumerate           lists
+%   \includesvg[caption]{figures/<name>}
+%                                   a diagram: write figures/<name>.json for
+%                                   diagram-maker; the build renders the PDF shown
+%                                   here and the SVG the site shows
+%   \essayimage{figures/<file>.png}{caption}   a photo or screenshot
+%   \essayquote{...}                the one pull quote
+%   \essaycode{<language>} then a Verbatim block   code
+%   \essaynote{...}                 a footnote; the notes print at the end
+%   \begin{essayreading} \readingitem{title}{library link}{what it covers}{pages}
+%                                   further reading, library PDFs
+% Anything else (a table, maths, a \footnote) has no place on the site.
+\documentclass[11pt]{article}
+\usepackage{housestyle}
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}}
+\hssection{\leftmark}
+\hsjustified
+\setcounter{secnumdepth}{0}
+
+\makeatletter
+\newcommand{\essayslug}[1]{\def\essay@slug{#1}}
+\newcommand{\essaydate}[1]{\def\essay@date{#1}}
+\newcommand{\essaysummary}[1]{\def\essay@summary{#1}}
+\newcommand{\essayblurb}[1]{\def\essay@blurb{#1}}
+\newcommand{\essaydraft}[1]{\def\essay@draft{#1}}
+\newcommand{\essaytitle}[1]{\def\essay@title{#1}\hsslug{#1}}
+\newcommand{\essaystandfirst}[1]{\def\essay@standfirst{#1}}
+\essayblurb{}\essaydraft{true}\def\essay@false{false}
+
+% The title block, then what the site reads beside the text.
+\newcommand{\essayhead}{%
+  \hstitleblock{Essay \textperiodcentered\ \essay@date}{\essay@title}{\essay@standfirst}%
+  \begin{hscallout}{For the site}
+  \texttt{ihsan.cc/writing/\essay@slug}\par
+  \essay@summary\par
+  {\color{inkfiftyfive}In the list: \ifx\essay@blurb\@empty the summary.\else\essay@blurb\fi\ 
+  \ifx\essay@draft\essay@false On /writing once published.\else
+  A draft: on the preview page only.\fi}
+  \end{hscallout}}
+
+% A figure's number, then its caption under the picture. \includesvg is the
+% diagram macro here (no svg package is loaded): its name is what makes the
+% library keep figures/<name>.svg with the source, and the page shows the PDF.
+\newcounter{essayfig}
+\newcommand{\includesvg}[2][]{\stepcounter{essayfig}%
+  \begin{hsfigure}{Figure \theessayfig}{#1}\hsdiagram{#2}\end{hsfigure}}
+\newcommand{\essayimage}[2]{\stepcounter{essayfig}%
+  \begin{hsfigure}{Figure \theessayfig}{#2}\includegraphics[width=\linewidth]{#1}\end{hsfigure}}
+
+\newcommand{\essayquote}[1]{\hsclaim{#1}{Pull quote}}
+\newcommand{\essaycode}[1]{\hslisting{Code \textperiodcentered\ #1}}
+
+% Footnotes print together at the end, as on the site.
+\newcounter{essaynote}
+\def\essay@notes{}
+\newcommand{\essaynote}[1]{\stepcounter{essaynote}\textsuperscript{\theessaynote}%
+  \g@addto@macro\essay@notes{\item #1}}
+\newcommand{\essaynotes}{\ifx\essay@notes\@empty\else
+  \section*{Notes}\begin{enumerate}[leftmargin=18pt]\essay@notes\end{enumerate}\fi}
+
+\newenvironment{essayreading}{\section*{Further reading}\begin{itemize}[leftmargin=14pt]}{\end{itemize}}
+\newcommand{\readingitem}[4]{\item \href{#2}{\textbf{#1}}: #3%
+  \if\relax\detokenize{#4}\relax\else\ {\color{inkfiftyfive}(#4 pages)}\fi.}
+\makeatother
+
+\begin{document}
+
+% ---- The essay's details ----------------------------------------------------
+% The slug is the address, ihsan.cc/writing/<slug>: lowercase words and hyphens.
+% The summary is one line, for the essay list and link previews. The blurb is
+% optional: the clause after the title in the front page's Essays list.
+% Leave draft true until you want it on /writing; a draft shows only at the
+% preview path.
+\essayslug{a-short-slug}
+\essaydate{2026-10-01}
+\essaysummary{One line on what the essay is about, for the list and for link previews.}
+\essayblurb{what the essay is about, in a clause.}
+\essaydraft{true}
+\essaytitle{The essay's title}
+\essaystandfirst{One or two sentences under the title that say why the essay is worth reading.}
+
+\essayhead
+
+The opening paragraph. Words can be \emph{emphasised}, made \textbf{strong},
+set as \texttt{code}, or linked, as in \href{https://ihsan.cc}{my site}.
+A footnote goes where it is cited.\essaynote{The footnote's text, with \texttt{code} if it needs it.}
+
+\section{A heading}
+
+A paragraph under the heading. A diagram follows, drawn by diagram-maker from
+its spec in the figures folder.
+
+\includesvg[The diagram's caption, one or two sentences that say what to look at.]{figures/diagram}
+
+\subsection{A smaller heading}
+
+A list:
+
+\begin{itemize}
+\item the first item;
+\item the second item.
+\end{itemize}
+
+\essayquote{The one pull quote, a sentence worth reading twice.}
+
+\essayimage{figures/photo.png}{A photo or screenshot, and a caption that says what it shows.}
+
+\section{Another heading}
+
+Code, with its language:
+
+\essaycode{sh}
+\begin{Verbatim}[bgcolor=codefill]
+echo "a line of code"
+\end{Verbatim}
+
+A closing paragraph.\essaynote{A second footnote.}
+
+\essaynotes
+
+\begin{essayreading}
+\readingitem{A library document}{https://library.ihsan.cc/d/006-0032-A}{what the reader finds in it}{4}
+\end{essayreading}
+
+\end{document}

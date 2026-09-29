@@ -279,7 +279,8 @@ function ProtoEntry({ name: entryName, text, short, href, result, detail, figure
 
 // Same order as the front page, with the review's changes: a two-row links
 // bar with the theme switch, a result under every row, the AI rows in their
-// own order, and an Essays list (drafts too: this is the preview path). Every
+// own order, and an Essays list (drafts too: this is the preview path). With
+// no essays, neither the list nor the Essays link in the bar is shown. Every
 // experience and AI row starts folded to one line; the sections themselves
 // and the project grid stay open.
 export function Prototype({ essays = allEssays }) {
@@ -311,7 +312,7 @@ export function Prototype({ essays = allEssays }) {
           />
         </span>
         <span className="pv-links__rest">
-          <a className="pv-link" href={writing}>{prototype.essays.heading}</a>
+          {essays.length > 0 && <a className="pv-link" href={writing}>{prototype.essays.heading}</a>}
           {prototype.links.map(({ label, href }) => (
             <a key={label} className="pv-link" href={href} {...NEW_TAB}>
               {label}

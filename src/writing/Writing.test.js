@@ -6,7 +6,7 @@ import Writing, { matchWriting } from './Writing';
 import App, { PREVIEW_PATH } from '../App';
 import generated from './essays.generated.json';
 
-const { parseEssay, parseReading, loadEssays, pages } = require('../../scripts/writing');
+const { parseEssay, parseReading, loadEssays, pages, EXAMPLES } = require('../../scripts/writing');
 
 beforeEach(() => window.history.pushState({}, '', '/'));
 
@@ -191,5 +191,17 @@ test('the app routes /writing to the essays and leaves the front page and protot
 test('every essay in the repo is a draft until the owner approves it', () => {
   // Flip this when an essay is approved and its draft line removed.
   expect(generated.filter((e) => !e.draft).map((e) => e.slug)).toEqual([]);
-  expect(generated.map((e) => e.slug)).toContain('talking-to-my-server');
+});
+
+test('the worked example parses, its diagrams found beside it, and never reaches the site', () => {
+  const slug = 'talking-to-my-server';
+  const src = fs.readFileSync(path.join(EXAMPLES, `${slug}.md`), 'utf8');
+  const { essay: e, problems } = parseEssay(src, slug, (s, file) => ({ exists: fs.existsSync(path.join(EXAMPLES, s, file)) }));
+  // Its Slack screenshot was never supplied, so that one figure stays a placeholder.
+  expect(problems).toEqual(['figure screenshot-slack.png is not in public/writing/talking-to-my-server/']);
+  expect(e.blocks.some((b) => b.t === 'figure' && b.kind === 'diagram' && !b.missing)).toBe(true);
+  expect(e.footnotes.length).toBeGreaterThan(0);
+  expect(e.furtherReading.length).toBeGreaterThan(0);
+  expect(generated.map((x) => x.slug)).not.toContain(slug);
+  expect(loadEssays().map((x) => x.slug)).not.toContain(slug);
 });

@@ -28,3 +28,10 @@ yarn-error.log*
 
 # built by scripts/content-pdf.js
 /content-pdf
+
+# built by pdf-material-builder from content/essay-template/ (docs/publish-essay.md)
+/content/essay-template/*.pdf
+/content/essay-template/figures/*.pdf
+/content/essay-template/figures/*.png
+/content/essay-template/figures/*.svg
+!/content/essay-template/figures/photo.png

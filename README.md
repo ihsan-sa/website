@@ -45,6 +45,14 @@ under `<preview>/writing/<slug>`. To publish an essay, delete its draft line and
 last test in `src/writing/Writing.test.js`, which is there so nothing goes out by accident.
 The look lives in `src/writing/Writing.css` alone.
 
+`content/writing/_examples/` holds the worked example of the format, with its figures beside
+it. The build never reads it, so it is on no page, and the tests parse it. While there are no
+essays, the draft page leaves out its Essays link and section, and `/writing` says "Nothing
+here yet."
+
+Essays are written in the library, from the essay template, and published by PR:
+[`docs/publish-essay.md`](docs/publish-essay.md) says how.
+
 ## Checks
 
 Every pull request and every push to `main` runs the tests and a production build on

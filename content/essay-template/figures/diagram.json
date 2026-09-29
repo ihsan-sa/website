@@ -1,0 +1,10 @@
+{
+ "type": "flow",
+ "alt": "A placeholder diagram: replace this spec with your own",
+ "canvas": 553,
+ "nodes": [
+  { "id": "idea", "title": "An idea", "sub": "one line", "role": "actor" },
+  { "id": "draft", "title": "A draft", "sub": "in the library", "role": "work" },
+  { "id": "essay", "title": "An essay", "sub": "on the site", "role": "io" }
+ ]
+}

@@ -236,7 +236,8 @@ function monthYear(iso) {
 }
 
 // `essays` is newest first. Drafts are listed, because the whole of
-// STATIC_PATH is the noindex review copy.
+// STATIC_PATH is the noindex review copy. With none, the Essays link in the
+// bar and the Essays section are both left out.
 function renderDraft(content, essays = []) {
   const { prototype: pt } = content;
   const writing = `${STATIC_PATH}writing/`;
@@ -263,8 +264,7 @@ ${sec.items.map(protoEntry).join('\n')}
 ${THEME_SWITCH}
 </span>
 <span class="pv-links__rest">
-<a class="pv-link" href="${writing}">${esc(pt.essays.heading)}</a>
-${pt.links.map(link).join('\n')}
+${essays.length ? `<a class="pv-link" href="${writing}">${esc(pt.essays.heading)}</a>\n` : ''}${pt.links.map(link).join('\n')}
 </span>
 </nav>
 ${intro(pt)}
