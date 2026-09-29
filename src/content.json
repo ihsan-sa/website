@@ -179,7 +179,7 @@
       "heading": "AI work",
       "headLink": {
         "label": "AI portfolio",
-        "href": "/docs/ai-portfolio.pdf"
+        "href": "/aiportfolio"
       },
       "items": [
         {
@@ -297,7 +297,7 @@
       "heading": "Projects",
       "headLink": {
         "label": "Hardware portfolio",
-        "href": "/images/Ihsan_Salari_Portfolio.pdf"
+        "href": "/hwportfolio"
       },
       "items": [
         {
