@@ -39,22 +39,28 @@ A research first and low context approach is core to both maintaining a lightwei
 
 Knowledge and information is stored and sent in various manners which allow the system to grow and improve as the models do:
 
-*LIST THE WAYS im thinking library, inter agent messages,etc what im trying to get to is that minimal knowledge storage and transmission takes place via md files and context forced upon the agents aka. “Read [log.md](http://log.md)” or something*
-
-1.
-2.
-3.
-…
+1. Library → everything the box writes (journals, board rows, goals, docs, memory files, Slack messages, landing records and failures) is indexed as it's written. Before an agent claims something, it asks the library with `cc-lib ask` and gets back a small, capped answer instead of reading whole files.
+2. Journals → every session keeps a running md journal of what it did, what's next and what went wrong. When a session hands off, its successor reads the journal first and asks its predecessor one batch of questions.
+3. Task files → a worker starts from a task.md with its brief, and each round of its loop starts with fresh context: just the task.md and the end of its journal.
+4. Boards and goals → each project has a board with one row per piece of work and a goals.md with its standing goals. A row points at the work; it isn't the brief itself.
+5. Messages → sessions message each other by name, and events from the box's own scripts go through a broker that batches them, so a burst of them wakes a session only once.
+6. Forced context → every session starts with a short role prompt with a few shared rules appended: how to hand out work, how to write, how to raise a problem, how to spend and how to use the library. A worker is also told to read its journal before anything else.
+7. CLAUDE.md and memory → a short CLAUDE.md points to a few guides, which point to the specific docs, so an agent only reads as deep as it needs to. Memory files keep only rules loaded, and facts move to a file the library searches instead.
+8. Failure ledger → when an agent gets something wrong, it records it with `cc-failures record`, and the ledger counts which kinds of failure come back.
 
 ### Self-improvement and autonomous development
 
 **Failures;** Agents scrape through past work, messages in slack, and blatant failures and categorize them into a list of failures. Workers are then dispatched to make fixes and test them.
 
-**Iterative improvement;** some processes will go through iterative improvement flows, in some cases similar to Karpathy’s autoresearch. In those cases, individual scripts and processes are improved iteratively using a lightweight agent and graded checks. Other times, past events and data will be replayed and used to iteratively improve a system. For example, the PR lander was improved by replaying *X number* of landings to yield *X result*.
+**Iterative improvement;** some processes will go through iterative improvement flows, in some cases similar to Karpathy’s autoresearch. In those cases, individual scripts and processes are improved iteratively using a lightweight agent and graded checks. Other times, past events and data will be replayed and used to iteratively improve a system. For example, the PR lander was improved by replaying two days of landings (111 PRs) to yield a lander that, in the replay, ran 328 checks instead of 595 and got its slowest landings (p95) through in 116 minutes instead of 231.
 
 **Ralph loops and north stars;** planning sessions utilize recurring wake calls and scheduled wakeups to restart stalled work or initiate investigation and implementation of new tasks to accomplish a broader goal.
 
-** WHAT OTHER WAYS DO WE ACCOMPLISH AUTONOMOUS DEVELOPMENT **
+**Raised problems;** when an agent loses time to the box's own tools, it files a "raised-" row on the board saying what broke and what it cost. The planning session reads the board and decides what to fix, so the box's problems get reported by the agents that hit them, not by me.
+
+**Self-landing;** projects merge their own PRs. Once a PR is ready, it's queued for the lander, and the gates and reviews decide, with no approval from me. A red gate or a review finding still stops it and asks a person.
+
+**Spend tiers;** how much the box takes on by itself is one setting: stop, essential, moderate or autonomous. On autonomous it finds, fixes and explores work on its own, lower tiers take on less of what it finds, and on stop it only answers me.
 
 ### Landing PRs
 
