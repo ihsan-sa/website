@@ -135,9 +135,8 @@
         "href": "https://linkedin.com/in/ihsan-sa"
       },
       {
-        "label": "Résumé",
-        "href": "/images/Ihsan_Salari_Resume.pdf",
-        "pages": 1
+        "label": "AI résumé",
+        "href": "/airesume"
       }
     ],
     "contactCard": {
