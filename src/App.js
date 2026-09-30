@@ -1,10 +1,14 @@
 import { useEffect, useId, useState } from 'react';
 import './Preview.css';
-import content from './content.json';
+import rawContent from './content.json';
+import { fillStats } from './fillStats';
+import stats from './stats.json';
 import Writing, { matchWriting } from './writing/Writing';
 import allEssays from './writing/essays.generated.json';
 
-// All copy lives in content.json — edit there, not here.
+// All copy lives in content.json — edit there, not here. Its {autobox.prs}-style
+// placeholders are filled from stats.json, which the box refreshes (docs/stats.md).
+const content = fillStats(rawContent, stats);
 const { theme, preview, prototype } = content;
 
 // The prototype of the next front page lives at this unguessable path. Nothing

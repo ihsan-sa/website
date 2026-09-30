@@ -7,6 +7,9 @@
 //
 //   node scripts/build-static.js [buildDir]     (runs after `npm run build`)
 //
+// Stat placeholders in content.json's strings ({autobox.prs}) are filled from
+// src/stats.json first, and one it lacks fails the build (src/fillStats.js).
+//
 // It writes, under buildDir (default build/):
 //   STATIC_PATH/index.html                the front page (content.json `preview`)
 //   STATIC_PATH/draft/index.html          the draft (content.json `prototype`, and an
@@ -36,6 +39,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { loadEssays, withMeta } = require('./writing');
+const { fillStats } = require('../src/fillStats');
 
 const ROOT = path.resolve(__dirname, '..');
 const STATIC_PATH = '/fbl6b84nx8v09rotjh22t1jm6jpinmmk/';
@@ -473,7 +477,9 @@ const V2_CSS = `/* Second draft: the fold marker sits on the column's right edge
 `;
 
 function build(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
-  const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/content.json'), 'utf8'));
+  const readJson = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, f), 'utf8'));
+  // {autobox.prs} and the like become src/stats.json's numbers; a missing one throws.
+  const content = fillStats(readJson('src/content.json'), readJson('src/stats.json'));
   const shell = headFrom(fs.readFileSync(path.join(ROOT, 'public/index.html'), 'utf8'));
   const css = ['src/index.css', 'src/Preview.css']
     .map((f) => fs.readFileSync(path.join(ROOT, f), 'utf8'))
