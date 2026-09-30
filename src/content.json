@@ -137,6 +137,10 @@
       {
         "label": "AI résumé",
         "href": "/airesume"
+      },
+      {
+        "label": "HW résumé",
+        "href": "/hwresume"
       }
     ],
     "contactCard": {

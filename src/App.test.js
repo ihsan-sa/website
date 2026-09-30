@@ -145,6 +145,7 @@ test('the prototype path is unguessable, served by its own rules and published n
   // path the build wrote no page for.
   expect(read('public', '_redirects').trim().split('\n')).toEqual([
     '/airesume    https://library.ihsan.cc/p/HJ_OcIicMe1DrL_-tcArV8pt31HHd_oz    302',
+    '/hwresume    https://library.ihsan.cc/p/LbEFG8VoyJBO8bhkpaexDsIKFWM_Oa_d    302',
     '/hwportfolio    /images/Ihsan_Salari_Portfolio.pdf    302',
     '/portfolio    /hwportfolio    302',
     `${PREVIEW_PATH}    /index.html    200`,
@@ -238,6 +239,7 @@ test('every prototype PDF is named by what it is, with no page count', () => {
   expect(pdfs).toHaveLength(13);
   // The résumé is a short address that redirects to the library's pinned link.
   expect(screen.getByRole('link', { name: 'AI résumé' })).toHaveAttribute('href', '/airesume');
+  expect(screen.getByRole('link', { name: 'HW résumé' })).toHaveAttribute('href', '/hwresume');
   pdfs.forEach(({ label, href }) => {
     // Every row's Technical note shares a name, so match on the href too.
     const hrefs = screen.getAllByRole('link', { name: label }).map((a) => a.getAttribute('href'));
