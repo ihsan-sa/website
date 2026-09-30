@@ -46,11 +46,11 @@ changes only `src/stats.json`, opens a PR and queues it with `cc-land queue webs
 so the usual gates and review land it. While an earlier `stats/` PR is still open it does
 nothing.
 
-### The nightly run is not installed
+### The nightly run
 
-Every scheduled job on the box is a systemd user timer that runs one fixed command, and
-none of them runs a project's own script. So a nightly run needs a new unit, and
-installing one needs the owner's approval. These two files would do it, once approved:
+A systemd user timer, `website-stats.timer`, runs `node scripts/stats.js update` in
+`~/dev/website` every night at 04:15 UTC. The owner approved it on 2026-09-30. Its two
+units are:
 
 `~/.config/systemd/user/website-stats.service`
 
@@ -80,6 +80,6 @@ Persistent=true
 WantedBy=timers.target
 ```
 
-Then `systemctl --user daemon-reload && systemctl --user enable --now website-stats.timer`.
-Until then, running `node scripts/stats.js update` in `~/dev/website` by hand does the
-same thing once.
+`systemctl --user list-timers website-stats.timer` shows the next run, and
+`journalctl --user -u website-stats.service` shows what the last one did. Running
+`node scripts/stats.js update` in `~/dev/website` by hand does the same thing once.
