@@ -1,0 +1,10 @@
+{
+ "type": "hierarchy",
+ "alt": "A planning session hands work down one of three paths",
+ "nodes": [
+  { "id": "seat", "title": "Planning session", "sub": "one per Slack channel", "role": "work" },
+  { "id": "sub", "title": "Subagent", "sub": "small scoped work: edits, research", "parent": "seat" },
+  { "id": "worker", "title": "Worker", "sub": "via claude -p: less defined fixes", "parent": "seat" },
+  { "id": "orch", "title": "Sub-orchestrator", "sub": "its own channel: a sub-planning session", "parent": "seat" }
+ ]
+}
