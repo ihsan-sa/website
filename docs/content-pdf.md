@@ -51,3 +51,8 @@ only the text. Edit inside the second braces; leave the first alone, since it sa
 the text lives in `src/content.json`. Line breaks inside the text don't matter, and `\&`,
 `\%` and the like come back as the plain character. Links, page counts and images are not
 in the document, so they are changed in `src/content.json` directly.
+
+A number the box counts goes in as its placeholder, such as `\{autobox.prs\}`: the PDF
+prints it as `{autobox.prs}`, and a pull writes it into `src/content.json` unchanged (bare
+braces, `{autobox.prs}`, come back the same way). The site fills it in when it builds;
+[`stats.md`](stats.md) lists the names.
