@@ -7,7 +7,7 @@ summary: I often get asked “Are you working right now? Why are you on Slack?�
 
 I often get asked “Are you working right now? Why are you on Slack?” The answer is that I’m talking to up to 80+ agents running on Autobox, my orchestration system which runs on a small server at home.
 
-![Autobox at work, from a phone](slack.gif)
+![Autobox at work](hero.gif)
 
 ## How Autobox works
 
