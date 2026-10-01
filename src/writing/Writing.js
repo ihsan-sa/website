@@ -92,10 +92,10 @@ function Inline({ nodes, notes, seen }) {
   });
 }
 
-// A GIF with its .mp4 beside it (scripts/writing.js) is a clip: the GIF itself, lazy
-// and sized, because a GIF autoplays everywhere (Safari's Low Power Mode refuses muted
-// video). Its poster is the <img>'s background, shown until the GIF loads; with reduced
-// motion asked for, the poster stands in and the GIF never loads.
+// An animated WebP with its .mp4 beside it (scripts/writing.js) is a clip: the image
+// itself, lazy and sized, because an image autoplays everywhere (Safari's Low Power Mode
+// refuses muted video). Its poster is the <img>'s background, shown until the clip
+// loads; with reduced motion asked for, the poster stands in and the clip never loads.
 // A click still opens the .mp4 full size with its controls (zoom.js).
 function Clip({ src, poster, alt, width, height }) {
   return (

@@ -312,7 +312,7 @@ test('a GIF with its .mp4 beside it shows as the lazy GIF, its poster under redu
 test('a raster figure reports its pixel size from its header', () => {
   const pub = (...p) => path.join(__dirname, '..', '..', 'public', ...p);
   expect(rasterSize(pub('writing', 'autobox', 'hero-poster.webp'))).toEqual({ width: 1280, height: 720 });
-  expect(rasterSize(pub('writing', 'autobox', 'pcb.gif'))).toEqual({ width: 640, height: 360 });
+  expect(rasterSize(pub('writing', 'autobox', 'pcb.webp'))).toEqual({ width: 640, height: 360 });
   expect(rasterSize(pub('images', 'dcdc3500KHz.png'))).toEqual({ width: 394, height: 186 });
   expect(rasterSize(pub('images', 'ionic.jpg'))).toEqual({ width: 2345, height: 1977 });
   expect(rasterSize(pub('favicon.svg'))).toEqual({});
@@ -452,4 +452,12 @@ test('a clip link wears a play badge under reduced motion only', () => {
   expect(rule[1]).not.toMatch(/transition/);
   // Nothing outside that media query draws it.
   expect(css.replace(rule[0], '')).not.toMatch(/data-video\][^{]*::after/);
+});
+
+test('an animated WebP figure finds its .mp4 and poster as a GIF does, and a poster does not look for a video', () => {
+  const src = essay(`${FRONT}\ndraft: true`, '![Moving.](demo.webp)\n\n![Still.](demo-poster.webp)\n');
+  const { essay: e } = parseEssay(src, 's', () => ({ exists: true, width: 640, height: 360 }));
+  expect(e.blocks[0]).toMatchObject({ video: '/writing/s/demo.mp4', poster: '/writing/s/demo-poster.webp' });
+  // demo-poster.mp4 "exists" in this stub, so it would match; the real tree has none.
+  expect(e.blocks[1].src).toBe('/writing/s/demo-poster.webp');
 });
