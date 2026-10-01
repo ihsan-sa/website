@@ -7,9 +7,9 @@ summary: how I built and use my agentic orchestration system.
 
 *For a deeper look at how Autobox works, there’s a [12-page technical write-up](https://library.ihsan.cc/p/HsAJRgs_GfofW_v0Sh8MDu5tOHlGXlP4).*
 
-I often get asked “Are you working right now? Why are you on Slack?” The answer is that I’m talking to <mark class="wr-added">80+</mark> agents running on Autobox, my orchestration system which runs on a small server at home.
+I often get asked “Are you working right now? Why are you on Slack?” The answer is that I’m talking to 80+ agents running on Autobox, my orchestration system which runs on a small server at home.
 
-<mark class="wr-added">The chip and board renders further down went through four projects. The chip is an 8-bit counter that the chip-design skill took to a finished GF180 layout, and the board is a motor driver the hwde skill designed. A video session rendered both in Blender for a demo, a critic agent reviewed the stills, and the website session put them in this essay.</mark>
+For example, the chip and board renders further down, which I asked for in Slack, went through four projects. The chip is an 8-bit counter that the chip-design skill took to a finished GF180 layout, and the board is a motor driver the hwde skill designed. A video session rendered both in Blender for a demo, a critic agent reviewed the stills, and the website session put them in this essay.
 
 ![Autobox at work](hero.gif)
 
@@ -29,7 +29,7 @@ Every planning session works towards short- and long-term goals for that project
 
 ### Model/harness agnostic
 
-While the system was originally built on top of Claude Code’s harness, it can be made to be harness/model agnostic, which is what I am currently working on. Some Claude Code sessions will already launch Codex reviews and thinking tasks using GPT Astra 6. <mark class="wr-added">Planning sessions run on Opus 5.5. Workers and reviewers get the cheapest model and effort level that holds quality, from Sonnet 5.5 for a well-specified task up to Fable 5.1 or Astra 6 for one that needs more intelligence.</mark>
+While the system was originally built on top of Claude Code’s harness, it can be made to be harness/model agnostic, which is what I am currently working on. Some Claude Code sessions will already launch Codex reviews and thinking tasks using GPT Astra 6. Planning sessions run on Opus 5.5. Workers and reviewers get the cheapest model and effort level that holds quality, from Sonnet 5.5 for a well-specified task up to Fable 5.1 or Astra 6 for one that needs more intelligence.
 
 Autobox relies on harnesses like Claude Code, Codex, and soon Cursor to carry out work. Relying on such continuously evolving tools adapted to the models they support enables an approach which adapts to newer, more capable models. Many internal tools such as diagram makers, documentation guides, or even /hwde PCB design or chip design flows are in the form of skills and rely on the main agent’s judgement to spawn workers and subagents, maintaining a flexible structure. This soft orchestration, layered with hard/deterministic checks run both at will and as part of gates, enables the construction of dynamically evolving architecture.
 
@@ -37,7 +37,7 @@ Autobox relies on harnesses like Claude Code, Codex, and soon Cursor to carry ou
 
 The most powerful part of the system is the interconnectedness of its components. Notably, planning sessions, workers, and subagents can talk to one another to gain more context into various systems and past/current/future goals and work. A master permissions session handles modifying agent and system permissions → essentially a glorified auto-mode classifier for Autobox.
 
-<mark class="wr-added">This is seen in the development of the firmware and bring-up skills. They were built at the same time, and the bring-up session needed commands the firmware manifest didn’t have yet, like arm, disarm and spin. It left its asks on the firmware session’s row, the firmware session added them before it landed, and the bring-up procedure was then generated from that manifest.</mark>
+This is seen in the development of the firmware and bring-up skills. They were built at the same time, and the bring-up session needed commands the firmware manifest didn’t have yet, like arm, disarm and spin. It left its asks on the firmware session’s row, the firmware session added them before it landed, and the bring-up procedure was then generated from that manifest.
 
 ### Knowledge management: low context, research first
 
@@ -59,7 +59,7 @@ Knowledge and information are stored and sent in various manners which allow the
 
 ### Self-improvement and autonomous development
 
-**Failures;** agents scrape through past work, messages in Slack, and blatant failures and categorize them into a list of failures. Workers are then dispatched to make fixes and test them. <mark class="wr-added">The ledger holds about 2,000 records. The failure that recurs most right now is sessions carrying their context past the 150k line (587 records in the last two weeks), ahead of gates going red at landing (484).</mark>
+**Failures;** agents scrape through past work, messages in Slack, and blatant failures and categorize them into a list of failures. Workers are then dispatched to make fixes and test them. The ledger holds about 2,000 records. The failure that recurs most right now is sessions carrying their context past the 150k line (587 records in the last two weeks), ahead of gates going red at landing (484).
 
 **Iterative improvement;** some processes will go through iterative improvement flows, in some cases similar to Karpathy’s autoresearch. In those cases, individual scripts and processes are improved iteratively using a lightweight agent and graded checks. Other times, past events and data will be replayed and used to iteratively improve a system. For example, the PR lander was improved by replaying two days of landings (111 PRs) to yield a lander that, in the replay, ran 328 checks instead of 595 and got 95% of landings through within 116 minutes instead of 231.
 
@@ -67,13 +67,13 @@ Knowledge and information are stored and sent in various manners which allow the
 
 **Raised problems;** when an agent loses time to the box’s own tools, it files a “raised-” row on the board saying what broke and what it cost. The planning session reads the board and decides what to fix, so the box’s problems get reported by the agents that hit them, not by me.
 
-**Spend tiers;** how much the box takes on by itself is one setting: stop, essential, moderate or autonomous. On autonomous it finds, fixes and explores work on its own, lower tiers take on less of what it finds, and on stop it only answers me. <mark class="wr-added">In the last week the box used about $3,500 of tokens at API prices, and its own repository landed 219 PRs. The motor driver’s runs came to about $111.</mark>
+**Spend tiers;** how much the box takes on by itself is set by its spend tier: stop, essential, moderate or autonomous. On autonomous it finds, fixes and explores work on its own, lower tiers take on less of what it finds, and on stop it only answers me. In the last week the box used about $3,500 of tokens at API prices, and its own repository landed 219 PRs. The motor driver’s runs came to about $111.
 
 ### Landing PRs
 
 Agents work in separate worktrees and on separate branches. In some cases, this new work can be deployed as a prototype for immediate use before the PR lands. In order for a PR to land, it must go through the lander. This system triggers a set of agent reviews as well as hard gates which are run adaptively based on the files that have been edited. Projects merge their own PRs: the gates and reviews decide, with no approval from me, and a red gate or a review finding still stops it and asks a person. Small PRs land alongside large ones, and large test suites are offloaded to another machine.
 
-<mark class="wr-added">The motor driver’s review caught that its fab files had been exported from an earlier copper revision than the board that passed its checks. The queue sent its own repair round and a rebase, and the PR landed when the checks passed.</mark>
+Late in September the lander was the slowest part of the box. One run of its test suite took two and a half hours, and over two days the slowest 5% of PRs waited seven hours before their checks started. Within a few days the lander changed in three ways. It now picks a PR’s checks from the files the PR touches, so a docs change skips the suite. When the box is busy, it sends checks to my laptop. And a PR with a handful of checks goes ahead of one with dozens, so small fixes stop waiting behind big ones.
 
 ## How I use Autobox
 
@@ -87,9 +87,9 @@ Autobox runs my AI-enabled PCB design flow called hwde. This includes both impro
 
 In addition to hwde, the box runs chip design flows for digital, analog, and mixed-signal designs, as well as firmware and new product integration/bring-up flows.
 
-![<mark class="wr-added">The motor driver hwde designed, rendered in 3D from its KiCad board</mark>](pcb.gif)
+![The motor driver hwde designed, rendered in 3D from its KiCad board](pcb.gif)
 
-![<mark class="wr-added">A small test chip from the chip flow, an 8-bit counter, its layout in 3D</mark>](chip.gif)
+![A small test chip from the chip flow, an 8-bit counter, its layout in 3D](chip.gif)
 
 ### Library
 
@@ -97,7 +97,7 @@ I built the library to manage all my documents, both human and AI written. Gener
 
 ![The library](library.gif)
 
-<mark class="wr-added">Every document gets a number such as 001-0004-B (project, document, revision), and a filed revision never changes. The recording shows the editor: I draw a box on the PDF and comment on it, change a line, or edit the LaTeX directly, then send the edits to the session that wrote the document, which files the next revision. The library holds 143 documents and 278 revisions so far.</mark>
+Every document gets a number such as 001-0004-B (project, document, revision), and a filed revision never changes. The recording shows the editor: I draw a box on the PDF and comment on it, change a line, or edit the LaTeX directly, then send the edits to the session that wrote the document, which files the next revision. The library holds 143 documents and 278 revisions so far.
 
 ### Lessons
 
@@ -105,7 +105,7 @@ The lesson-builder skill was the first agent system I built back in March to stu
 
 ![A lesson and its tutor](lessons.gif)
 
-<mark class="wr-added">The recording shows a lesson on Fourier series. Its figures are live, and when I ask the tutor to draw what the filter does, it draws it into the chat.</mark>
+The recording shows a lesson on Fourier series. Its figures are live, and when I ask the tutor to draw what the filter does, it draws it into the chat.
 
 ## What’s next
 
