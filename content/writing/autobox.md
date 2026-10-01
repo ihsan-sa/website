@@ -15,8 +15,6 @@ I often get asked “Are you working right now? Why are you on Slack?” The ans
 
 Everything starts with a Slack channel: every channel in Slack goes to an ephemeral Claude Code session running in a tmux on my server. When the context of that session passes 15%, it hands off seamlessly to a successor, giving the illusion that it’s just one session the whole time.
 
-<mark class="wr-added">That line is really a fixed 150k tokens, which is 15% of a 1M window. A model’s sharpness tracks the tokens it carries, not the share of the window it has used, and every wake re-reads the whole context, so a bigger window buys one longer task, not a longer life. The trade-off is timing: hand off too early and you throw away a good session; too late and auto-compaction has already dropped the detail.</mark>
-
 Every planning session works towards short- and long-term goals for that project with an automatic “wake” which keeps sessions on track. When I give work to a planning session, it can execute it via three paths:
 
 1. Subagent → small scoped work like file edits or research
