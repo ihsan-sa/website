@@ -323,11 +323,13 @@ export function RowVisual({ visual }) {
 // over the whole line, so a click anywhere on it opens the row, while the name
 // link sits above that layer and still just opens its page. The panel is inert
 // while folded, so its links are neither tabbable nor read out.
-function ProtoEntry({ name: entryName, text, where, short, sub, href, result, visual, detail, figure, docs, start, note, writing }) {
+export function ProtoEntry({ name: entryName, text, where, short, sub, href, result, visual, detail, figure, docs, start, note, writing }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const hasMore = Boolean(result || visual || detail || figure || docs || start || note);
   const place = where && <>, <em>{where}</em></>;
+  // A linked name ends in the arrow, so a space follows it; a plain name takes a comma.
+  const sep = href ? ' ' : ', ';
 
   return (
     <div className="pv-entry">
@@ -341,11 +343,11 @@ function ProtoEntry({ name: entryName, text, where, short, sub, href, result, vi
         )}
         {short ? (
           <>
-            <span className="pv-t-long">, {text}{place}</span>
-            <span className="pv-t-short">, {short}</span>
+            <span className="pv-t-long">{sep}{text}{place}</span>
+            <span className="pv-t-short">{sep}{short}</span>
           </>
         ) : (
-          <>, {text}{place}</>
+          <>{sep}{text}{place}</>
         )}
         {hasMore && (
           <button
