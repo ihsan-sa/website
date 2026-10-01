@@ -505,7 +505,7 @@ test('with no Autobox essay the draft shows no banner', () => {
   expect(container.querySelector('.pv-banner')).toBeNull();
 });
 
-test('the draft about folds on a phone behind a Show more button that says whether it is open', () => {
+test('the draft about folds behind a Show more button that says whether it is open', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   const { container } = render(<App />);
   const button = screen.getByRole('button', { name: prototype.aboutFold.more });
@@ -525,12 +525,13 @@ test('the draft about folds on a phone behind a Show more button that says wheth
   fireEvent.click(button);
   expect(button).toHaveAttribute('aria-expanded', 'false');
   expect(about).not.toHaveClass('pv-about--open');
-  // Folded, the text is display: none on a phone, so neither tabbable nor read
-  // out; above 640px the button is hidden and the text always shows.
+  // Folded, the text is display: none (all of it on a phone, all but the first
+  // paragraph on desktop), so neither tabbable nor read out; the button shows at every width.
   const css = read('src', 'Preview.css');
   const phone = css.match(/@media \(max-width: 640px\) \{\n {2}\.pv-proto \.pv-about:not\(\.pv-about--open\) \{ display: none; \}/);
   expect(phone).not.toBeNull();
-  expect(css).toMatch(/^\.pv-proto \.pv-about__btn \{ display: none; \}$/m);
+  expect(css).toMatch(/^\.pv-proto \.pv-about:not\(\.pv-about--open\) > p:nth-child\(n\+2\) \{ display: none; \}$/m);
+  expect(css).not.toMatch(/\.pv-about__btn \{ display: none; \}/);
 });
 
 // Text first: every image on the draft waits until it nears the screen, holds its box
