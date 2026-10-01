@@ -215,6 +215,13 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
   .pv-proto .pv-links--compact { gap: 0; }
   .pv-proto .pv-links__rest { gap: 0 18px; }
   .pv-proto .pv-links__rest .pv-link + .pv-link::before { content: none; }
+  /* Draft only: the two résumés share their own line instead of splitting. */
+  .pv-proto--photos .pv-links__rest .pv-link[href$="resume"] { order: 2; }
+  .pv-proto--photos .pv-links__rest:has(> .pv-link[href$="resume"])::after {
+    content: '';
+    flex-basis: 100%;
+    order: 1;
+  }
 }
 
 /* Fold marker: a plain drawn +, big enough to read as a control, no circle.
