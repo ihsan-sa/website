@@ -322,18 +322,18 @@ export function RowVisual({ visual }) {
 // over the whole line, so a click anywhere on it opens the row, while the name
 // link sits above that layer and still just opens its page. The panel is inert
 // while folded, so its links are neither tabbable nor read out.
-function ProtoEntry({ name: entryName, text, where, short, href, result, visual, detail, figure, docs, start }) {
+function ProtoEntry({ name: entryName, text, where, short, href, result, visual, detail, figure, docs, start, note, writing }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
-  const hasMore = Boolean(result || visual || detail || figure || docs || start);
+  const hasMore = Boolean(result || visual || detail || figure || docs || start || note);
   const place = where && <>, <em>{where}</em></>;
 
   return (
     <div className="pv-entry">
       <p className="pv-entry__head">
         {href ? (
-          <a className="pv-strong pv-name-link" href={href} {...NEW_TAB}>
-            {entryName}
+          <a className="pv-strong pv-name-link pv-name-link--out" href={href} {...NEW_TAB}>
+            {entryName}<span className="pv-name-link__out" aria-hidden="true">{'\u2197'}</span>
           </a>
         ) : (
           <strong className="pv-strong">{entryName}</strong>
@@ -384,6 +384,7 @@ function ProtoEntry({ name: entryName, text, where, short, href, result, visual,
               </p>
             )}
             {start && <p className="pv-start">{start}</p>}
+            {note && <p className="pv-note">{note.text}<a className="pv-link" href={`${writing}/${note.slug}`}>{note.label}</a></p>}
           </div>
         </div>
       )}
@@ -456,7 +457,7 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
         <section className="pv-block" key={section.heading}>
           <Heading {...section} />
           {section.items.map((item) => (
-            <ProtoEntry key={item.name} {...item} />
+            <ProtoEntry key={item.name} {...item} writing={writing} />
           ))}
         </section>
       ))}

@@ -120,6 +120,18 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .pv-proto a.pv-name-link:hover { text-decoration-color: currentColor; }
 
+/* A row name that leaves the site ends in a small, lighter arrow, left out of the underline. */
+.pv-proto .pv-name-link__out {
+  display: inline-block;
+  margin-left: 0.2em;
+  font-size: 0.75em;
+  opacity: 0.6;
+  text-decoration: none;
+}
+
+/* The closing line of a fold. */
+.pv-proto .pv-note { font-size: 14px; line-height: 1.5; opacity: 0.7; }
+
 .pv-proto .pv-result,
 .pv-proto .pv-detail,
 .pv-proto .pv-docs,

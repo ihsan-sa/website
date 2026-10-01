@@ -134,9 +134,9 @@ ${extraScript ? `${extraScript}\n` : ''}${beacon}
 `;
 }
 
-function nameHtml({ name, href }, linkClass) {
+function nameHtml({ name, href }, linkClass, out = false) {
   return href
-    ? `<a class="${linkClass}" href="${esc(href)}"${NEW_TAB}>${esc(name)}</a>`
+    ? `<a class="${linkClass}${out ? ' pv-name-link--out' : ''}" href="${esc(href)}"${NEW_TAB}>${esc(name)}${out ? '<span class="pv-name-link__out" aria-hidden="true">\u2197</span>' : ''}</a>`
     : `<strong class="pv-strong">${esc(name)}</strong>`;
 }
 
@@ -199,10 +199,10 @@ function rowFigure({ image, width, height, alt, caption }) {
 // the visual, the longer sentences, the figure, the PDFs and where to start. In
 // the second draft (v2) the whole line opens the row: the name is plain text, and
 // its link waits in the panel, labelled, ahead of the PDFs.
-function protoEntry(item, v2 = false) {
-  const { result, visual, detail, figure, docs, start, href } = item;
-  const folds = result || visual || detail || figure || docs || start;
-  const name = v2 && folds ? `<strong class="pv-strong">${esc(item.name)}</strong>` : nameHtml(item, 'pv-strong pv-name-link');
+function protoEntry(item, writing, v2 = false) {
+  const { result, visual, detail, figure, docs, start, href, note } = item;
+  const folds = result || visual || detail || figure || docs || start || note;
+  const name = v2 && folds ? `<strong class="pv-strong">${esc(item.name)}</strong>` : nameHtml(item, 'pv-strong pv-name-link', true);
   const line = `${name}${rowText(item)}`;
   if (!folds) {
     return `<div class="pv-entry"><p class="pv-entry__head">${line}</p></div>`;
@@ -217,6 +217,7 @@ function protoEntry(item, v2 = false) {
     figure && rowFigure(figure),
     (own || docs) && `<p class="pv-docs">${own}${docs ? docList(docs, !!own) : ''}</p>`,
     start && `<p class="pv-start">${esc(start)}</p>`,
+    note && `<p class="pv-note">${esc(note.text)}<a class="pv-link" href="${writing}${esc(note.slug)}/">${esc(note.label)}</a></p>`,
   ].filter(Boolean).join('\n');
   return `<details class="pv-entry">
 <summary class="pv-entry__head">${line}<span class="pv-entry__mark" aria-hidden="true"></span></summary>
@@ -262,7 +263,7 @@ function renderDraft(content, essays = [], { v2 = false, front = false } = {}) {
   const sections = (front ? [pt.aiWork, pt.experience] : [pt.experience, pt.aiWork])
     .map((sec) => `<section class="pv-block">
 ${heading(sec)}
-${sec.items.map((item) => protoEntry(item, v2)).join('\n')}
+${sec.items.map((item) => protoEntry(item, writing, v2)).join('\n')}
 </section>`)
     .join('\n');
   const essayRows = essays

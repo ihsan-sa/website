@@ -232,7 +232,7 @@ test('the prototype orders AI work hwde, autobox, lesson-builder, then the chip 
     'chip design flow',
   ]);
   const names = [...container.querySelectorAll('.pv-block:nth-of-type(1) .pv-entry .pv-strong')];
-  expect(names.map((n) => n.textContent)).toEqual(prototype.aiWork.items.map(({ name }) => name));
+  expect(names.map((n) => n.firstChild.textContent)).toEqual(prototype.aiWork.items.map(({ name }) => name));
 
   // Every AI name links its GitHub repo.
   prototype.aiWork.items.forEach(({ name, href }) => {
@@ -454,7 +454,7 @@ test('the front page is the draft: AI work first, the banner to the published es
   expect(container.querySelector('.pv-docs, .pv-pending, .pv-start, .pv-doc')).toBeNull();
   // Each AI row still opens on its clip, and on its diagram where it has one.
   prototype.aiWork.items.forEach(({ name, visual, figure }) => {
-    expect(rowPanel(name).querySelector('.pv-visual img')).toHaveAttribute('src', visual.src);
+    if (visual) expect(rowPanel(name).querySelector('.pv-visual img')).toHaveAttribute('src', visual.src);
     if (figure) expect(rowPanel(name).querySelector('.pv-figure img')).toHaveAttribute('src', figure.image);
   });
   expect(container.innerHTML).not.toContain(PREVIEW_PATH);
@@ -580,8 +580,7 @@ test('every AI row opens on a light GIF clip, lazy and sized, its poster under r
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
   const pub = (src) => path.join(__dirname, '..', 'public', src);
-  prototype.aiWork.items.forEach(({ name, visual }) => {
-    expect(visual).toBeTruthy();
+  prototype.aiWork.items.filter(({ visual }) => visual).forEach(({ name, visual }) => {
     const img = rowPanel(name).querySelector('.pv-visual picture > img');
     expect(img).toHaveAttribute('src', visual.src);
     expect(img).toHaveAttribute('loading', 'lazy');
@@ -615,6 +614,38 @@ test('every AI row opens on a light GIF clip, lazy and sized, its poster under r
     expect(visual).toBeUndefined();
     expect(rowPanel(name).querySelector('.pv-visual')).toBeNull();
   });
+});
+
+test('the autobox row has no clip, but keeps its diagram', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  const item = prototype.aiWork.items.find((i) => i.name === 'autobox');
+  expect(item.visual).toBeUndefined();
+  expect(rowPanel('autobox').querySelector('.pv-visual')).toBeNull();
+  expect(rowPanel('autobox').querySelector('.pv-figure img')).toHaveAttribute('src', item.figure.image);
+});
+
+test('a row name that links out ends in a hidden arrow, and an essay title does not', () => {
+  const { container } = render(<App essays={[{ slug: 'x', title: 'An essay', blurb: 'B.', date: '2026-09-01' }]} />);
+  const names = [...container.querySelectorAll('.pv-entry__head a.pv-name-link')];
+  expect(names.length).toBeGreaterThan(0);
+  names.forEach((a) => {
+    expect(a).toHaveClass('pv-name-link--out');
+    const arrow = a.querySelector('span[aria-hidden="true"]');
+    expect(arrow.textContent).toBe('\u2197');
+  });
+  const essay = screen.getByRole('link', { name: 'An essay' });
+  expect(essay).toHaveClass('pv-name-link');
+  expect(essay).not.toHaveClass('pv-name-link--out');
+  expect(essay.querySelector('span')).toBeNull();
+});
+
+test('the autobox fold ends with a note that links to the essay', () => {
+  const { container } = render(<App essays={[]} />);
+  const note = rowPanel('autobox').querySelector('.pv-fold__inner > .pv-note:last-child');
+  expect(note.textContent).toBe('For more details, read the essay');
+  expect(note.querySelector('a')).toHaveAttribute('href', '/writing/autobox');
+  expect(container.querySelectorAll('.pv-note').length).toBe(1);
 });
 
 test('a visual with no poster or video is a plain sized image, no link', () => {
