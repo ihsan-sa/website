@@ -88,6 +88,11 @@ The draft renders the whole block, documents and draft essays included, only at 
 unguessable `PREVIEW_PATH` in `src/App.js`. `public/_redirects` serves `index.html` there,
 the page adds `noindex` at runtime, and nothing links to it.
 
+The draft also shows the owner's photos down both side margins, on screens 1280px wide and
+up; the front page does not, until he approves them. The list, with each photo's alt text, is
+`src/sidePhotos.js`, and the files are `public/images/side/`: web copies about 900px on the
+long edge, under 150 kB, with no EXIF or GPS. Never add a camera original.
+
 ### The static version (under review)
 
 `npm run build` also runs `scripts/build-static.js`, which writes the same two pages from

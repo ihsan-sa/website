@@ -270,3 +270,45 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pv-proto .pv-head-with-link { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .pv-proto .pv-head-link { font-size: 15px; font-weight: 400; color: var(--label); }
 .pv-proto .pv-head-link:hover { color: inherit; }
+
+/* The owner's photos in the side margins, on the draft only (.pv-proto--photos;
+   App.js leaves them off the front page). Each margin holds one column, laid
+   beside the page from the links bar to the end of the text and scrolling with
+   it, and the photos are spread down that height, so a column ends where the
+   text ends. A landscape is --pv-side-w wide and a portrait 0.78 of that. The
+   width follows the margin (66% of it) until a column would outgrow the text's
+   height (100cqh: the left column is 4.84 widths tall, the right 5.01, plus five
+   48px gaps at most), and stops there. On a very wide screen the column keeps to
+   the 480px beside the text rather than drifting out to the window's edge. Below 1280px the margin is too narrow:
+   the photos are not shown, and being lazy, not loaded. */
+.pv-side { display: none; }
+
+@media (min-width: 1280px) {
+  .pv-proto--photos { position: relative; }
+  .pv-proto--photos .pv-side {
+    position: absolute;
+    top: 80px;
+    bottom: 96px;
+    width: min(50vw - 310px, 480px);
+    container-type: size;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+  }
+  .pv-side--left { right: 100%; }
+  .pv-side--right { left: 100%; }
+  .pv-side__img {
+    --pv-side-w: min(calc((50vw - 310px) * 0.66), 280px);
+    display: block;
+    width: var(--pv-side-w);
+    height: auto;
+    border-radius: 3px;
+    background: var(--thumb-bg);
+  }
+  .pv-side__img--tall { width: calc(var(--pv-side-w) * 0.78); }
+  @supports (height: 1cqh) {
+    .pv-side__img { --pv-side-w: min(calc((50vw - 310px) * 0.66), calc((100cqh - 240px) / 5.05)); }
+  }
+}
