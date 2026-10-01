@@ -136,7 +136,7 @@ ${extraScript ? `${extraScript}\n` : ''}${beacon}
 
 function nameHtml({ name, href }, linkClass, out = false) {
   return href
-    ? `<a class="${linkClass}${out ? ' pv-name-link--out' : ''}" href="${esc(href)}"${NEW_TAB}>${esc(name)}${out ? '<span class="pv-name-link__out" aria-hidden="true">\u2197</span>' : ''}</a>`
+    ? `<a class="${linkClass}${out ? ' pv-name-link--out' : ''}" href="${esc(href)}"${NEW_TAB}>${esc(name)}${out ? '<span class="pv-name-link__out" aria-hidden="true">\u2197\uFE0E</span>' : ''}</a>`
     : `<strong class="pv-strong">${esc(name)}</strong>`;
 }
 
@@ -236,7 +236,7 @@ ${inner}
 function heading({ heading: h, headLink, docs }) {
   if (!headLink && !docs) return `<h2>${esc(h)}</h2>`;
   const head = headLink
-    ? ` <a class="pv-link pv-head-link" href="${esc(headLink.href)}"${NEW_TAB}>${esc(headLink.label)}${headLink.arrow ? '<span class="pv-name-link__out" aria-hidden="true">\u2197</span>' : ''}</a>`
+    ? ` <a class="pv-link pv-head-link" href="${esc(headLink.href)}"${NEW_TAB}>${esc(headLink.label)}${headLink.arrow ? '<span class="pv-name-link__out" aria-hidden="true">\u2197\uFE0E</span>' : ''}</a>`
     : '';
   const rest = (docs || [])
     .map((d) => ` <span>${d.href
