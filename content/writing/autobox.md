@@ -35,7 +35,7 @@ Autobox relies on harnesses like Claude Code, Codex, and soon Cursor to carry ou
 
 The most powerful part of the system is the interconnectedness of its components. Notably, planning sessions, workers, and subagents can talk to one another to gain more context into various systems and past/current/future goals and work. A master permissions session handles modifying agent and system permissions → essentially a glorified auto-mode classifier for Autobox.
 
-<mark class="wr-added">The motor driver shows it. Its first routing run took 57 minutes and came back with 406 clearance errors, because the hwde tool wrote the high-voltage rules where the design check reads them but not where the router does. The boards session raised it with the hwde project, which owns the tool, and the fix landed there and was synced back into boards the same morning.</mark>
+<mark class="wr-added">The firmware and bring-up skills show it. While they were being built at the same time, the bring-up session needed commands the firmware manifest didn’t have yet, like arm, disarm and spin. It left its asks on the firmware session’s row, the firmware session added them before it landed, and the bring-up procedure was then generated from that manifest.</mark>
 
 ### Knowledge management: low context, research first
 
