@@ -288,6 +288,7 @@ function inline(nodes, notes, seen) {
     switch (n.t) {
       case 'em': return `<em>${inline(n.c, notes, seen)}</em>`;
       case 'strong': return `<strong>${inline(n.c, notes, seen)}</strong>`;
+      case 'mark': return `<mark class="wr-added">${inline(n.c, notes, seen)}</mark>`;
       case 'code': return `<code class="wr-code">${esc(n.v)}</code>`;
       case 'link': return `<a class="wr-link" href="${esc(n.href)}">${inline(n.c, notes, seen)}</a>`;
       case 'fn': {

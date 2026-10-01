@@ -54,6 +54,8 @@ function Inline({ nodes, notes, seen }) {
         return <em key={i}><Inline nodes={n.c} notes={notes} seen={seen} /></em>;
       case 'strong':
         return <strong key={i}><Inline nodes={n.c} notes={notes} seen={seen} /></strong>;
+      case 'mark':
+        return <mark key={i} className="wr-added"><Inline nodes={n.c} notes={notes} seen={seen} /></mark>;
       case 'code':
         return <code key={i} className="wr-code">{n.v}</code>;
       case 'link':

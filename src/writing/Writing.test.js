@@ -198,6 +198,28 @@ test('every essay page’s bar reads "ihsan.cc · Essays", ihsan.cc going to the
   });
 });
 
+test('an added passage is marked in text, headings and captions, and renders as <mark class="wr-added">', () => {
+  const { SHOW_ADDED } = require('../../scripts/writing');
+  expect(SHOW_ADDED).toBe(true);
+  const src = essay(`${FRONT}\ndraft: true`, [
+    'Old text. <mark class="wr-added">New, with **strong** and `code`.</mark> Old again.',
+    '',
+    '## <mark class="wr-added">New heading</mark>',
+    '',
+    '![<mark class="wr-added">New caption</mark>](a.png)',
+  ].join('\n'));
+  const { essay: e, problems } = parseEssay(src, 'm');
+  expect(problems).toEqual([]);
+  expect(e.blocks[0].c.map((n) => n.t)).toEqual(['text', 'mark', 'text']);
+  expect(e.blocks[0].c[1].c.map((n) => n.t)).toEqual(['text', 'strong', 'text', 'code', 'text']);
+  expect(e.blocks[1]).toMatchObject({ t: 'h2', c: [{ t: 'mark', c: [{ t: 'text', v: 'New heading' }] }] });
+  expect(e.blocks[2]).toMatchObject({ t: 'figure', alt: 'New caption', caption: [{ t: 'mark' }] });
+  const { container } = render(<Writing route={{ preview: true, slug: 'm' }} previewPath={PREVIEW_PATH} essays={[e]} />);
+  const marks = [...container.querySelectorAll('mark.wr-added')];
+  expect(marks.map((m) => m.textContent)).toEqual(['New, with strong and code.', 'New heading', 'New caption']);
+  expect(container.querySelector('.wr-p')).toHaveTextContent('Old text. New, with strong and code. Old again.');
+});
+
 test('a GIF figure plays the same-named .mp4 beside it, when there is one', () => {
   const src = essay(`${FRONT}\ndraft: true`, '![Moving.](demo.gif)\n\n![Still moving.](other.gif)\n\n![A photo.](shot.png)\n');
   const asked = [];

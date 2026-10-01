@@ -5,13 +5,17 @@ draft: true
 summary: how I built and use my agentic orchestration system.
 ---
 
-I often get asked “Are you working right now? Why are you on Slack?” The answer is that I’m talking to up to 80+ agents running on Autobox, my orchestration system which runs on a small server at home.
+I often get asked “Are you working right now? Why are you on Slack?” The answer is that I’m talking to <mark class="wr-added">80+</mark> agents running on Autobox, my orchestration system which runs on a small server at home.
+
+<mark class="wr-added">Take one task. On 27 September I asked in Slack for a three-phase motor driver. The planning session wrote a brief and started a worker, which went through 34 iterations to a 4-layer, 78 × 78 mm BLDC driver board that passed its design checks, with its fab package built. It merged the next day, and its firmware and a bring-up procedure followed over the two days after that.</mark>
 
 ![Autobox at work](hero.gif)
 
 ## How Autobox works
 
 Everything starts with a Slack channel: every channel in Slack goes to an ephemeral Claude Code session running in a tmux on my server. When the context of that session passes 15%, it hands off seamlessly to a successor, giving the illusion that it’s just one session the whole time.
+
+<mark class="wr-added">That line is really a fixed 150k tokens, which is 15% of a 1M window. A model’s sharpness tracks the tokens it carries, not the share of the window it has used, and every wake re-reads the whole context, so a bigger window buys one longer task, not a longer life. The trade-off is timing: hand off too early and you throw away a good session; too late and auto-compaction has already dropped the detail.</mark>
 
 Every planning session works towards short- and long-term goals for that project with an automatic “wake” which keeps sessions on track. When I give work to a planning session, it can execute it via three paths:
 
@@ -21,17 +25,21 @@ Every planning session works towards short- and long-term goals for that project
 
 ![The three ways a planning session hands off work](dispatch-paths.svg)
 
+<mark class="wr-added">The choice comes down to cost and who steers. A subagent is the cheapest: a bounded analysis runs well under $1, where the same job as a worker is a $2.50–9 repair round, but it dies with the session and gets no gates, journal or PR of its own. A worker gets all three, but its channel ends with it. A project with more than one milestone that I steer myself gets a sub-orchestrator, a peer of the planning session rather than a layer under it. The motor driver went to a worker, because it was a bounded build that ends in a PR.</mark>
+
 **Sandboxing;** workers can be spawned in containerized sandboxes for dangerous work or simply for full autonomy with full permission granted.
 
 ### Model/harness agnostic
 
-While the system was originally built on top of Claude Code’s harness, it can be made to be harness/model agnostic, which is what I am currently working on. Some Claude Code sessions will already launch codex reviews and thinking tasks using GPT Astra 6. As of the writing of this article, planning sessions run on Opus 5.5, while workers and reviewers run on models spanning from Sonnet 5.5, through Opus 5.5, to Fable 5.1 or Astra 6 at varying effort levels depending on how well specified the task is and whether it requires more intelligence.
+While the system was originally built on top of Claude Code’s harness, it can be made to be harness/model agnostic, which is what I am currently working on. Some Claude Code sessions will already launch Codex reviews and thinking tasks using GPT Astra 6. <mark class="wr-added">Planning sessions run on Opus 5.5. Workers and reviewers get the cheapest model and effort level that holds quality, from Sonnet 5.5 for a well-specified task up to Fable 5.1 or Astra 6 for one that needs more intelligence.</mark>
 
 Autobox relies on harnesses like Claude Code, Codex, and soon Cursor to carry out work. Relying on such continuously evolving tools adapted to the models they support enables an approach which adapts to newer, more capable models. Many internal tools such as diagram makers, documentation guides, or even /hwde PCB design or chip design flows are in the form of skills and rely on the main agent’s judgement to spawn workers and subagents, maintaining a flexible structure. This soft orchestration, layered with hard/deterministic checks run both at will and as part of gates, enables the construction of dynamically evolving architecture.
 
 ### Interconnection
 
 The most powerful part of the system is the interconnectedness of its components. Notably, planning sessions, workers, and subagents can talk to one another to gain more context into various systems and past/current/future goals and work. A master permissions session handles modifying agent and system permissions → essentially a glorified auto-mode classifier for Autobox.
+
+<mark class="wr-added">The motor driver shows it. Its first routing run took 57 minutes and came back with 406 clearance errors, because the hwde tool wrote the high-voltage rules where the design check reads them but not where the router does. The boards session raised it with the hwde project, which owns the tool, and the fix landed there and was synced back into boards the same morning.</mark>
 
 ### Knowledge management: low context, research first
 
@@ -49,11 +57,11 @@ Knowledge and information are stored and sent in various manners which allow the
 
 **Messages;** agents message one another via either back-end sockets, Slack, or prompt injection into one another’s sessions.
 
-**Forced context;** forced context is kept as small as possible. This includes a brief `CLAUDE.md` and a few other files which provide insight into how the system works, communication guidelines, etc.
+**Forced context;** forced context is kept as small as possible (about 7–11k tokens, vs. Claude Code’s system prompt of around 22k). This includes a brief `CLAUDE.md` and a few other files which provide insight into how the system works, communication guidelines, etc.
 
 ### Self-improvement and autonomous development
 
-**Failures;** agents scrape through past work, messages in Slack, and blatant failures and categorize them into a list of failures. Workers are then dispatched to make fixes and test them.
+**Failures;** agents scrape through past work, messages in Slack, and blatant failures and categorize them into a list of failures. Workers are then dispatched to make fixes and test them. <mark class="wr-added">The ledger holds about 2,000 records. The failure that recurs most right now is sessions carrying their context past the 150k line (587 records in the last two weeks), ahead of gates going red at landing (484).</mark>
 
 **Iterative improvement;** some processes will go through iterative improvement flows, in some cases similar to Karpathy’s autoresearch. In those cases, individual scripts and processes are improved iteratively using a lightweight agent and graded checks. Other times, past events and data will be replayed and used to iteratively improve a system. For example, the PR lander was improved by replaying two days of landings (111 PRs) to yield a lander that, in the replay, ran 328 checks instead of 595 and got its slowest landings (p95) through in 116 minutes instead of 231.
 
@@ -63,11 +71,13 @@ Knowledge and information are stored and sent in various manners which allow the
 
 **Self-landing;** projects merge their own PRs. Once a PR is ready, it’s queued for the lander, and the gates and reviews decide, with no approval from me. A red gate or a review finding still stops it and asks a person.
 
-**Spend tiers;** how much the box takes on by itself is one setting: stop, essential, moderate or autonomous. On autonomous it finds, fixes and explores work on its own, lower tiers take on less of what it finds, and on stop it only answers me.
+**Spend tiers;** how much the box takes on by itself is one setting: stop, essential, moderate or autonomous. On autonomous it finds, fixes and explores work on its own, lower tiers take on less of what it finds, and on stop it only answers me. <mark class="wr-added">For scale, in the last week the box used about $3,500 of tokens at API prices (an estimate; the tokens are the real measure), and its own repository landed 219 PRs. The motor driver’s runs came to about $111.</mark>
 
 ### Landing PRs
 
 Agents work in separate worktrees and on separate branches. In some cases, this new work can be deployed as a prototype for immediate use before the PR lands. In order for a PR to land, it must go through the lander. This system triggers a set of agent reviews as well as hard gates which are run adaptively based on the files that have been edited. Small PRs land alongside large ones, and large test suites are offloaded to another machine.
+
+<mark class="wr-added">The motor driver’s review caught that its fab files had been exported from an earlier copper revision than the board that passed its checks. The queue sent its own repair round and a rebase, and the PR landed without me.</mark>
 
 ## How I use Autobox
 
@@ -75,14 +85,32 @@ I use Autobox to manage my entire engineering, professional, and educational lif
 
 The best part of the system to me is the fact that it simply remembers what I need and does it. It is capable of inferring unspoken relationships between projects and picks up on minute details I mention and forget about. This makes it very powerful for cross-disciplinary and project work, and ensures very quick development.
 
+### EDA
+
+Autobox runs my AI-enabled PCB design flow called hwde. This includes both improvements/developments on the pipeline and also running PCB builds.
+
+In addition to hwde, the box runs chip design flows for digital, analog, and mixed-signal designs, as well as firmware and new product integration/bring-up flows.
+
+![<mark class="wr-added">The motor driver hwde designed, rendered in 3D from its KiCad board</mark>](pcb.gif)
+
+![<mark class="wr-added">A small test chip from the chip flow, an 8-bit counter, its layout in 3D</mark>](chip.gif)
+
 ### Library
 
-I built the library to manage all my documents, both human and AI written.
+I built the library to manage all my documents, both human and AI written. Generating documentation is important for me to be able to understand the systems and findings the AI system has developed. In order to better track revisions and interact with and edit documents, I built an “AI Overleaf” which allows for easy tracking of documents and their versions, document numbering, and editing. Through this flow, I can easily edit documents by commenting on existing work, adding lines to be rephrased, or adding text to keep in my writing.
 
 ![The library](library.gif)
 
+<mark class="wr-added">Every document gets a number such as 001-0004-B (project, document, revision), and a filed revision never changes. The recording shows the editor: I draw a box on the PDF and comment on it, change a line, or edit the LaTeX directly, then send the edits to the session that wrote the document, which files the next revision. The library holds 143 documents and 278 revisions so far.</mark>
+
 ### Lessons
 
-The lesson-builder skill was the first agent system I built back in March to study for my exams. Today, it ingests course materials and my notes automatically and builds lessons and teaches me.
+The lesson-builder skill was the first agent system I built back in March to study for my exams. Today, it ingests course materials and my notes automatically and builds lessons and teaches me. The pipeline employs a range of breadth and depth agents. The former survey the topic area and resources at hand and make a research plan, while the latter drill into certain topics and compile in-depth course notes. Those notes are then reformatted into an outline by pedagogy agents, which decide on the best way to both explain the content and present it using available media. Specialist agents will then generate the media and put the lesson together. The tutor runs a system prompt shaped to teach effectively, and can generate graphs, diagrams, or videos.
 
 ![A lesson and its tutor](lessons.gif)
+
+<mark class="wr-added">The recording shows a lesson on Fourier series. Its figures are live, and when I ask the tutor to draw what the filter does, it draws it into the chat.</mark>
+
+## <mark class="wr-added">What’s next</mark>
+
+<mark class="wr-added">The limitation I’m tackling next is the harness. I want any agent harness, not just Claude Code, to be able to run any seat. Codex will first review ten landed PRs in shadow, workers move after that, and planning sessions stay on Claude Code for now.</mark>
