@@ -135,8 +135,8 @@
         },
         {
           "name": "chip design flow",
-          "text": "AI chip designers for digital, analog and mixed‑signal work on open tools.",
-          "short": "AI chip designers.",
+          "text": "AI chip design for digital, analog, and mixed‑signal.",
+          "short": "AI chip design.",
           "href": "https://github.com/ihsan-sa/chip-flow",
           "result": "Three pipelines in the form of Claude Code skills aimed at digital, analog, and mixed‑signal design. These function similarly to hwde’s PCB pipeline, and leverage a combination of deterministic checks and evals, iterative improvement flows based on Karpathy’s autoresearch, and a soft orchestration layer which leverages agent judgement. These skills are being developed and used to design tiles for the Tiny Tapeout GF180 chip."
         }
