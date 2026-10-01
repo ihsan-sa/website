@@ -163,6 +163,14 @@ test('a static essay enlarges its figures with the same script the app imports',
   expect(index).not.toContain('wrZoom');
 });
 
+test('a static essay marks an added passage as the app does', () => {
+  const { parseEssay } = require('../scripts/writing');
+  const md = '---\ntitle: Z\ndate: 2026-09-03\nsummary: S.\nstandfirst: W.\ndraft: true\n---\n\nOld. <mark class="wr-added">New *em*.</mark>\n';
+  const { essay } = parseEssay(md, 'z');
+  const html = renderWriting([essay], shell)[1].html;
+  expect(html).toContain('<p class="wr-p">Old. <mark class="wr-added">New <em>em</em>.</mark></p>');
+});
+
 test('the public /writing rule leaves drafts unlisted and without a page', () => {
   const pages = renderWriting(twoEssays(), shell, { preview: false });
   expect(pages.map((p) => p.rel)).toEqual(['writing', 'writing/first']);

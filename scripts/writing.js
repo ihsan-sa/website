@@ -20,6 +20,7 @@
 //   published, so it must carry all five; without them it is a problem, which fails the build.
 // The body is markdown: ## and ### headings, paragraphs, *em*, **strong**, `code`, [links](url),
 // - and 1. lists, ``` fenced code, one > pull quote, footnotes ([^id] with `[^id]: text` lines),
+// <mark class="wr-added">…</mark> around an added passage (inside one block; see SHOW_ADDED),
 // and figures: an image alone in its paragraph, `![caption](file)`. A .svg figure is a diagram,
 // anything else an image. Clicking a figure enlarges it; a .gif with a same-named .mp4 beside
 // it (hero.gif, hero.mp4) plays that video instead (src/writing/zoom.js). A `## Further reading`
@@ -37,13 +38,17 @@ const EXAMPLES = path.join(CONTENT, '_examples');
 const OUT = path.join(ROOT, 'src', 'writing', 'essays.generated.json');
 const SITE = 'https://ihsan.cc';
 const WORDS_PER_MINUTE = 230;
+// Passages the box added to an owner's draft are wrapped in <mark class="wr-added">…</mark>
+// and shown on a soft background, so he can see what was worked in. Set this to false to
+// drop every highlight at once (the text stays); the marks can then be deleted at leisure.
+const SHOW_ADDED = true;
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
   'September', 'October', 'November', 'December'];
 
 // ---- inline markdown -------------------------------------------------------
 
 // Returns a list of nodes: {t:'text',v} {t:'em',c} {t:'strong',c} {t:'code',v}
-// {t:'link',href,c} {t:'fn',id}. Footnote numbers are filled in later.
+// {t:'link',href,c} {t:'fn',id} {t:'mark',c}. Footnote numbers are filled in later.
 function parseInline(src) {
   const out = [];
   let text = '';
@@ -55,7 +60,11 @@ function parseInline(src) {
   while (i < src.length) {
     const rest = src.slice(i);
     let m;
-    if ((m = rest.match(/^`([^`]+)`/))) {
+    if ((m = rest.match(/^<mark class="wr-added">([\s\S]+?)<\/mark>/))) {
+      flush();
+      if (SHOW_ADDED) out.push({ t: 'mark', c: parseInline(m[1]) });
+      else out.push(...parseInline(m[1]));
+    } else if ((m = rest.match(/^`([^`]+)`/))) {
       flush();
       out.push({ t: 'code', v: m[1] });
     } else if ((m = rest.match(/^\[\^([^\]\s]+)\]/))) {
@@ -383,7 +392,7 @@ function pages(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
   console.log(`writing: link-preview pages for /writing and ${live.length} essay(s)`);
 }
 
-module.exports = { parseEssay, parseReading, loadEssays, pages, withMeta, EXAMPLES };
+module.exports = { SHOW_ADDED, parseEssay, parseReading, loadEssays, pages, withMeta, EXAMPLES };
 
 if (require.main === module) {
   const cmd = process.argv[2];
