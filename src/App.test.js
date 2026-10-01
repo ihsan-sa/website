@@ -4,6 +4,7 @@ import path from 'path';
 import App, { PREVIEW_PATH, Prototype } from './App';
 import content from './content.json';
 import shelved from './content.shelved.json';
+import { SIDE_PHOTOS } from './sidePhotos';
 
 beforeEach(() => {
   document.documentElement.removeAttribute('data-theme');
@@ -141,7 +142,43 @@ test('the prototype renders only at its path, and asks not to be indexed', () =>
   front.unmount();
 });
 
-const ONE_ESSAY = [{ slug: 'a', title: 'First', summary: 'the one.', date: '2026-09-01' }];
+// The owner's photos sit in the margins of the draft only, until he approves
+// them for ihsan.cc/. Each is a small web copy that exists in public/, lazy, sized
+// so nothing shifts as it loads, and described.
+test('the side photos are on the draft only, lazy, sized and described', () => {
+  const all = [...SIDE_PHOTOS.left, ...SIDE_PHOTOS.right];
+  expect(all.length).toBeGreaterThan(0);
+
+  const front = render(<App />);
+  expect(front.container.querySelector('.pv-side, .pv-side__img')).toBeNull();
+  expect(front.container.querySelector('main')).not.toHaveClass('pv-proto--photos');
+  all.forEach(({ src }) => expect(front.container.innerHTML).not.toContain(src));
+  front.unmount();
+
+  window.history.pushState({}, '', PREVIEW_PATH);
+  const { container } = render(<App />);
+  expect(container.querySelector('main')).toHaveClass('pv-proto--photos');
+  ['left', 'right'].forEach((side) => {
+    const imgs = [...container.querySelectorAll(`.pv-side--${side} img`)];
+    expect(imgs.map((img) => img.getAttribute('src'))).toEqual(SIDE_PHOTOS[side].map(({ src }) => src));
+  });
+  all.forEach(({ src, alt, width, height }) => {
+    const img = container.querySelector(`img[src="${src}"]`);
+    expect(src).toMatch(/^\/images\/side\/[a-z0-9-]+\.webp$/);
+    const file = path.join(__dirname, '..', 'public', src);
+    expect(fs.existsSync(file)).toBe(true);
+    expect(fs.statSync(file).size).toBeLessThanOrEqual(150 * 1024);
+    expect(img).toHaveAttribute('loading', 'lazy');
+    expect(img).toHaveAttribute('width', String(width));
+    expect(img).toHaveAttribute('height', String(height));
+    expect(Math.max(width, height)).toBeLessThanOrEqual(900);
+    expect(alt.length).toBeGreaterThan(10);
+    expect(img).toHaveAttribute('alt', alt);
+    expect(img.classList.contains('pv-side__img--tall')).toBe(height > width);
+  });
+});
+
+const ONE_ESSAY =[{ slug: 'a', title: 'First', summary: 'the one.', date: '2026-09-01' }];
 
 test('the prototype puts a result under every experience row and AI project', () => {
   window.history.pushState({}, '', PREVIEW_PATH);

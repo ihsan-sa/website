@@ -3,6 +3,7 @@ import './Preview.css';
 import rawContent from './content.json';
 import { fillStats } from './fillStats';
 import { frontPage } from './frontPage';
+import { SIDE_PHOTOS } from './sidePhotos';
 import stats from './stats.json';
 import Writing, { matchWriting } from './writing/Writing';
 import allEssays from './writing/essays.generated.json';
@@ -94,6 +95,18 @@ function usePreviewFont() {
 }
 
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
+
+// The owner's photos down one side margin, on the draft only (src/sidePhotos.js).
+// Preview.css places the column and hides it on screens too narrow for it.
+function SidePhotos({ side }) {
+  return (
+    <aside className={`pv-side pv-side--${side}`} aria-label="Photos">
+      {SIDE_PHOTOS[side].map(({ src, width, height, alt }) => (
+        <img key={src} className={height > width ? 'pv-side__img pv-side__img--tall' : 'pv-side__img'} src={src} width={width} height={height} alt={alt} loading="lazy" decoding="async" />
+      ))}
+    </aside>
+  );
+}
 
 // A PDF link on the prototype names what it is, with no page count.
 function DocLink({ label, href }) {
@@ -232,7 +245,8 @@ function ProtoEntry({ name: entryName, text, where, short, href, result, detail,
 //
 // `front` renders ihsan.cc/: the draft minus its documents, published essays
 // only (none yet), linked at /writing, and no noindex. Without it, this is the
-// draft at PREVIEW_PATH: documents, every essay (drafts too), noindex.
+// draft at PREVIEW_PATH: documents, every essay (drafts too), noindex, and the
+// owner's photos in the side margins.
 export function Prototype({ front: isFront = false, essays = isFront ? published : allEssays }) {
   const [isDark, toggleTheme] = useTheme();
   useNoindex(!isFront);
@@ -243,7 +257,7 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
   const writing = isFront ? '/writing' : `${PREVIEW_PATH}/writing`;
 
   return (
-    <main className="pv pv-proto">
+    <main className={isFront ? 'pv pv-proto' : 'pv pv-proto pv-proto--photos'}>
       <nav className="pv-links pv-links--compact" aria-label="Contact and profiles">
         <span className="pv-links__row">
           <span className="pv-links__rest">
@@ -315,6 +329,13 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
           ))}
         </div>
       </section>
+
+      {!isFront && (
+        <>
+          <SidePhotos side="left" />
+          <SidePhotos side="right" />
+        </>
+      )}
     </main>
   );
 }

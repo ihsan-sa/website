@@ -87,7 +87,7 @@ const TYPES = {
   '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg',
   '.ico': 'image/x-icon', '.pdf': 'application/pdf', '.vcf': 'text/vcard',
   '.txt': 'text/plain', '.svg': 'image/svg+xml', '.map': 'application/json',
-  '.gif': 'image/gif', '.mp4': 'video/mp4',
+  '.gif': 'image/gif', '.mp4': 'video/mp4', '.webp': 'image/webp',
 };
 
 // The design handoff's reference HTML, served at /__ref/ with the repo's own
@@ -210,6 +210,7 @@ async function main() {
           }
           for (const img of document.images) {
             if (img.closest('[inert], details:not([open])')) continue; // lazy, loads when its fold opens
+            if (!img.getClientRects().length) continue; // not shown at this width (the draft's side photos), so lazy never loads it
             if (!img.complete || img.naturalWidth === 0) out.brokenImgs.push(img.getAttribute('src'));
           }
           // Inline links inside a sentence are exempt (WCAG 2.5.8); the fold
@@ -339,7 +340,7 @@ async function main() {
             window.scrollTo(0, 0);
           });
           await page.waitForLoadState('networkidle');
-          const broken = await page.evaluate(() => [...document.images].filter((i) => !i.complete || i.naturalWidth === 0).map((i) => i.getAttribute('src')));
+          const broken = await page.evaluate(() => [...document.images].filter((i) => i.getClientRects().length && (!i.complete || i.naturalWidth === 0)).map((i) => i.getAttribute('src')));
           broken.forEach((s) => problems.push(where(`image did not load with folds open: ${s}`)));
           const openShot = path.join(OUT, `${tag}-open.png`);
           await page.screenshot({ path: openShot, fullPage: true });
@@ -382,7 +383,7 @@ async function main() {
             window.scrollTo(0, 0);
           });
           await page.waitForLoadState('networkidle');
-          const broken = await page.evaluate(() => [...document.images].filter((i) => !i.complete || i.naturalWidth === 0).map((i) => i.getAttribute('src')));
+          const broken = await page.evaluate(() => [...document.images].filter((i) => i.getClientRects().length && (!i.complete || i.naturalWidth === 0)).map((i) => i.getAttribute('src')));
           broken.forEach((s) => problems.push(where(`image did not load with rows open: ${s}`)));
           const openShot = path.join(OUT, `${tag}-open.png`);
           await page.screenshot({ path: openShot, fullPage: true });
