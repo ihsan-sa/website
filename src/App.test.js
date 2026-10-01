@@ -4,6 +4,7 @@ import path from 'path';
 import App, { PREVIEW_PATH, Prototype } from './App';
 import content from './content.json';
 import shelved from './content.shelved.json';
+import { ESSAY_BANNER } from './essayBanner';
 import { SIDE_PHOTOS } from './sidePhotos';
 
 beforeEach(() => {
@@ -203,8 +204,8 @@ test('the prototype puts a result under every experience row and AI project', ()
   const withLink = ({ heading, headLink, docs }) =>
     [heading, ...(headLink ? [headLink.label] : []), ...(docs || []).map(doc)].join(' ');
   expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
-    withLink(prototype.experience),
     withLink(prototype.aiWork),
+    withLink(prototype.experience),
     prototype.essays.heading,
     withLink(prototype.projects),
   ]);
@@ -227,7 +228,7 @@ test('the prototype orders AI work hwde, autobox, lesson-builder, then the chip 
     'lesson-builder',
     'chip design flow',
   ]);
-  const names = [...container.querySelectorAll('.pv-block:nth-of-type(2) .pv-entry .pv-strong')];
+  const names = [...container.querySelectorAll('.pv-block:nth-of-type(1) .pv-entry .pv-strong')];
   expect(names.map((n) => n.textContent)).toEqual(prototype.aiWork.items.map(({ name }) => name));
 
   // Every AI name links its GitHub repo.
@@ -412,4 +413,154 @@ test('the name link on a folded row stays a link and does not toggle the row', (
   expect(link.closest('[inert]')).toBeNull();
   fireEvent.click(link);
   expect(rowButton('lesson-builder')).toHaveAttribute('aria-expanded', 'false');
+});
+
+// ---- The draft reworked for outreach -----------------------------------------
+// Everything below is on the draft only, until the owner moves the whole draft to
+// the front page in one step.
+
+const AUTOBOX_ESSAY = {
+  slug: 'autobox', title: 'Autobox', summary: 'how I built it.', standfirst: 'How I built Autobox.', date: '2026-09-30', draft: true,
+};
+const h2s = () => screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+
+test('the draft puts AI work above Experience', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  const headings = h2s();
+  const ai = headings.findIndex((h) => h.startsWith(prototype.aiWork.heading));
+  const exp = headings.findIndex((h) => h.startsWith(prototype.experience.heading));
+  expect(ai).toBe(0);
+  expect(exp).toBe(1);
+  // Experience keeps its folded one-line rows.
+  prototype.experience.items.forEach(({ name }) => expect(rowButton(name)).toHaveAttribute('aria-expanded', 'false'));
+});
+
+test('the front page is unchanged: Experience first, no banner, no Show more, no row visuals', () => {
+  const { container } = render(<App essays={[{ ...AUTOBOX_ESSAY, draft: false }]} />);
+  expect(h2s()).toEqual([
+    prototype.experience.heading,
+    prototype.aiWork.heading,
+    prototype.essays.heading,
+    `${prototype.projects.heading} ${prototype.projects.headLink.label}`,
+  ]);
+  expect(container.querySelector('.pv-banner, video, .pv-about, .pv-about__btn, .pv-visual')).toBeNull();
+  expect(screen.queryByRole('button', { name: prototype.aboutFold.more })).toBeNull();
+  // The intro is the plain header it was: name, subtitle, then each about paragraph.
+  const intro = container.querySelector('.pv-intro');
+  expect([...intro.children].map((el) => el.tagName)).toEqual(['H1', 'P', ...prototype.about.map(() => 'P')]);
+  expect(intro.nextElementSibling.tagName).toBe('SECTION');
+  prototype.aiWork.items.forEach(({ visual }) => expect(container.innerHTML).not.toContain(visual.src));
+});
+
+test('the draft banner plays the essay clip muted, looping and inline, and links the draft essay', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  const { container } = render(<Prototype essays={[AUTOBOX_ESSAY]} />);
+  const banner = container.querySelector('a.pv-banner');
+  expect(banner).toHaveAttribute('href', `${PREVIEW_PATH}/writing/autobox`);
+  expect(banner.previousElementSibling).toHaveClass('pv-intro');
+  expect(banner.nextElementSibling.tagName).toBe('SECTION');
+  expect(banner).toHaveTextContent(prototype.essays.banner);
+  expect(banner).toHaveTextContent(AUTOBOX_ESSAY.title);
+  expect(banner).toHaveTextContent(AUTOBOX_ESSAY.standfirst);
+  const video = banner.querySelector('video');
+  expect(video.muted).toBe(true);
+  expect(video).toHaveAttribute('muted');
+  expect(video.loop).toBe(true);
+  expect(video.autoplay).toBe(true);
+  expect(video).toHaveAttribute('playsinline');
+  expect(video).toHaveAttribute('poster', ESSAY_BANNER.poster);
+  expect(video).toHaveAttribute('width', String(ESSAY_BANNER.width));
+  expect(video).toHaveAttribute('height', String(ESSAY_BANNER.height));
+  expect(video.querySelector('source')).toHaveAttribute('src', ESSAY_BANNER.video);
+  expect(video.querySelector('img')).toHaveAttribute('src', ESSAY_BANNER.gif);
+  // The clip, its fallback and its light poster ship with the site.
+  [ESSAY_BANNER.video, ESSAY_BANNER.gif, ESSAY_BANNER.poster].forEach((src) =>
+    expect(fs.existsSync(path.join(__dirname, '..', 'public', src))).toBe(true));
+  expect(ESSAY_BANNER.poster).toMatch(/\.webp$/);
+  expect(fs.statSync(path.join(__dirname, '..', 'public', ESSAY_BANNER.poster)).size).toBeLessThanOrEqual(60 * 1024);
+});
+
+test('with no Autobox essay the draft shows no banner', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  const { container } = render(<Prototype essays={ONE_ESSAY} />);
+  expect(container.querySelector('.pv-banner')).toBeNull();
+});
+
+test('with reduced motion asked for, the banner neither autoplays nor preloads, and shows its poster', () => {
+  const original = window.matchMedia;
+  window.matchMedia = (query) => ({ ...original(query), matches: query === '(prefers-reduced-motion: reduce)' });
+  const pause = jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+  try {
+    window.history.pushState({}, '', PREVIEW_PATH);
+    const { container } = render(<Prototype essays={[AUTOBOX_ESSAY]} />);
+    const video = container.querySelector('.pv-banner video');
+    expect(video.autoplay).toBe(false);
+    expect(video).not.toHaveAttribute('autoplay');
+    expect(video).toHaveAttribute('preload', 'none');
+    expect(video).toHaveAttribute('poster', ESSAY_BANNER.poster);
+    expect(pause).toHaveBeenCalled();
+  } finally {
+    window.matchMedia = original;
+    pause.mockRestore();
+  }
+});
+
+test('the draft about folds on a phone behind a Show more button that says whether it is open', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  const { container } = render(<App />);
+  const button = screen.getByRole('button', { name: prototype.aboutFold.more });
+  expect(button).toHaveAttribute('type', 'button');
+  expect(button).toHaveAttribute('aria-expanded', 'false');
+  const about = document.getElementById(button.getAttribute('aria-controls'));
+  expect(about).toHaveClass('pv-about');
+  expect(about).not.toHaveClass('pv-about--open');
+  // The subtitle stays out, above the fold; the about paragraphs are in it.
+  expect(about.previousElementSibling).toHaveTextContent(prototype.subtitle);
+  prototype.about.forEach((t) => expect(about).toContainElement(screen.getByText(t)));
+  expect(container.querySelector('.pv-intro')).toContainElement(button);
+  fireEvent.click(button);
+  expect(button).toHaveAttribute('aria-expanded', 'true');
+  expect(button).toHaveTextContent(prototype.aboutFold.less);
+  expect(about).toHaveClass('pv-about--open');
+  fireEvent.click(button);
+  expect(button).toHaveAttribute('aria-expanded', 'false');
+  expect(about).not.toHaveClass('pv-about--open');
+  // Folded, the text is display: none on a phone, so neither tabbable nor read
+  // out; above 640px the button is hidden and the text always shows.
+  const css = read('src', 'Preview.css');
+  const phone = css.match(/@media \(max-width: 640px\) \{\n {2}\.pv-proto \.pv-about:not\(\.pv-about--open\) \{ display: none; \}/);
+  expect(phone).not.toBeNull();
+  expect(css).toMatch(/^\.pv-proto \.pv-about__btn \{ display: none; \}$/m);
+});
+
+test('every AI row on the draft opens on a light visual, lazy and sized so nothing shifts', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  prototype.aiWork.items.forEach(({ name, visual }) => {
+    expect(visual).toBeTruthy();
+    const img = rowPanel(name).querySelector('.pv-visual img');
+    expect(img).toHaveAttribute('src', visual.src);
+    expect(img).toHaveAttribute('loading', 'lazy');
+    expect(img).toHaveAttribute('width', String(visual.width));
+    expect(img).toHaveAttribute('height', String(visual.height));
+    expect(visual.alt.length).toBeGreaterThan(20);
+    expect(img).toHaveAttribute('alt', visual.alt);
+    expect(visual.src).toMatch(/\.(webp|svg)$/);
+    const file = path.join(__dirname, '..', 'public', visual.src);
+    expect(fs.existsSync(file)).toBe(true);
+    expect(fs.statSync(file).size).toBeLessThanOrEqual(60 * 1024);
+  });
+  // Experience rows carry none.
+  prototype.experience.items.forEach(({ name, visual }) => {
+    expect(visual).toBeUndefined();
+    expect(rowPanel(name).querySelector('.pv-visual')).toBeNull();
+  });
+});
+
+test('the Autobox essay is still a draft and carries its standfirst', () => {
+  const md = read('content', 'writing', 'autobox.md');
+  const front = md.match(/^---\n([\s\S]*?)\n---\n/)[1];
+  expect(front).toMatch(/^draft: true$/m);
+  expect(front).toContain('standfirst: "How I built Autobox, the AI agents on a small home server that run my projects, and how I use it."');
 });

@@ -278,6 +278,84 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pv-proto .pv-head-link { font-size: 15px; font-weight: 400; color: var(--label); }
 .pv-proto .pv-head-link:hover { color: inherit; }
 
+/* Draft only: the about paragraphs fold away on a phone, below the subtitle, behind a
+   Show more button (App.js, Intro). display: none keeps them out of the tab order and
+   away from a screen reader while folded. Above 640px they always show and the button
+   is gone. */
+.pv-proto .pv-about { display: flex; flex-direction: column; gap: 14px; }
+.pv-proto .pv-about__btn { display: none; }
+@media (max-width: 640px) {
+  .pv-proto .pv-about:not(.pv-about--open) { display: none; }
+  .pv-proto .pv-about__btn {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    min-height: 32px;
+    margin-top: -8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    appearance: none;
+    font: inherit;
+    font-size: 15px;
+    color: var(--label);
+    text-decoration: underline;
+    text-decoration-color: var(--pv-link-rule);
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+  .pv-proto .pv-about__btn:hover { color: inherit; }
+}
+
+/* Draft only: the essay banner under the intro, one link. The clip fills the column at
+   16:9 (its width and height are set, so nothing shifts as it loads), with the essay's
+   title and standfirst under it. */
+.pv-proto .pv-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+.pv-proto .pv-banner__video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 3px;
+  background: var(--thumb-bg);
+}
+.pv-proto .pv-banner__text { display: flex; flex-direction: column; gap: 2px; }
+.pv-proto .pv-banner__label {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--label);
+}
+.pv-proto .pv-banner__title {
+  font-size: 20px;
+  line-height: 1.3;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--pv-link-rule);
+  text-underline-offset: 3px;
+}
+.pv-proto .pv-banner:hover .pv-banner__title { text-decoration-color: currentColor; }
+.pv-proto .pv-banner__stand { font-size: 15px; line-height: 1.5; opacity: 0.85; }
+
+/* Draft only: a visual in an AI row's fold, under its result: a screenshot, a render or
+   a diagram, lazy, with its width and height set so opening the row does not jump. */
+.pv-proto .pv-visual { margin: 8px 0 6px; max-width: 520px; }
+.pv-proto .pv-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
+  background: var(--thumb-bg);
+}
+.pv-proto .pv-visual figcaption { font-size: 13px; line-height: 1.4; margin-top: 4px; opacity: 0.75; }
+
 /* The owner's photos in the side margins, on the draft only (.pv-proto--photos;
    App.js leaves them off the front page). Desktop only: below 1280px the margin is
    too narrow, so they are not shown and, being lazy, not loaded.

@@ -3,6 +3,7 @@ title: Autobox
 date: 2026-09-30
 draft: true
 summary: how I built and use my agentic orchestration system.
+standfirst: "How I built Autobox, the AI agents on a small home server that run my projects, and how I use it."
 ---
 
 *For a deeper look at how Autobox works, there’s a [12-page technical write-up](https://library.ihsan.cc/p/HsAJRgs_GfofW_v0Sh8MDu5tOHlGXlP4).*

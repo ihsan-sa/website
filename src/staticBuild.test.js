@@ -34,10 +34,10 @@ test('the front page is the draft minus its documents, with all its copy in the 
   expect(html).toMatch(/<button[^>]*id="theme-toggle"[^>]*hidden/);
 });
 
-test('frontPage drops section and row documents and keeps every link of its own', () => {
+test('frontPage drops section and row documents and row visuals, and keeps every link of its own', () => {
   const block = {
     experience: { heading: 'E', docs: [{ label: 'D', href: '/d.pdf' }], items: [{ name: 'a', href: '/a', docs: [{ label: 'x', href: '/x.pdf' }], start: 'S.' }] },
-    aiWork: { heading: 'A', items: [{ name: 'b', href: 'https://github.com/ihsan-sa/b', result: 'R.' }] },
+    aiWork: { heading: 'A', items: [{ name: 'b', href: 'https://github.com/ihsan-sa/b', result: 'R.', visual: { src: '/v.webp', width: 1, height: 1, alt: 'V' } }] },
     projects: { heading: 'P', headLink: { label: 'H', href: '/h' }, items: [] },
   };
   expect(frontPage(block)).toEqual({
