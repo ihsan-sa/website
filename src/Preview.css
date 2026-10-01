@@ -123,10 +123,25 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 /* A row name that leaves the site ends in a small, lighter arrow, left out of the underline. */
 .pv-proto .pv-name-link__out {
   display: inline-block;
-  margin-left: 0.2em;
-  font-size: 0.75em;
-  opacity: 0.6;
+  margin-left: 0.15em;
+  font-size: 0.8em;
+  font-weight: 400;
+  opacity: 0.55;
   text-decoration: none;
+}
+.pv-proto a:hover .pv-name-link__out { opacity: 1; }
+
+/* A one- or two-line subtitle under an AI row's head line, desktop only, for stats. */
+.pv-proto .pv-entry__sub {
+  display: block;
+  margin: 2px 0 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--label, var(--ink));
+  text-wrap: pretty;
+}
+@media (max-width: 640px) {
+  .pv-proto .pv-entry__sub { display: none; }
 }
 
 /* The closing line of a fold. */

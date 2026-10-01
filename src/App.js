@@ -252,6 +252,7 @@ function Heading({ heading, headLink, docs }) {
           {' '}
           <a className="pv-link pv-head-link" href={headLink.href} {...NEW_TAB}>
             {headLink.label}
+            {headLink.arrow && <span className="pv-name-link__out" aria-hidden="true">{'\u2197'}</span>}
           </a>
         </>
       )}
@@ -322,7 +323,7 @@ export function RowVisual({ visual }) {
 // over the whole line, so a click anywhere on it opens the row, while the name
 // link sits above that layer and still just opens its page. The panel is inert
 // while folded, so its links are neither tabbable nor read out.
-function ProtoEntry({ name: entryName, text, where, short, href, result, visual, detail, figure, docs, start, note, writing }) {
+function ProtoEntry({ name: entryName, text, where, short, sub, href, result, visual, detail, figure, docs, start, note, writing }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const hasMore = Boolean(result || visual || detail || figure || docs || start || note);
@@ -357,6 +358,7 @@ function ProtoEntry({ name: entryName, text, where, short, href, result, visual,
           />
         )}
       </p>
+      {sub && <p className="pv-entry__sub">{sub}</p>}
       {hasMore && (
         <div className="pv-fold" id={panelId} inert={!open}>
           <div className="pv-fold__inner">

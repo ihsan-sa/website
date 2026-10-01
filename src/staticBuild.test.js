@@ -22,8 +22,8 @@ test('the front page is the draft minus its documents, with all its copy in the 
   pt.aiWork.items.forEach(({ href }) => expect(html).toContain(`href="${href}"`));
   pt.projects.items.forEach(({ href }) => expect(html).toContain(`href="${href}"`));
   // The draft's documents beside AI work, and its essays, are not on it.
-  expect(content.prototype.aiWork.docs.length).toBeGreaterThan(0);
-  content.prototype.aiWork.docs.forEach(({ label }) => expect(body).not.toContain(label));
+  expect(content.prototype.aiWork.docs).toBeUndefined();
+  expect(body).not.toContain('AI portfolio');
   expect(body).not.toMatch(/pv-docs|pv-pending|pv-start/);
   expect(body).not.toContain(`href="${STATIC_PATH}writing/"`);
   expect(html).toContain('<meta name="robots" content="noindex" />');
@@ -68,13 +68,23 @@ test('a static row visual with no poster or video is a plain image', () => {
   expect(html).toContain('<figure class="pv-figure"><img src="/f.svg" alt="F." loading="lazy" decoding="async" /><figcaption>C.</figcaption></figure>');
 });
 
-test('the draft puts its documents beside the AI work heading, a pending one as text', () => {
+test('the AI work heading is plain, the Hardware portfolio link has the arrow and essay titles do not', () => {
   const html = renderDraft(content);
-  const head = html.match(/<h2 class="pv-head-with-link">AI work[\s\S]*?<\/h2>/)[0];
-  content.prototype.aiWork.docs.forEach(({ label, href, pending }) => {
-    if (href) expect(head).toContain(`<a class="pv-link pv-head-link" href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`);
-    else expect(head).toContain(`<span class="pv-head-link pv-pending">${label} (${pending})</span>`);
+  expect(html).toContain('<h2>AI work</h2>');
+  const head = html.match(/<h2 class="pv-head-with-link">Projects[\s\S]*?<\/h2>/)[0];
+  expect(head).toContain('Hardware portfolio<span class="pv-name-link__out" aria-hidden="true">\u2197</span></a>');
+  html.match(/<a class="pv-strong pv-name-link" href="[^"]*\/writing\/[^"]*">[^<]*<\/a>/g)?.forEach((a) => expect(a).not.toContain('__out'));
+});
+
+test('each AI row has its subtitle, in the summary of a folded row so a shut fold keeps it', () => {
+  const html = renderDraft(content);
+  content.prototype.aiWork.items.forEach(({ sub }) => {
+    expect(sub).toBeTruthy();
+    expect(html).toMatch(new RegExp(`<(span|p) class="pv-entry__sub">${sub.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</\\1>`));
   });
+  expect(html).toMatch(/<summary class="pv-entry__head">[^]*?<span class="pv-entry__sub">[^]*?<\/summary>/);
+  const plain = renderDraft({ ...content, prototype: { ...content.prototype, aiWork: { heading: 'A', items: [{ name: 'b', text: 't.', sub: 'S & s.' }] } } });
+  expect(plain).toContain('<p class="pv-entry__sub">S &amp; s.</p>');
 });
 
 test('page() leaves noindex out when asked, for the day it moves to /', () => {
