@@ -317,14 +317,19 @@ function block(b, notes, seen) {
     case 'ol': return `<${b.t} class="wr-list">${b.items.map((item) => `<li>${il(item)}</li>`).join('')}</${b.t}>`;
     case 'hr': return '<hr class="wr-rule" />';
     case 'figure': {
-      const { kind, src, alt, caption, width, height, missing, video } = b;
+      const { kind, src, alt, caption, width, height, missing, video, poster } = b;
       // A diagram shrinks to fit the column on a phone rather than scrolling sideways.
-      // A click on the figure enlarges it, or plays its video (ZOOM_SCRIPT).
+      // A click on the figure enlarges it, or plays its video (ZOOM_SCRIPT). A GIF with
+      // its .mp4 and a poster is the video itself, on its poster, preloading nothing;
+      // ZOOM_SCRIPT plays it as it nears the screen (Writing.js, InlineClip).
       const label = `${video ? 'Play full size' : 'Enlarge'}: ${alt}`;
+      const size = `${width ? ` width="${width}"` : ''}${height ? ` height="${height}"` : ''}`;
+      const media = video && poster
+        ? `<video class="wr-figure__img wr-figure__video" poster="${esc(poster)}"${size}${width && height ? ` style="aspect-ratio: ${width} / ${height}"` : ''} muted loop playsinline preload="none" aria-label="${esc(alt)}"><source src="${esc(video)}" type="video/mp4" /></video>`
+        : `<img class="wr-figure__img" src="${esc(src)}" alt="${esc(alt)}"${size} loading="lazy" decoding="async" />`;
       const img = missing
         ? `<div class="wr-figure__missing">Figure not added yet: ${esc(src.split('/').pop())}</div>`
-        : `<a class="wr-figure__zoom" href="${esc(video || src)}"${video ? ` data-video="${esc(video)}"` : ''} aria-label="${esc(label)}" aria-haspopup="dialog">`
-          + `<img class="wr-figure__img" src="${esc(src)}" alt="${esc(alt)}"${width ? ` width="${width}"` : ''}${height ? ` height="${height}"` : ''} loading="lazy" /></a>`;
+        : `<a class="wr-figure__zoom" href="${esc(video || src)}"${video ? ` data-video="${esc(video)}"` : ''} aria-label="${esc(label)}" aria-haspopup="dialog">${media}</a>`;
       return `<figure class="wr-figure wr-figure--${kind}"><div class="wr-figure__frame">${img}</div><figcaption class="wr-figure__caption">${il(caption)}</figcaption></figure>`;
     }
     default: return `<p class="wr-p">${il(b.c)}</p>`;

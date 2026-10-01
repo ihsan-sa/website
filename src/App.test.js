@@ -5,6 +5,7 @@ import App, { PREVIEW_PATH, Prototype } from './App';
 import content from './content.json';
 import shelved from './content.shelved.json';
 import { ESSAY_BANNER } from './essayBanner';
+import { PROJECT_THUMBS } from './projectThumbs';
 import { SIDE_PHOTOS } from './sidePhotos';
 
 beforeEach(() => {
@@ -472,13 +473,58 @@ test('the draft banner plays the essay clip muted, looping and inline, and links
   expect(video).toHaveAttribute('poster', ESSAY_BANNER.poster);
   expect(video).toHaveAttribute('width', String(ESSAY_BANNER.width));
   expect(video).toHaveAttribute('height', String(ESSAY_BANNER.height));
+  expect(video.playsInline).toBe(true);
+  expect(video.defaultMuted).toBe(true);
+  // It may fetch the clip's first bytes, never the whole of it up front.
+  expect(video).toHaveAttribute('preload', 'metadata');
   expect(video.querySelector('source')).toHaveAttribute('src', ESSAY_BANNER.video);
-  expect(video.querySelector('img')).toHaveAttribute('src', ESSAY_BANNER.gif);
-  // The clip, its fallback and its light poster ship with the site.
-  [ESSAY_BANNER.video, ESSAY_BANNER.gif, ESSAY_BANNER.poster].forEach((src) =>
+  // No GIF stands behind it: an <img> inside a <video> downloads even when unseen.
+  expect(video.querySelector('img')).toBeNull();
+  expect(container.innerHTML).not.toMatch(/\.gif\b/);
+  // The clip and its light poster ship with the site, at web weight.
+  [ESSAY_BANNER.video, ESSAY_BANNER.poster].forEach((src) =>
     expect(fs.existsSync(path.join(__dirname, '..', 'public', src))).toBe(true));
   expect(ESSAY_BANNER.poster).toMatch(/\.webp$/);
   expect(fs.statSync(path.join(__dirname, '..', 'public', ESSAY_BANNER.poster)).size).toBeLessThanOrEqual(60 * 1024);
+  expect(fs.statSync(path.join(__dirname, '..', 'public', ESSAY_BANNER.video)).size).toBeLessThanOrEqual(4 * 1024 * 1024);
+});
+
+test('the banner asks to play as it nears the screen, keeps its poster if refused, and pauses off it', async () => {
+  const observers = [];
+  const original = window.IntersectionObserver;
+  window.IntersectionObserver = class {
+    constructor(cb, opts) { this.cb = cb; this.opts = opts; this.targets = []; this.gone = false; observers.push(this); }
+    observe(t) { this.targets.push(t); }
+    disconnect() { this.gone = true; }
+  };
+  const refused = Promise.reject(new DOMException('Low Power Mode', 'NotAllowedError'));
+  refused.catch(() => {});
+  const play = jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => refused);
+  const pause = jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+  try {
+    window.history.pushState({}, '', PREVIEW_PATH);
+    const { container, unmount } = render(<Prototype essays={[AUTOBOX_ESSAY]} />);
+    const video = container.querySelector('.pv-banner video');
+    expect(observers).toHaveLength(1);
+    const [io] = observers;
+    expect(io.targets).toEqual([video]);
+    expect(io.opts.rootMargin).toMatch(/px/);
+    expect(play).not.toHaveBeenCalled();
+    io.cb([{ isIntersecting: true, target: video }]);
+    expect(play).toHaveBeenCalledTimes(1);
+    expect(video.muted).toBe(true);
+    // The refusal is caught: nothing throws, and the poster is still there.
+    await Promise.resolve();
+    expect(video).toHaveAttribute('poster', ESSAY_BANNER.poster);
+    io.cb([{ isIntersecting: false, target: video }]);
+    expect(pause).toHaveBeenCalled();
+    unmount();
+    expect(io.gone).toBe(true);
+  } finally {
+    window.IntersectionObserver = original;
+    play.mockRestore();
+    pause.mockRestore();
+  }
 });
 
 test('with no Autobox essay the draft shows no banner', () => {
@@ -532,6 +578,45 @@ test('the draft about folds on a phone behind a Show more button that says wheth
   const phone = css.match(/@media \(max-width: 640px\) \{\n {2}\.pv-proto \.pv-about:not\(\.pv-about--open\) \{ display: none; \}/);
   expect(phone).not.toBeNull();
   expect(css).toMatch(/^\.pv-proto \.pv-about__btn \{ display: none; \}$/m);
+});
+
+// Text first: every image on the draft waits until it nears the screen, holds its box
+// from the first paint, and decodes off the main thread. None is eager; the only
+// thing fetched up front is the banner's small poster (App.js, imgProps).
+test('every image on the draft is lazy, sized and decoded off the main thread', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  const { container } = render(<App />);
+  const imgs = [...container.querySelectorAll('img')];
+  expect(imgs.length).toBeGreaterThan(SIDE_PHOTOS.strip.length + prototype.projects.items.length);
+  imgs.forEach((img) => {
+    expect(img).toHaveAttribute('loading', 'lazy');
+    expect(img).toHaveAttribute('decoding', 'async');
+    expect(Number(img.getAttribute('width'))).toBeGreaterThan(0);
+    expect(Number(img.getAttribute('height'))).toBeGreaterThan(0);
+  });
+  // The project tiles show their small web copies, each one on disk and light.
+  const tiles = [...container.querySelectorAll('.pv-hw__img')];
+  expect(tiles.map((t) => t.getAttribute('src'))).toEqual(prototype.projects.items.map(({ image }) => PROJECT_THUMBS[image].src));
+  Object.values(PROJECT_THUMBS).forEach(({ src }) => {
+    const file = path.join(__dirname, '..', 'public', src);
+    expect(fs.statSync(file).size).toBeLessThanOrEqual(80 * 1024);
+  });
+  // Every placeholder fill follows the theme.
+  const css = read('src', 'Preview.css');
+  ['.pv-hw__img', '.pv-side__img', '.pv-strip__img', '.pv-proto .pv-visual img', '.pv-proto .pv-banner__video'].forEach((sel) => {
+    const rule = css.slice(css.indexOf(`${sel} {`));
+    expect(rule.slice(0, rule.indexOf('}'))).toContain('background: var(--thumb-bg)');
+  });
+});
+
+test('the front page keeps its original project images', () => {
+  const { container } = render(<App essays={[]} />);
+  const tiles = [...container.querySelectorAll('.pv-hw__img')];
+  expect(tiles.map((t) => t.getAttribute('src'))).toEqual(prototype.projects.items.map(({ image }) => image));
+  tiles.forEach((t) => {
+    expect(t).toHaveAttribute('loading', 'lazy');
+    expect(t).not.toHaveAttribute('width');
+  });
 });
 
 test('every AI row on the draft opens on a light visual, lazy and sized so nothing shifts', () => {

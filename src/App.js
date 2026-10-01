@@ -4,6 +4,7 @@ import rawContent from './content.json';
 import { ESSAY_BANNER } from './essayBanner';
 import { fillStats } from './fillStats';
 import { frontPage } from './frontPage';
+import { PROJECT_THUMBS } from './projectThumbs';
 import { SIDE_PHOTOS } from './sidePhotos';
 import stats from './stats.json';
 import Writing, { matchWriting } from './writing/Writing';
@@ -118,23 +119,41 @@ function useReducedMotion() {
 
 // The draft's banner under the intro: the essay's clip (src/essayBanner.js), muted,
 // looping and inline, over its title and standfirst, the whole of it one link to the
-// essay. With reduced motion asked for, it neither autoplays nor preloads, and the
-// poster frame stands in its place. React sets `muted` as a property only, so the
-// attribute is added as well: some phones read it before they will autoplay.
+// essay. It sits on its poster frame until the clip plays, and nothing else stands in:
+// a browser that will not play it keeps the poster. React sets `muted` as a property
+// only, so the effect sets the attribute and defaultMuted too, which some phones read
+// before they will autoplay. Besides `autoplay`, it asks to play each time the banner
+// comes near the screen (and pauses when it leaves), catching a refusal such as
+// Low Power Mode's. With reduced motion asked for, it neither autoplays nor preloads,
+// and the poster stands in its place.
 function EssayBanner({ essay, href, label }) {
   const still = useReducedMotion();
   const videoRef = useRef(null);
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) return undefined;
     video.defaultMuted = true;
     video.muted = true;
     video.setAttribute('muted', '');
-  }, []);
-  useEffect(() => {
-    if (still && videoRef.current) videoRef.current.pause();
+    if (still) {
+      video.pause();
+      return undefined;
+    }
+    // Without an observer (jsdom, old browsers) `autoplay` alone starts it.
+    if (typeof IntersectionObserver !== 'function') return undefined;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) {
+        video.pause();
+        return;
+      }
+      video.muted = true;
+      const playing = video.play();
+      if (playing && playing.catch) playing.catch(() => {}); // refused: the poster stays
+    }, { rootMargin: '200px 0px' });
+    observer.observe(video);
+    return () => observer.disconnect();
   }, [still]);
-  const { video, gif, poster, width, height } = ESSAY_BANNER;
+  const { video, poster, width, height } = ESSAY_BANNER;
 
   return (
     <a className="pv-banner" href={href}>
@@ -148,12 +167,11 @@ function EssayBanner({ essay, href, label }) {
         loop
         muted
         playsInline
-        preload={still ? 'none' : 'auto'}
+        preload={still ? 'none' : 'metadata'}
         aria-hidden="true"
         tabIndex={-1}
       >
         <source src={video} type="video/mp4" />
-        <img src={gif} alt="" width={width} height={height} />
       </video>
       <span className="pv-banner__text">
         <span className="pv-banner__label">{label}</span>
@@ -203,6 +221,11 @@ function Intro({ block, folds }) {
 
 // The owner's photos on the draft only (src/sidePhotos.js). Preview.css places the
 // two side columns (desktop) and the strip (phone) and hides each where it does not fit.
+// Every image on the draft is lazy, even the strip above the name: a lazy image already
+// on screen loads at once, while an eager one would load in the layout that hides it
+// too (the strip on a desktop, the columns on a phone). The one thing fetched up front
+// is the banner's small poster. Each has its width and height, and a light fill holds
+// its place, so the text paints first and nothing shifts.
 const imgProps = ({ src, width, height, alt }) => ({ src, width, height, alt, loading: 'lazy', decoding: 'async' });
 
 function SidePhotos({ side }) {
@@ -283,6 +306,16 @@ function useFitSidePhotos(ref, on) {
     window.addEventListener('resize', onResize);
     return () => { alive = false; clearTimeout(timer); window.removeEventListener('resize', onResize); };
   }, [ref, on]);
+}
+
+// A project tile's image. The draft shows its small web copy (src/projectThumbs.js),
+// sized, lazy and decoded off the main thread; the front page keeps the original as
+// it was until the owner approves the draft. Preview.css gives the tile its 4:3 box
+// and a light fill, so nothing shifts while it loads.
+function ProjectImage({ image, small }) {
+  const thumb = small && PROJECT_THUMBS[image];
+  if (!thumb) return <img className="pv-hw__img" src={image} alt="" loading="lazy" />;
+  return <img className="pv-hw__img" {...imgProps(thumb)} alt="" />;
 }
 
 // A PDF link on the prototype names what it is, with no page count.
@@ -517,7 +550,7 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
         <div className="pv-hw">
           {block.projects.items.map(({ title, href, image, result }) => (
             <a className="pv-hw__item" href={href} key={title} {...NEW_TAB}>
-              <img className="pv-hw__img" src={image} alt="" loading="lazy" />
+              <ProjectImage image={image} small={!isFront} />
               <span className="pv-hw__title">{title}</span>
               {result && <span className="pv-hw__result">{result}</span>}
             </a>
