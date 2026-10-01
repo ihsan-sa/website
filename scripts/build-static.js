@@ -159,13 +159,14 @@ function docList(docs, after = false) {
 }
 
 // A row's text after its name. With a `short`, the phone shows that in place of
-// the full text (Preview.css swaps them at ≤640px); the comma
+// the full text (Preview.css swaps them at ≤640px); the separator (a comma, or a space after a linked name's arrow)
 // sits inside each span so no stray space is left between them. A `where`
 // (place and date) follows the full text, in italics; the phone line leaves it out.
-function rowText({ text, where, short }) {
-  const full = `, ${esc(text)}${where ? `, <em>${esc(where)}</em>` : ''}`;
+function rowText({ text, where, short }, linked = false) {
+  const sep = linked ? ' ' : ', ';
+  const full = `${sep}${esc(text)}${where ? `, <em>${esc(where)}</em>` : ''}`;
   return short
-    ? `<span class="pv-t-long">${full}</span><span class="pv-t-short">, ${esc(short)}</span>`
+    ? `<span class="pv-t-long">${full}</span><span class="pv-t-short">${sep}${esc(short)}</span>`
     : full;
 }
 
@@ -203,7 +204,7 @@ function protoEntry(item, writing, v2 = false) {
   const { result, visual, detail, figure, docs, start, href, note } = item;
   const folds = result || visual || detail || figure || docs || start || note;
   const name = v2 && folds ? `<strong class="pv-strong">${esc(item.name)}</strong>` : nameHtml(item, 'pv-strong pv-name-link', true);
-  const line = `${name}${rowText(item)}`;
+  const line = `${name}${rowText(item, Boolean(href) && !(v2 && folds))}`;
   // A <details> hides everything but its <summary> while shut, so a folded row's
   // subtitle sits inside the summary, as a block; a plain row's is a <p> as in the app.
   const subText = item.sub ? esc(item.sub) : '';

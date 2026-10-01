@@ -34,6 +34,18 @@ test('the front page is the draft minus its documents, with all its copy in the 
   expect(html).toMatch(/<button[^>]*id="theme-toggle"[^>]*hidden/);
 });
 
+test('experience rows link out with the arrow and a space, and an unlinked row keeps its comma', () => {
+  const html = decode(renderFront(content));
+  content.prototype.experience.items.forEach(({ name, href, text }) => {
+    expect(href).toBeTruthy();
+    expect(html).toContain(`href="${href}"`);
+    expect(html).toContain(`${name}<span class="pv-name-link__out" aria-hidden="true">\u2197</span></a><span class="pv-t-long"> ${text}`);
+  });
+  expect(html).not.toMatch(/\u2197<\/span><\/a><span class="pv-t-(long|short)">,/);
+  const plain = decode(renderFront({ ...content, prototype: { ...content.prototype, experience: { heading: 'E', items: [{ name: 'Plain', text: 't.' }] } } }));
+  expect(plain).toContain('<strong class="pv-strong">Plain</strong>, t.');
+});
+
 test('frontPage drops section and row documents, and keeps every link of its own and the row visuals', () => {
   const block = {
     experience: { heading: 'E', docs: [{ label: 'D', href: '/d.pdf' }], items: [{ name: 'a', href: '/a', docs: [{ label: 'x', href: '/x.pdf' }], start: 'S.' }] },
@@ -102,10 +114,10 @@ test('the draft folds its rows with <details> and keeps the folded copy', () => 
   expect(html).not.toContain('<button type="button" class="pv-entry__btn"');
   // A row with a `short` carries both lengths; the fold opens on the result alone.
   // Its `where` follows the full text in italics, and stays off the phone line.
-  expect(html).toContain('<span class="pv-t-long">, RF Plasma Generation, <em>San Francisco, Summer ’26</em></span><span class="pv-t-short">, RF plasma, ’26.</span>');
+  expect(html).toContain('<span class="pv-t-long"> RF Plasma Generation, <em>San Francisco, Summer ’26</em></span><span class="pv-t-short"> RF plasma, ’26.</span>');
   expect(html).not.toContain('pv-fold__long');
   // A row without a `where` has no italic part.
-  expect(html).toContain('<span class="pv-t-long">, BASc Electrical Engineering. 2024–2029.</span>');
+  expect(html).toContain('<span class="pv-t-long"> BASc Electrical Engineering. 2024–2029.</span>');
   // No page counts anywhere, and no foot: the contact card is in the links bar.
   expect(html).not.toMatch(/PDF, \d+ page/);
   expect(html).not.toContain('pv-foot');

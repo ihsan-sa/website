@@ -81,6 +81,7 @@
           "text": "RF Plasma Generation",
           "where": "San Francisco, Summer ’26",
           "short": "RF plasma, ’26.",
+          "href": "https://fab2.com/",
           "result": "Designed a 200 W Class DE RF inverter in one day and reached first plasma in three weeks. Designed the Rogowski‑coil current sensor for a tens‑of‑MHz RF V‑I probe from a first‑principles model, and characterized the coils on a VNA. Built an end‑to‑end AI PCB design workflow in modular pieces for future use in the team’s existing design process."
         },
         {
@@ -88,6 +89,7 @@
           "text": "Optics and Signal Integrity",
           "where": "Santa Clara, Fall ’25",
           "short": "optics, ’25.",
+          "href": "https://www.arista.com/",
           "result": "Worked with founder Andy Bechtolsheim and senior directors on power architecture definition and PMIC selection for next‑gen co‑packaged optics and 1.6T XPO high‑density pluggable modules. Debugged 224G PAM4 signal integrity on 70 GHz VNAs, which cleared two 102.4T switches for fabrication."
         },
         {
@@ -102,6 +104,7 @@
           "name": "University of Waterloo",
           "text": "BASc Electrical Engineering. 2024–2029.",
           "short": "EE, 2024–29.",
+          "href": "https://uwaterloo.ca/",
           "result": "Class academic rep and WEEF engineering fund rep. GPA 87%."
         }
       ]

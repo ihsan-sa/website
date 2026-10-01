@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import fs from 'fs';
 import path from 'path';
-import App, { PREVIEW_PATH, Prototype, RowVisual } from './App';
+import App, { PREVIEW_PATH, Prototype, ProtoEntry, RowVisual } from './App';
 import content from './content.json';
 import shelved from './content.shelved.json';
 import { ESSAY_BANNER } from './essayBanner';
@@ -61,6 +61,29 @@ test('every AI row on the front page links its name to its GitHub repo', () => {
     expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
   });
   expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/ihsan-sa');
+});
+
+test('every experience row links out with the arrow, and its text follows with a space, not a comma', () => {
+  const { container } = render(<App />);
+  const heads = [...container.querySelectorAll('.pv-entry__head')];
+  prototype.experience.items.forEach(({ name, href, text, short }) => {
+    expect(href).toMatch(/^https:\/\//);
+    const link = screen.getByRole('link', { name });
+    expect(link).toHaveAttribute('href', href);
+    expect(link).toHaveClass('pv-name-link--out');
+    expect(link.querySelector('.pv-name-link__out')).toHaveAttribute('aria-hidden', 'true');
+    const head = heads.find((h) => h.contains(link));
+    expect(head.textContent).toContain(`${name}\u2197 ${text}`);
+    expect(head.textContent).not.toContain(`${name}\u2197,`);
+    if (short) expect(head.querySelector('.pv-t-short').textContent).toBe(` ${short}`);
+  });
+});
+
+test('a row whose name is not a link keeps the comma after it', () => {
+  const { container } = render(<ProtoEntry name="Plain" text="text." short="t." where="Here" />);
+  const head = container.querySelector('.pv-entry__head');
+  expect(head.querySelector('.pv-t-long').textContent).toBe(', text., Here');
+  expect(head.querySelector('.pv-t-short').textContent).toBe(', t.');
 });
 
 test('the front page project tiles keep their links and show the small copies of their photos', () => {
@@ -314,10 +337,11 @@ test('the prototype theme switch says whether dark is on and persists the choice
 test('a prototype row with a short text carries both, and the fold opens on its result alone', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
-  ROWS().filter(({ short }) => short).forEach(({ name, text, short }) => {
+  ROWS().filter(({ short }) => short).forEach(({ name, text, short, href }) => {
+    const sep = href ? ' ' : ', ';
     const head = rowButton(name).closest('.pv-entry__head');
-    expect(head.querySelector('.pv-t-long')).toHaveTextContent(`, ${text}`);
-    expect(head.querySelector('.pv-t-short')).toHaveTextContent(`, ${short}`);
+    expect(head.querySelector('.pv-t-long')).toHaveTextContent(`${sep}${text}`.trim());
+    expect(head.querySelector('.pv-t-short').textContent).toBe(`${sep}${short}`);
     expect(rowPanel(name).querySelector('.pv-fold__long')).toBeNull();
     expect(rowPanel(name)).not.toHaveTextContent(text);
   });
@@ -328,9 +352,9 @@ test('a prototype row shows its place and date in italics after the full text, n
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
   const withWhere = ROWS().filter(({ where }) => where);
-  withWhere.forEach(({ name, text, where }) => {
+  withWhere.forEach(({ name, text, where, href }) => {
     const head = rowButton(name).closest('.pv-entry__head');
-    expect(head.querySelector('.pv-t-long').textContent).toBe(`, ${text}, ${where}`);
+    expect(head.querySelector('.pv-t-long').textContent).toBe(`${href ? ' ' : ', '}${text}, ${where}`);
     expect(head.querySelector('.pv-t-long em')).toHaveTextContent(where);
     expect(head.querySelector('.pv-t-short em')).toBeNull();
   });
