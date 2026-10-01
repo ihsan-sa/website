@@ -9,7 +9,7 @@ summary: how I built and use my agentic orchestration system.
 
 I often get asked “Are you working right now? Why are you on Slack?” The answer is that I’m talking to <mark class="wr-added">80+</mark> agents running on Autobox, my orchestration system which runs on a small server at home.
 
-<mark class="wr-added">Take one task. On 27 September I asked in Slack for a three-phase motor driver. The planning session wrote a brief and started a worker, which went through 34 iterations to a 4-layer, 78 × 78 mm BLDC driver board that passed its design checks, with its fab package built. A finished board with no firmware and no way to test it showed what the box was missing, so the next day I had it build two new skills, a firmware engineer and a bring-up engineer, and both were proven on that board. Their first simulated bring-up run failed because the firmware’s version reply did not match what the test bench expected. That was fixed on the bench, before any hardware, and the procedure now runs all 103 steps.</mark>
+<mark class="wr-added">Take the chip and board renders further down. The chip is an 8-bit counter that the chip-design skill took to a finished GF180 layout, and the board is a motor driver the hwde skill designed. A video session rendered both in Blender for a demo, a critic agent reviewed the stills, and the website session put them in this essay, so four projects touched two pictures.</mark>
 
 ![Autobox at work](hero.gif)
 
