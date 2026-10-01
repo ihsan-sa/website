@@ -8,7 +8,7 @@ import { PROJECT_THUMBS } from './projectThumbs';
 import { SIDE_PHOTOS } from './sidePhotos';
 import stats from './stats.json';
 import { useTheme } from './theme';
-import Writing, { matchWriting } from './writing/Writing';
+import Writing, { Portfolio, matchWriting } from './writing/Writing';
 import allEssays from './writing/essays.generated.json';
 
 // All copy lives in content.json — edit there, not here. Its {autobox.prs}-style
@@ -26,6 +26,9 @@ const published = allEssays.filter((e) => !e.draft);
 // public/_redirects serves index.html at it. Every other path renders the
 // front page.
 export const PREVIEW_PATH = '/ua6x0zhyeewlevzyh9c87r3wb29m9qlu';
+// The AI portfolio (content/portfolio/ai.md) is shown only here until the owner says it
+// may go to /aiportfolio; neither that address nor the front page knows about it.
+export const PORTFOLIO_PREVIEW_PATH = `${PREVIEW_PATH}/aiportfolio`;
 
 // Keep the draft out of search results. Added at mount rather than listed in
 // robots.txt, because listing the path there would publish it. The front page
@@ -491,6 +494,7 @@ function App({ essays = allEssays }) {
   if (writing && (writing.preview || live.length > 0)) {
     return <Writing route={writing} previewPath={PREVIEW_PATH} essays={essays} />;
   }
+  if (pathname === PORTFOLIO_PREVIEW_PATH) return <Portfolio />;
   return pathname === PREVIEW_PATH ? <Prototype essays={essays} /> : <Prototype front essays={live} />;
 }
 

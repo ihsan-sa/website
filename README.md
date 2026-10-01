@@ -56,6 +56,13 @@ here yet."
 Essays are written in the library, from the essay template, and published by PR:
 [`docs/publish-essay.md`](docs/publish-essay.md) says how.
 
+## The AI portfolio
+
+The AI portfolio is one markdown file, `content/portfolio/ai.md`, shown as an essay-like page
+with clips and figures, and as a PDF. For now it's live only at a hidden preview path.
+[`docs/portfolio.md`](docs/portfolio.md) explains where it's shown, how it's edited in the
+library and how to carry an edit to the site.
+
 ## Checks
 
 Every pull request and every push to `main` runs the tests and a production build on

@@ -14,16 +14,17 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "prestart": "node scripts/writing.js build",
+    "prestart": "node scripts/writing.js build && node scripts/portfolio.js build",
     "start": "react-scripts start",
-    "prebuild": "node scripts/writing.js build",
+    "prebuild": "node scripts/writing.js build && node scripts/portfolio.js build",
     "build": "react-scripts build",
     "postbuild": "node scripts/writing.js pages && node scripts/build-static.js",
-    "pretest": "node scripts/writing.js build",
+    "pretest": "node scripts/writing.js build && node scripts/portfolio.js build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "ui-check": "node scripts/ui-check.js",
-    "content-pdf": "node scripts/content-pdf.js"
+    "content-pdf": "node scripts/content-pdf.js",
+    "portfolio": "node scripts/portfolio.js"
   },
   "eslintConfig": {
     "extends": [
