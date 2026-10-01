@@ -156,7 +156,7 @@ function EssayBanner({ essay, href, label }) {
   const { video, poster, width, height } = ESSAY_BANNER;
 
   return (
-    <a className="pv-banner" href={href}>
+    <a className="pv-banner pv-banner--apart" href={href}>
       <video
         ref={videoRef}
         className="pv-banner__video"
@@ -232,7 +232,7 @@ function SidePhotos({ side }) {
   return (
     <aside className={`pv-side pv-side--${side}`} aria-label="Photos">
       {SIDE_PHOTOS[side].map((p) => (
-        <img key={p.src} className={p.height > p.width ? 'pv-side__img pv-side__img--tall' : 'pv-side__img'} {...imgProps(p)} />
+        <img key={p.src} className={p.height > p.width ? 'pv-side__img pv-side__img--tall' : 'pv-side__img'} {...imgProps(p)} alt={p.alt} />
       ))}
     </aside>
   );
@@ -243,7 +243,7 @@ function PhotoStrip() {
   return (
     <div className="pv-strip" aria-label="Photos">
       {SIDE_PHOTOS.strip.map((p) => (
-        <img key={p.src} className={p.height > p.width ? 'pv-strip__img pv-strip__img--tall' : 'pv-strip__img'} {...imgProps(p)} />
+        <img key={p.src} className={p.height > p.width ? 'pv-strip__img pv-strip__img--tall' : 'pv-strip__img'} {...imgProps(p)} alt={p.alt} />
       ))}
     </div>
   );
