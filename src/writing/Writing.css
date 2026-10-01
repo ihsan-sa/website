@@ -158,7 +158,9 @@
 }
 
 /* Images and screenshots: hairline border, centred, never taller than a screen,
-   so a portrait phone screenshot doesn't run the length of the essay. */
+   so a portrait phone screenshot doesn't run the length of the essay. Each has its
+   width and height set, and a light fill holds its place until it loads. An inline
+   clip (wr-figure__video) takes the same box, on its poster. */
 .wr-figure--image .wr-figure__img {
   width: auto;
   max-width: 100%;
@@ -166,7 +168,11 @@
   margin: 0 auto;
   border: 1px solid var(--rule);
   border-radius: 3px;
+  background: var(--thumb-bg);
 }
+/* A clip fills the column at its own shape from the first paint, poster or not. */
+.wr-figure__zoom:has(> .wr-figure__video) { width: 100%; }
+.wr-figure--image .wr-figure__video { width: 100%; height: auto; }
 .wr-figure--image .wr-figure__caption { max-width: 30em; margin-inline: auto; text-align: center; }
 
 /* A click on a figure enlarges it (src/writing/zoom.js). The link is as wide as the image,

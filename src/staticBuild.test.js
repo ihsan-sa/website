@@ -151,7 +151,8 @@ test('the review copy of /writing lists and renders drafts, all noindex', () => 
 test('a static essay enlarges its figures with the same script the app imports', () => {
   const { parseEssay } = require('../scripts/writing');
   const md = '---\ntitle: Z\ndate: 2026-09-03\nsummary: S.\nstandfirst: W.\ndraft: true\n---\n\n![Moving.](m.gif)\n\n![Drawn.](d.svg)\n';
-  const { essay } = parseEssay(md, 'z');
+  // No poster beside the GIF, so it stays a GIF that plays its .mp4 when clicked.
+  const { essay } = parseEssay(md, 'z', (slug, file) => ({ exists: !/-poster\.webp$/.test(file) }));
   const [index, html] = renderWriting([essay], shell).map((p) => p.html);
   expect(html).toContain('<a class="wr-figure__zoom" href="/writing/z/m.mp4" data-video="/writing/z/m.mp4" aria-label="Play full size: Moving." aria-haspopup="dialog"><img class="wr-figure__img" src="/writing/z/m.gif"');
   expect(html).toContain('<a class="wr-figure__zoom" href="/writing/z/d.svg" aria-label="Enlarge: Drawn." aria-haspopup="dialog"><img');
@@ -161,6 +162,19 @@ test('a static essay enlarges its figures with the same script the app imports',
   // No video loads with the page, and the list of essays carries no script for it.
   expect(html).not.toContain('<video');
   expect(index).not.toContain('wrZoom');
+});
+
+test('a static essay shows a GIF with an .mp4 and a poster as the clip, preloading nothing', () => {
+  const { parseEssay } = require('../scripts/writing');
+  const md = '---\ntitle: Z\ndate: 2026-09-03\nsummary: S.\nstandfirst: W.\ndraft: true\n---\n\n![Moving.](m.gif)\n';
+  const { essay } = parseEssay(md, 'z', (slug, file) => (file === 'm-poster.webp' ? { exists: true, width: 1280, height: 720 } : { exists: true }));
+  const html = renderWriting([essay], shell)[1].html;
+  expect(html).toContain('<a class="wr-figure__zoom" href="/writing/z/m.mp4" data-video="/writing/z/m.mp4" aria-label="Play full size: Moving." aria-haspopup="dialog">'
+    + '<video class="wr-figure__img wr-figure__video" poster="/writing/z/m-poster.webp" width="1280" height="720" style="aspect-ratio: 1280 / 720" muted loop playsinline preload="none" aria-label="Moving.">'
+    + '<source src="/writing/z/m.mp4" type="video/mp4" /></video></a>');
+  // The GIF itself is never on the page; the script plays the clip near the screen.
+  expect(html).not.toContain('m.gif');
+  expect(html).toContain('wrZoom');
 });
 
 test('a static essay marks an added passage as the app does', () => {

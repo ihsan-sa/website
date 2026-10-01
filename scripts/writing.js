@@ -23,7 +23,8 @@
 // <mark class="wr-added">…</mark> around an added passage (inside one block; see SHOW_ADDED),
 // and figures: an image alone in its paragraph, `![caption](file)`. A .svg figure is a diagram,
 // anything else an image. Clicking a figure enlarges it; a .gif with a same-named .mp4 beside
-// it (hero.gif, hero.mp4) plays that video instead (src/writing/zoom.js). A `## Further reading`
+// it (hero.gif, hero.mp4) plays that video instead (src/writing/zoom.js), and with a
+// hero-poster.webp too the page plays the video inline in the GIF's place. A `## Further reading`
 // section of `- [title](href): note (N pages)` items becomes the further-reading block. A draft
 // whose figure file is missing still builds, with a placeholder; a published essay with any
 // problem fails the build.
@@ -180,8 +181,18 @@ function parseEssay(source, slug, assets = () => ({ exists: true })) {
     };
     if (a.width) Object.assign(block, { width: a.width, height: a.height });
     // A GIF with an .mp4 of the same name beside it plays that video, full size, when clicked.
+    // With a <name>-poster.webp beside them as well, the page shows the video in the
+    // GIF's place, on that poster until it nears the screen, and never loads the GIF.
     const video = file.replace(/\.gif$/i, '.mp4');
-    if (video !== file && assets(slug, video).exists) block.video = `/writing/${slug}/${video}`;
+    if (video !== file && assets(slug, video).exists) {
+      block.video = `/writing/${slug}/${video}`;
+      const poster = file.replace(/\.gif$/i, '-poster.webp');
+      const p = assets(slug, poster);
+      if (p.exists) {
+        block.poster = `/writing/${slug}/${poster}`;
+        if (p.width) Object.assign(block, { width: p.width, height: p.height });
+      }
+    }
     if (!a.exists) {
       block.missing = true;
       problems.push(`figure ${file} is not in public/writing/${slug}/`);
@@ -306,10 +317,40 @@ function svgSize(file) {
   return w && h ? { width: Math.round(+w[1]), height: Math.round(+h[1]) } : {};
 }
 
+// A raster figure's pixel size from its header (GIF, PNG, WebP, JPEG), so the page
+// reserves its box before it loads; {} when the format is not one of those.
+function rasterSize(file) {
+  const b = fs.readFileSync(file);
+  const ascii = (at, n) => b.toString('latin1', at, at + n);
+  if (ascii(0, 3) === 'GIF') return { width: b.readUInt16LE(6), height: b.readUInt16LE(8) };
+  if (ascii(1, 3) === 'PNG') return { width: b.readUInt32BE(16), height: b.readUInt32BE(20) };
+  if (ascii(0, 4) === 'RIFF' && ascii(8, 4) === 'WEBP') {
+    const kind = ascii(12, 4);
+    if (kind === 'VP8 ') return { width: b.readUInt16LE(26) & 0x3fff, height: b.readUInt16LE(28) & 0x3fff };
+    if (kind === 'VP8L') {
+      const v = b.readUInt32LE(21);
+      return { width: (v & 0x3fff) + 1, height: ((v >> 14) & 0x3fff) + 1 };
+    }
+    if (kind === 'VP8X') return { width: b.readUIntLE(24, 3) + 1, height: b.readUIntLE(27, 3) + 1 };
+  }
+  if (b[0] === 0xff && b[1] === 0xd8) {
+    // Walk the JPEG markers to the first start-of-frame.
+    for (let i = 2; i + 9 < b.length; ) {
+      if (b[i] !== 0xff) { i += 1; continue; }
+      const m = b[i + 1];
+      if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) {
+        return { width: b.readUInt16BE(i + 7), height: b.readUInt16BE(i + 5) };
+      }
+      i += 2 + b.readUInt16BE(i + 2);
+    }
+  }
+  return {};
+}
+
 function diskAssets(slug, file) {
   const p = path.join(PUBLIC, 'writing', slug, file);
   if (!fs.existsSync(p)) return { exists: false };
-  return { exists: true, ...(/\.svg$/i.test(p) ? svgSize(p) : {}) };
+  return { exists: true, ...(/\.svg$/i.test(p) ? svgSize(p) : rasterSize(p)) };
 }
 
 // Every essay, newest first. Throws when a published essay has a problem.
@@ -392,7 +433,7 @@ function pages(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
   console.log(`writing: link-preview pages for /writing and ${live.length} essay(s)`);
 }
 
-module.exports = { SHOW_ADDED, parseEssay, parseReading, loadEssays, pages, withMeta, EXAMPLES };
+module.exports = { SHOW_ADDED, parseEssay, parseReading, loadEssays, pages, withMeta, rasterSize, EXAMPLES };
 
 if (require.main === module) {
   const cmd = process.argv[2];
