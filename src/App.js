@@ -130,23 +130,14 @@ function EssayBanner({ essay, href, label }) {
   );
 }
 
-// The intro. On the draft, a phone shows the name and subtitle with the about
-// paragraphs folded behind a button; Preview.css hides them with display: none,
-// so while folded they are neither tabbable nor read out. Above 640px the button
-// is hidden and the paragraphs always show. The front page keeps its plain intro.
-function Intro({ block, folds }) {
+// The intro. A phone shows the name and subtitle with the about paragraphs
+// folded behind a button; Preview.css hides them with display: none, so while
+// folded they are neither tabbable nor read out. Above 640px the button is
+// hidden and the paragraphs always show.
+function Intro({ block }) {
   const [open, setOpen] = useState(false);
   const aboutId = useId();
   const paragraphs = block.about.map((para, i) => <p key={i}>{para}</p>);
-  if (!folds) {
-    return (
-      <header className="pv-intro">
-        <h1 className="pv-name">{block.name}</h1>
-        <p>{block.subtitle}</p>
-        {paragraphs}
-      </header>
-    );
-  }
   return (
     <header className="pv-intro">
       <h1 className="pv-name">{block.name}</h1>
@@ -167,9 +158,9 @@ function Intro({ block, folds }) {
   );
 }
 
-// The owner's photos on the draft only (src/sidePhotos.js). Preview.css places the
-// two side columns (desktop) and the strip (phone) and hides each where it does not fit.
-// Every image on the draft is lazy, even the strip above the name: a lazy image already
+// The owner's photos (src/sidePhotos.js). Preview.css places the two side columns
+// (desktop) and the strip (phone) and hides each where it does not fit.
+// Every image on the page is lazy, even the strip above the name: a lazy image already
 // on screen loads at once, while an eager one would load in the layout that hides it
 // too (the strip on a desktop, the columns on a phone). The one thing fetched up front
 // is the banner's small poster. Each has its width and height, and a light fill holds
@@ -229,10 +220,10 @@ function fitColumn(aside, H) {
 
 // Fit both columns once, with every row closed, and again only when the window's
 // width changes or the fonts arrive; opening a row does not move them.
-function useFitSidePhotos(ref, on) {
+function useFitSidePhotos(ref) {
   useLayoutEffect(() => {
     const main = ref.current;
-    if (!on || !main) return undefined;
+    if (!main) return undefined;
     const fitAll = () => {
       const cs = getComputedStyle(main);
       let open = 0;
@@ -253,15 +244,15 @@ function useFitSidePhotos(ref, on) {
     };
     window.addEventListener('resize', onResize);
     return () => { alive = false; clearTimeout(timer); window.removeEventListener('resize', onResize); };
-  }, [ref, on]);
+  }, [ref]);
 }
 
-// A project tile's image. The draft shows its small web copy (src/projectThumbs.js),
-// sized, lazy and decoded off the main thread; the front page keeps the original as
-// it was until the owner approves the draft. Preview.css gives the tile its 4:3 box
-// and a light fill, so nothing shifts while it loads.
-function ProjectImage({ image, small }) {
-  const thumb = small && PROJECT_THUMBS[image];
+// A project tile's image: its small web copy (src/projectThumbs.js), sized, lazy
+// and decoded off the main thread, or the original where there is no copy.
+// Preview.css gives the tile its 4:3 box and a light fill, so nothing shifts while
+// it loads.
+function ProjectImage({ image }) {
+  const thumb = PROJECT_THUMBS[image];
   if (!thumb) return <img className="pv-hw__img" src={image} alt="" loading="lazy" />;
   return <img className="pv-hw__img" {...imgProps(thumb)} alt="" />;
 }
@@ -415,25 +406,27 @@ function ProtoEntry({ name: entryName, text, where, short, href, result, visual,
 // line; the sections themselves and the project grid stay open. With no essays,
 // neither the list nor the Essays link in the bar is shown.
 //
-// `front` renders ihsan.cc/: the draft minus its documents, published essays
-// only (none yet), linked at /writing, and no noindex. Without it, this is the
-// draft at PREVIEW_PATH: documents, every essay (drafts too), noindex, the
-// owner's photos in the side margins, AI work above Experience, the about folded
-// on a phone, an essay banner under the intro, and a visual in each AI row.
+// Both pages have the owner's photos in the side margins (a strip on a phone),
+// AI work above Experience, the about folded on a phone and an essay banner
+// under the intro. `front` renders ihsan.cc/: the draft minus its documents
+// (src/frontPage.js, which also drops each AI row's visual), published essays
+// only, linked at /writing, and no noindex. Without it, this is the draft at
+// PREVIEW_PATH: documents, a visual in each AI row, every essay (drafts too),
+// and noindex.
 export function Prototype({ front: isFront = false, essays = isFront ? published : allEssays }) {
   const [isDark, toggleTheme] = useTheme();
   useNoindex(!isFront);
   usePreviewFont();
   const mainRef = useRef(null);
-  useFitSidePhotos(mainRef, !isFront);
+  useFitSidePhotos(mainRef);
 
   const block = isFront ? front : prototype;
-  const sections = isFront ? [block.experience, block.aiWork] : [block.aiWork, block.experience];
+  const sections = [block.aiWork, block.experience];
   const writing = isFront ? '/writing' : `${PREVIEW_PATH}/writing`;
-  const bannerEssay = !isFront && essays.find((e) => e.slug === ESSAY_BANNER.slug);
+  const bannerEssay = essays.find((e) => e.slug === ESSAY_BANNER.slug);
 
   return (
-    <main ref={mainRef} className={isFront ? 'pv pv-proto' : 'pv pv-proto pv-proto--photos'}>
+    <main ref={mainRef} className="pv pv-proto pv-proto--photos">
       <nav className="pv-links pv-links--compact" aria-label="Contact and profiles">
         <span className="pv-links__row">
           <span className="pv-links__rest">
@@ -462,9 +455,9 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
         </span>
       </nav>
 
-      {!isFront && <PhotoStrip />}
+      <PhotoStrip />
 
-      <Intro block={block} folds={!isFront} />
+      <Intro block={block} />
 
       {bannerEssay && (
         <EssayBanner essay={bannerEssay} href={`${writing}/${bannerEssay.slug}`} label={block.essays.banner} />
@@ -498,7 +491,7 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
         <div className="pv-hw">
           {block.projects.items.map(({ title, href, image, result }) => (
             <a className="pv-hw__item" href={href} key={title} {...NEW_TAB}>
-              <ProjectImage image={image} small={!isFront} />
+              <ProjectImage image={image} />
               <span className="pv-hw__title">{title}</span>
               {result && <span className="pv-hw__result">{result}</span>}
             </a>
@@ -506,12 +499,8 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
         </div>
       </section>
 
-      {!isFront && (
-        <>
-          <SidePhotos side="left" />
-          <SidePhotos side="right" />
-        </>
-      )}
+      <SidePhotos side="left" />
+      <SidePhotos side="right" />
     </main>
   );
 }

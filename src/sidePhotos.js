@@ -1,14 +1,15 @@
-// The owner's photos on the draft at PREVIEW_PATH. They are not on the front page until
-// he approves them there. Each file in public/images/side/ is a web copy, 900px on its
+// The owner's photos, on the front page and the draft at PREVIEW_PATH. Each file in public/images/side/ is a web copy, 900px on its
 // long edge, with no EXIF or GPS: never add an original. `alt` says what is in the
 // frame and nothing about who. Order in a list = order down that margin (or along the
 // strip). The side columns are fitted to the page height at runtime (App.js
-// SidePhotos), so a column may show fewer than all of its photos; extras go last.
+// SidePhotos; scripts/build-static.js has its own copy of the fit), so a column may
+// show fewer than all of its photos; extras go last. CommonJS, like fillStats.js, so the
+// static build can require it.
 
 const L = { width: 900, height: 600 };
 const P = { width: 600, height: 900 };
 
-export const SIDE_PHOTOS = {
+const SIDE_PHOTOS = {
   left: [
     { src: '/images/side/red-canyon-sky.webp', ...P, alt: 'Red sandstone cliffs under a clear blue sky, green brush below' },
     { src: '/images/side/champhorent-sign.webp', ...L, alt: 'Road sign for Champhorent, St Christophe en Oisans, above a 30 speed limit sign' },
@@ -37,3 +38,5 @@ export const SIDE_PHOTOS = {
     { src: '/images/side/night-road.webp', ...L, alt: 'An empty desert road at night under stars' },
   ],
 };
+
+module.exports = { SIDE_PHOTOS };

@@ -29,8 +29,8 @@ test('the front page is the draft minus its documents, essays and noindex', () =
   expect(container.querySelector('main.pv.pv-proto')).not.toBeNull();
   const withLink = ({ heading, headLink }) => (headLink ? `${heading} ${headLink.label}` : heading);
   expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
-    prototype.experience.heading,
     prototype.aiWork.heading,
+    prototype.experience.heading,
     withLink(prototype.projects),
   ]);
   [prototype.name, prototype.subtitle, ...prototype.about].forEach((t) => expect(screen.getByText(t)).toBeInTheDocument());
@@ -65,11 +65,11 @@ test('every AI row on the front page links its name to its GitHub repo', () => {
   expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/ihsan-sa');
 });
 
-test('the front page project tiles keep their links and photos exactly as content.json has them', () => {
+test('the front page project tiles keep their links and show the small copies of their photos', () => {
   const { container } = render(<App />);
   const tiles = [...container.querySelectorAll('.pv-hw__item')];
   expect(tiles.map((a) => a.getAttribute('href'))).toEqual(prototype.projects.items.map(({ href }) => href));
-  expect(tiles.map((a) => a.querySelector('img').getAttribute('src'))).toEqual(prototype.projects.items.map(({ image }) => image));
+  expect(tiles.map((a) => a.querySelector('img').getAttribute('src'))).toEqual(prototype.projects.items.map(({ image }) => PROJECT_THUMBS[image].src));
   expect(screen.getByRole('link', { name: prototype.projects.headLink.label })).toHaveAttribute('href', prototype.projects.headLink.href);
 });
 
@@ -144,17 +144,17 @@ test('the prototype renders only at its path, and asks not to be indexed', () =>
   front.unmount();
 });
 
-// The owner's photos sit in the margins of the draft only, until he approves
-// them for ihsan.cc/. Each is a small web copy that exists in public/, lazy, sized
-// so nothing shifts as it loads, and described.
-test('the side photos are on the draft only, lazy, sized and described', () => {
+// The owner's photos sit in the margins of the front page and the draft. Each is a
+// small web copy that exists in public/, lazy, sized so nothing shifts as it loads,
+// and described.
+test('the side photos are on the front page and the draft, lazy, sized and described', () => {
   const all = [...SIDE_PHOTOS.left, ...SIDE_PHOTOS.right];
   expect(all.length).toBeGreaterThan(0);
 
   const front = render(<App />);
-  expect(front.container.querySelector('.pv-side, .pv-side__img, .pv-strip, .pv-strip__img')).toBeNull();
-  expect(front.container.querySelector('main')).not.toHaveClass('pv-proto--photos');
-  [...all, ...SIDE_PHOTOS.strip].forEach(({ src }) => expect(front.container.innerHTML).not.toContain(src));
+  expect(front.container.querySelector('main')).toHaveClass('pv-proto--photos');
+  expect(front.container.querySelectorAll('.pv-side')).toHaveLength(2);
+  [...all, ...SIDE_PHOTOS.strip].forEach(({ src }) => expect(front.container.querySelector(`img[src="${src}"]`)).not.toBeNull());
   front.unmount();
 
   window.history.pushState({}, '', PREVIEW_PATH);
@@ -437,21 +437,23 @@ test('the draft puts AI work above Experience', () => {
   prototype.experience.items.forEach(({ name }) => expect(rowButton(name)).toHaveAttribute('aria-expanded', 'false'));
 });
 
-test('the front page is unchanged: Experience first, no banner, no Show more, no row visuals', () => {
+test('the front page is the draft: AI work first, the banner to the published essay, Show more, but no documents or row visuals', () => {
   const { container } = render(<App essays={[{ ...AUTOBOX_ESSAY, draft: false }]} />);
   expect(h2s()).toEqual([
-    prototype.experience.heading,
     prototype.aiWork.heading,
+    prototype.experience.heading,
     prototype.essays.heading,
     `${prototype.projects.heading} ${prototype.projects.headLink.label}`,
   ]);
-  expect(container.querySelector('.pv-banner, video, .pv-about, .pv-about__btn, .pv-visual')).toBeNull();
-  expect(screen.queryByRole('button', { name: prototype.aboutFold.more })).toBeNull();
-  // The intro is the plain header it was: name, subtitle, then each about paragraph.
-  const intro = container.querySelector('.pv-intro');
-  expect([...intro.children].map((el) => el.tagName)).toEqual(['H1', 'P', ...prototype.about.map(() => 'P')]);
-  expect(intro.nextElementSibling.tagName).toBe('SECTION');
+  const banner = container.querySelector('a.pv-banner');
+  expect(banner).toHaveAttribute('href', '/writing/autobox');
+  expect(banner.querySelector('img.pv-banner__video')).toHaveAttribute('src', ESSAY_BANNER.gif);
+  expect(screen.getByRole('button', { name: prototype.aboutFold.more })).toHaveAttribute('aria-expanded', 'false');
+  expect(container.querySelector('.pv-docs, .pv-pending, .pv-start, .pv-visual, .pv-doc')).toBeNull();
   prototype.aiWork.items.forEach(({ visual }) => expect(container.innerHTML).not.toContain(visual.src));
+  expect(container.innerHTML).not.toContain(PREVIEW_PATH);
+  // Every row's fold still holds its result, so none opens on nothing.
+  ROWS().forEach(({ name, result }) => expect(rowPanel(name)).toHaveTextContent(result));
 });
 
 test('the draft banner shows the essay clip as a lazy, sized GIF, and links the draft essay', () => {
@@ -554,13 +556,13 @@ test('every image on the draft is lazy, sized and decoded off the main thread', 
   });
 });
 
-test('the front page keeps its original project images', () => {
+test('the front page shows the small project images, lazy and sized', () => {
   const { container } = render(<App essays={[]} />);
   const tiles = [...container.querySelectorAll('.pv-hw__img')];
-  expect(tiles.map((t) => t.getAttribute('src'))).toEqual(prototype.projects.items.map(({ image }) => image));
+  expect(tiles.length).toBe(prototype.projects.items.length);
   tiles.forEach((t) => {
     expect(t).toHaveAttribute('loading', 'lazy');
-    expect(t).not.toHaveAttribute('width');
+    expect(t).toHaveAttribute('width');
   });
 });
 
@@ -588,9 +590,10 @@ test('every AI row on the draft opens on a light visual, lazy and sized so nothi
   });
 });
 
-test('the Autobox essay is still a draft and carries its standfirst', () => {
+test('the Autobox essay is published with the owner\'s OK and carries its standfirst', () => {
   const md = read('content', 'writing', 'autobox.md');
   const front = md.match(/^---\n([\s\S]*?)\n---\n/)[1];
-  expect(front).toMatch(/^draft: true$/m);
+  expect(front).not.toMatch(/^draft: true$/m);
+  expect(front).toMatch(/^approved_by: Ihsan$/m);
   expect(front).toContain('standfirst: "How I built Autobox, the AI agents on a small home server that run my projects, and how I use it."');
 });
