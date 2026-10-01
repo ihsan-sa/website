@@ -49,7 +49,7 @@ test('frontPage drops section and row documents, and keeps every link of its own
 
 test('the static pages show each AI row\'s clip, poster, video and diagram, sized', () => {
   [decode(renderFront(content)), decode(renderDraft(content)), decode(renderDraft(content, [], { v2: true }))].forEach((html) => {
-    content.prototype.aiWork.items.forEach(({ visual, figure }) => {
+    content.prototype.aiWork.items.filter((i) => i.visual).forEach(({ visual, figure }) => {
       expect(html).toContain(`<a class="wr-figure__zoom pv-visual__zoom" href="${visual.video}" data-video="${visual.video}"`);
       expect(html).toContain(`<picture><source media="(prefers-reduced-motion: reduce)" srcset="${visual.poster}" /><img src="${visual.src}" width="${visual.width}" height="${visual.height}" alt="${visual.alt}" loading="lazy" decoding="async" style="background-image:url(${visual.poster});background-size:cover" /></picture>`);
       expect(html).toContain(`<figcaption>${visual.caption}</figcaption>`);
@@ -212,4 +212,11 @@ test('the public /writing rule leaves drafts unlisted and without a page', () =>
   expect(pages[0].html).not.toContain('Second');
   expect(pages[1].html).toContain('Why First.');
   pages.forEach((p) => expect(p.html).not.toContain('noindex'));
+});
+
+test('the static pages mark a linked row name with the arrow, and the autobox note links to its essay', () => {
+  [decode(renderFront(content)), decode(renderDraft(content))].forEach((html) => {
+    expect(html).toContain('pv-name-link--out" href="https://github.com/ihsan-sa/autobox" target="_blank" rel="noopener noreferrer">autobox<span class="pv-name-link__out" aria-hidden="true">\u2197</span></a>');
+    expect(html).toMatch(/<p class="pv-note">For more details, read <a class="pv-link" href="[^"]*writing\/autobox\/">the essay<\/a><\/p>/);
+  });
 });
