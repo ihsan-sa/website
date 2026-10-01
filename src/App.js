@@ -206,7 +206,10 @@ function useFitSidePhotos(ref) {
       timer = setTimeout(fitAll, 120);
     };
     window.addEventListener('resize', onResize);
-    return () => { alive = false; clearTimeout(timer); window.removeEventListener('resize', onResize); };
+    const intro = main.querySelector('.pv-intro');
+    const ro = intro && window.ResizeObserver ? new ResizeObserver(() => fitAll()) : null;
+    if (ro) ro.observe(intro);
+    return () => { alive = false; clearTimeout(timer); window.removeEventListener('resize', onResize); if (ro) ro.disconnect(); };
   }, [ref]);
 }
 

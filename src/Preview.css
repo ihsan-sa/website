@@ -215,6 +215,11 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
   opacity: 0.5;
 }
 
+/* The contact card is for saving to a phone, so it shows only there. */
+@media (min-width: 641px) {
+  .pv-proto .pv-links__rest .pv-link[href$=".vcf"] { display: none; }
+}
+
 @media (max-width: 640px) {
   .pv-proto .pv-links--compact { gap: 0; }
   .pv-proto .pv-links__rest { gap: 0 18px; }
@@ -282,34 +287,33 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pv-proto .pv-head-link { font-size: 15px; font-weight: 400; color: var(--label); }
 .pv-proto .pv-head-link:hover { color: inherit; }
 
-/* Draft only: the about paragraphs fold away on a phone, below the subtitle, behind a
-   Show more button (App.js, Intro). display: none keeps them out of the tab order and
-   away from a screen reader while folded. Above 640px they always show and the button
-   is gone. */
+/* Draft only: the about paragraphs fold behind a Show more button (App.js, Intro).
+   Desktop shows the first one under the subtitle; a phone folds them all. display: none
+   keeps folded ones out of the tab order and away from a screen reader. */
 .pv-proto .pv-about { display: flex; flex-direction: column; gap: 14px; }
-.pv-proto .pv-about__btn { display: none; }
+.pv-proto .pv-about:not(.pv-about--open) > p:nth-child(n+2) { display: none; }
 @media (max-width: 640px) {
   .pv-proto .pv-about:not(.pv-about--open) { display: none; }
-  .pv-proto .pv-about__btn {
-    display: inline-flex;
-    align-items: center;
-    align-self: flex-start;
-    min-height: 32px;
-    margin-top: -8px;
-    padding: 0;
-    border: 0;
-    background: none;
-    appearance: none;
-    font: inherit;
-    font-size: 15px;
-    color: var(--label);
-    text-decoration: underline;
-    text-decoration-color: var(--pv-link-rule);
-    text-underline-offset: 3px;
-    cursor: pointer;
-  }
-  .pv-proto .pv-about__btn:hover { color: inherit; }
 }
+.pv-proto .pv-about__btn {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: 32px;
+  margin-top: -8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  appearance: none;
+  font: inherit;
+  font-size: 15px;
+  color: var(--label);
+  text-decoration: underline;
+  text-decoration-color: var(--pv-link-rule);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.pv-proto .pv-about__btn:hover { color: inherit; }
 
 /* Draft only: the essay banner under the intro, one link. The clip (a GIF in a
    <picture>) fills the column at 16:9 (its width and height are set, so nothing shifts
@@ -404,6 +408,24 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
     border-radius: 3px;
     background: var(--thumb-bg);
   }
+  /* Faint: washed toward the paper at 41% strength; only the photo under the
+     pointer comes back, in full colour. */
+  .pv-proto--photos .pv-side__img {
+    opacity: 0.41;
+    filter: sepia(0.15) saturate(0.7) contrast(0.88) brightness(1.04);
+    transition: opacity 0.5s, filter 0.5s;
+  }
+  :root[data-theme='dark'] .pv-proto--photos .pv-side__img {
+    filter: sepia(0.15) saturate(0.7) contrast(0.9) brightness(0.85);
+  }
+  .pv-proto--photos .pv-side__img:hover {
+    opacity: 1;
+    filter: none;
+    transition-duration: 0.25s;
+  }
+}
+@media (min-width: 1280px) and (prefers-reduced-motion: reduce) {
+  .pv-proto--photos .pv-side__img { transition: none; }
 }
 
 /* Phone only: a strip of six small photos between the links bar and the name, on the
