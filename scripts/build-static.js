@@ -374,7 +374,7 @@ function renderEssay(e, { older, newer, base }) {
   const pager = (x, dir, label) => (x
     ? `<a class="wr-pager__link wr-pager__link--${dir}" href="${base}writing/${x.slug}/"><span class="wr-pager__label">${label}</span><span class="wr-pager__title">${esc(x.title)}</span></a>`
     : '');
-  return `${topBar(base)}
+  return `${topBar(base, { title: e.title })}
 <article>
 <header class="wr-head"><h1 class="wr-title">${esc(e.title)}</h1>${essayMeta(e)}<p class="wr-standfirst">${esc(e.standfirst)}</p></header>
 <div class="wr-body">
@@ -385,10 +385,16 @@ ${foot}${reading}
 <nav class="wr-pager" aria-label="More essays">${pager(older, 'prev', 'Previous')}${pager(newer, 'next', 'Next')}<a class="wr-pager__index" href="${base}writing/">All essays</a></nav>`;
 }
 
-// The bar above every essay page: the main site, then the essays index. ihsan.cc
-// always goes to the real front page, even from the hidden preview path.
-function topBar(base) {
-  return `<nav class="wr-top"><span class="wr-top__crumbs"><a class="wr-top__link" href="/">ihsan.cc</a> · <a class="wr-top__link" href="${base}writing/">Essays</a></span>${THEME_SWITCH}</nav>`;
+// The bar above every essay page: the main site, then the essays index, then the
+// theme switch (same markup as src/writing/Writing.js). ihsan.cc always goes to the
+// real front page, even from the hidden preview path. The page you are on is text.
+function topBar(base, { title } = {}) {
+  const sep = '<span class="wr-top__sep" aria-hidden="true">/</span>';
+  const here = (t) => `<span class="wr-top__here" aria-current="page">${esc(t)}</span>`;
+  const essays = title
+    ? `<a class="wr-top__link" href="${base}writing/">Essays</a>${sep}${here(title)}`
+    : here('Essays');
+  return `<nav class="wr-top" aria-label="Site"><span class="wr-top__crumbs"><a class="wr-top__link" href="/">ihsan.cc</a>${sep}${essays}</span>${THEME_SWITCH}</nav>`;
 }
 
 function renderIndex(essays, { base }) {

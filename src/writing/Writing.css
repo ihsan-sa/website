@@ -47,8 +47,13 @@
 .wr-reading__link:hover,
 .wr-pager__index:hover { text-decoration-color: currentColor; }
 
-.wr-top { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; margin-bottom: 40px; font-size: 15px; line-height: 1.5; }
-.wr-top .theme-switch { margin-left: auto; }
+/* Top bar: a quiet trail back to the front page, the theme switch at the far end.
+   The page you are on is plain text in the label ink, never a link to itself. */
+.wr-top { display: flex; align-items: center; gap: 18px; margin-bottom: 40px; font-size: 15px; line-height: 1.5; }
+.wr-top__crumbs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; min-width: 0; }
+.wr-top__sep { color: var(--label); }
+.wr-top__here { color: var(--label); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wr-top .theme-switch { margin-left: auto; flex: none; }
 
 /* ---- metadata: date · reading time, plain serif in the label ink ---- */
 .wr-meta { font-size: 15px; line-height: 1.5; color: var(--label); }
@@ -333,7 +338,7 @@ img.wr-zoom__media { background: #faf8f3; } /* a diagram's own paper */
 
 @media (max-width: 640px) {
   .wr { --wr-text: 18px; }
-  .wr-top__link { min-height: 32px; display: inline-flex; align-items: center; }
+  .wr-top__link, .wr-top__here { min-height: 32px; display: inline-flex; align-items: center; }
 }
 
 @media (prefers-reduced-motion: no-preference) {

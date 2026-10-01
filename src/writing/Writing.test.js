@@ -186,16 +186,46 @@ test('an essay page has its head, figures, notes, further reading and pager', ()
   expect(container.querySelector('.wr-pager__index')).toHaveAttribute('href', '/writing');
 });
 
-test('every essay page’s bar reads "ihsan.cc · Essays", ihsan.cc going to the real front page', () => {
+test('the bar is a trail: ihsan.cc to the real front page, Essays a link only off the index', () => {
   [[false, null], [false, 'middle'], [true, null], [true, 'newest']].forEach(([preview, slug]) => {
     const { container, unmount } = at({ preview, slug });
     const bar = container.querySelector('.wr-top');
-    expect(bar.textContent).toBe('ihsan.cc · Essays');
-    const [home, index] = bar.querySelectorAll('a.wr-top__link');
-    expect(home).toHaveAttribute('href', '/');
-    expect(index).toHaveAttribute('href', `${preview ? PREVIEW_PATH : ''}/writing`);
+    const links = bar.querySelectorAll('a.wr-top__link');
+    expect(links[0]).toHaveAttribute('href', '/');
+    expect(links[0]).toHaveTextContent('ihsan.cc');
+    const here = bar.querySelector('[aria-current="page"]');
+    if (slug) {
+      expect(links).toHaveLength(2);
+      expect(links[1]).toHaveTextContent('Essays');
+      expect(links[1]).toHaveAttribute('href', `${preview ? PREVIEW_PATH : ''}/writing`);
+      expect(here).toHaveTextContent(container.querySelector('h1').textContent);
+      expect(here.tagName).not.toBe('A');
+      expect(bar.textContent).toBe(`ihsan.cc/Essays/${here.textContent}`);
+    } else {
+      expect(links).toHaveLength(1);
+      expect(here).toHaveTextContent('Essays');
+      expect(here.tagName).not.toBe('A');
+      expect(bar.textContent).toBe('ihsan.cc/Essays');
+    }
+    expect(bar.querySelectorAll('[aria-current="page"]')).toHaveLength(1);
+    expect(bar.querySelector('button[role="switch"]')).toHaveAttribute('aria-label', 'Dark theme');
     unmount();
   });
+});
+
+test('the bar’s theme switch toggles the theme and stores the choice under ihsan-theme', () => {
+  localStorage.removeItem('ihsan-theme');
+  document.documentElement.removeAttribute('data-theme');
+  const { container, unmount } = at({ preview: false, slug: null });
+  const sw = container.querySelector('.wr-top button[role="switch"]');
+  expect(sw).toHaveAttribute('aria-checked', 'false');
+  fireEvent.click(sw);
+  expect(sw).toHaveAttribute('aria-checked', 'true');
+  expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  expect(localStorage.getItem('ihsan-theme')).toBe('dark');
+  unmount();
+  localStorage.removeItem('ihsan-theme');
+  document.documentElement.removeAttribute('data-theme');
 });
 
 test('an added passage is marked in text, headings and captions, and renders as <mark class="wr-added">', () => {

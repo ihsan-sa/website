@@ -7,6 +7,7 @@ import { frontPage } from './frontPage';
 import { PROJECT_THUMBS } from './projectThumbs';
 import { SIDE_PHOTOS } from './sidePhotos';
 import stats from './stats.json';
+import { useTheme } from './theme';
 import Writing, { matchWriting } from './writing/Writing';
 import allEssays from './writing/essays.generated.json';
 
@@ -25,47 +26,6 @@ const published = allEssays.filter((e) => !e.draft);
 // public/_redirects serves index.html at it. Every other path renders the
 // front page.
 export const PREVIEW_PATH = '/ua6x0zhyeewlevzyh9c87r3wb29m9qlu';
-
-const THEME_KEY = 'ihsan-theme';
-const DARK_QUERY = '(prefers-color-scheme: dark)';
-
-// jsdom (tests) ships no matchMedia; treat a missing implementation as light.
-function systemPrefersDark() {
-  return typeof window.matchMedia === 'function' && window.matchMedia(DARK_QUERY).matches;
-}
-
-// An explicit choice wins and persists; with no choice, the OS decides.
-// The inline script in index.html has already applied any stored choice to
-// <html> before React mounts, so read it back rather than re-deriving it.
-function useTheme() {
-  const [choice, setChoice] = useState(() =>
-    document.documentElement.getAttribute('data-theme')
-  );
-  const [systemDark, setSystemDark] = useState(systemPrefersDark);
-
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return undefined;
-    const query = window.matchMedia(DARK_QUERY);
-    const onChange = (event) => setSystemDark(event.matches);
-    query.addEventListener('change', onChange);
-    return () => query.removeEventListener('change', onChange);
-  }, []);
-
-  const isDark = choice ? choice === 'dark' : systemDark;
-
-  const toggle = () => {
-    const next = isDark ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    try {
-      localStorage.setItem(THEME_KEY, next);
-    } catch (e) {
-      // Private browsing can reject writes; the toggle still works for this visit.
-    }
-    setChoice(next);
-  };
-
-  return [isDark, toggle];
-}
 
 // Keep the draft out of search results. Added at mount rather than listed in
 // robots.txt, because listing the path there would publish it. The front page

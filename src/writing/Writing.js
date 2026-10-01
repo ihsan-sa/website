@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useTheme } from '../theme';
 import './Writing.css';
 import './zoom';
 import allEssays from './essays.generated.json';
@@ -173,17 +174,38 @@ function Meta({ essay }) {
   );
 }
 
-// The bar above every essay page: the main site, then the essays index. ihsan.cc
-// always goes to the real front page, even from the hidden preview path.
-function TopBar({ base }) {
+// The bar above every essay page: the main site, then the essays index, then the
+// theme switch. ihsan.cc always goes to the real front page, even from the hidden
+// preview path. On the index, "Essays" is where you are, so it is text, not a link.
+function TopBar({ base, onIndex, title }) {
   return (
-    <nav className="wr-top">
+    <nav className="wr-top" aria-label="Site">
       <span className="wr-top__crumbs">
         <a className="wr-top__link" href="/">ihsan.cc</a>
-        {' · '}
-        <a className="wr-top__link" href={`${base}/writing`}>Essays</a>
+        <span className="wr-top__sep" aria-hidden="true">/</span>
+        {onIndex ? (
+          <span className="wr-top__here" aria-current="page">Essays</span>
+        ) : (
+          <a className="wr-top__link" href={`${base}/writing`}>Essays</a>
+        )}
+        {title && (
+          <>
+            <span className="wr-top__sep" aria-hidden="true">/</span>
+            <span className="wr-top__here" aria-current="page">{title}</span>
+          </>
+        )}
       </span>
+      <ThemeSwitch />
     </nav>
+  );
+}
+
+// Same switch and storage key as the front page (theme.js).
+function ThemeSwitch() {
+  const [isDark, toggle] = useTheme();
+  return (
+    <button type="button" className="theme-switch" role="switch" aria-checked={isDark}
+      aria-label="Dark theme" title="Dark theme" onClick={toggle} />
   );
 }
 
@@ -191,7 +213,7 @@ function Index({ essays, base, preview }) {
   useHead({ title: 'Essays · Ihsan Salari', description: 'Essays on the AI systems I build.', noindex: preview });
   return (
     <main className="wr wr-index">
-      <TopBar base={base} />
+      <TopBar base={base} onIndex />
       <h1 className="wr-index__title">Essays</h1>
       {essays.length === 0 ? (
         <p className="wr-index__empty">Nothing here yet.</p>
@@ -216,7 +238,7 @@ function Essay({ essay, older, newer, base, preview }) {
   const seen = new Set();
   return (
     <main className="wr wr-essay">
-      <TopBar base={base} />
+      <TopBar base={base} title={essay.title} />
       <article>
         <header className="wr-head">
           <h1 className="wr-title">{essay.title}</h1>
