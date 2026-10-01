@@ -158,10 +158,10 @@ test('the review copy of /writing lists and renders drafts, all noindex', () => 
   expect(essay).toContain('A paragraph of Second with <em>emphasis</em>.');
   expect(essay).toContain('<title>Second · Ihsan Salari</title>');
   expect(essay).toContain(`href="${STATIC_PATH}writing.css"`);
-  // Every essay page's bar reads "ihsan.cc · Essays": the real front page, then the index.
-  const bar = `<nav class="wr-top"><span class="wr-top__crumbs"><a class="wr-top__link" href="/">ihsan.cc</a> · <a class="wr-top__link" href="${STATIC_PATH}writing/">Essays</a></span>`;
-  expect(essay).toContain(bar);
-  expect(index).toContain(bar);
+  // The bar is a trail: ihsan.cc, Essays, then the essay; the page you are on is text.
+  const home = '<a class="wr-top__link" href="/">ihsan.cc</a><span class="wr-top__sep" aria-hidden="true">/</span>';
+  expect(essay).toContain(`<nav class="wr-top" aria-label="Site"><span class="wr-top__crumbs">${home}<a class="wr-top__link" href="${STATIC_PATH}writing/">Essays</a><span class="wr-top__sep" aria-hidden="true">/</span><span class="wr-top__here" aria-current="page">Second</span></span>`);
+  expect(index).toContain(`<nav class="wr-top" aria-label="Site"><span class="wr-top__crumbs">${home}<span class="wr-top__here" aria-current="page">Essays</span></span>`);
   expect(essay).toMatch(/<\/span><button[^>]*role="switch"[^>]*hidden/);
   expect(essay).toContain('All essays');
   expect(index).toContain('<h1 class="wr-index__title">Essays</h1>');
