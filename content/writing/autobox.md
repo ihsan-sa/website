@@ -23,8 +23,6 @@ Every planning session works towards short- and long-term goals for that project
 
 ![The three ways a planning session hands off work](dispatch-paths.svg)
 
-<mark class="wr-added">The choice comes down to cost and who steers. A subagent is the cheapest: a bounded analysis runs well under $1, where the same job as a worker is a $2.50–9 repair round, but it dies with the session and gets no gates, journal or PR of its own. A worker gets all three, but its channel ends with it. A project with more than one milestone that I steer myself gets a sub-orchestrator, a peer of the planning session rather than a layer under it. The motor driver went to a worker, because it was a bounded build that ends in a PR.</mark>
-
 **Sandboxing;** workers can be spawned in containerized sandboxes for dangerous work or simply for full autonomy with full permission granted.
 
 ### Model/harness agnostic
