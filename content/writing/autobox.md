@@ -13,7 +13,7 @@ I often get asked “Are you working right now? Why are you on Slack?” The ans
 
 ## How Autobox works
 
-Everything starts with a Slack channel: every channel in Slack goes to an ephemeral Claude Code session running in a tmux on my server. When the context of that session passes 15%, it hands off seamlessly to a successor, giving the illusion that it’s just one session the whole time.
+Everything starts with a Slack channel: every channel in Slack goes to an ephemeral Claude Code session running in a tmux on my server. When the context of that session passes 15%, it hands off seamlessly to a successor, giving the illusion that it’s just one session the whole time. Handing off at low context prevents context rot, which is expensive in tokens and makes the results less sharp.
 
 Every planning session works towards short- and long-term goals for that project with an automatic “wake” which keeps sessions on track. When I give work to a planning session, it can execute it via three paths:
 
