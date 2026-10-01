@@ -215,6 +215,11 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
   opacity: 0.5;
 }
 
+/* The contact card is for saving to a phone, so it shows only there. */
+@media (min-width: 641px) {
+  .pv-proto .pv-links__rest .pv-link[href$=".vcf"] { display: none; }
+}
+
 @media (max-width: 640px) {
   .pv-proto .pv-links--compact { gap: 0; }
   .pv-proto .pv-links__rest { gap: 0 18px; }
