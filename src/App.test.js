@@ -150,9 +150,9 @@ test('the side photos are on the draft only, lazy, sized and described', () => {
   expect(all.length).toBeGreaterThan(0);
 
   const front = render(<App />);
-  expect(front.container.querySelector('.pv-side, .pv-side__img')).toBeNull();
+  expect(front.container.querySelector('.pv-side, .pv-side__img, .pv-strip, .pv-strip__img')).toBeNull();
   expect(front.container.querySelector('main')).not.toHaveClass('pv-proto--photos');
-  all.forEach(({ src }) => expect(front.container.innerHTML).not.toContain(src));
+  [...all, ...SIDE_PHOTOS.strip].forEach(({ src }) => expect(front.container.innerHTML).not.toContain(src));
   front.unmount();
 
   window.history.pushState({}, '', PREVIEW_PATH);
@@ -162,8 +162,22 @@ test('the side photos are on the draft only, lazy, sized and described', () => {
     const imgs = [...container.querySelectorAll(`.pv-side--${side} img`)];
     expect(imgs.map((img) => img.getAttribute('src'))).toEqual(SIDE_PHOTOS[side].map(({ src }) => src));
   });
+  // The phone strip sits between the links bar and the name, in its own order.
+  const strip = container.querySelector('.pv-strip');
+  expect(strip.previousElementSibling).toHaveClass('pv-links');
+  expect(strip.nextElementSibling).toHaveClass('pv-intro');
+  const stripImgs = [...strip.querySelectorAll('img')];
+  expect(stripImgs.map((img) => img.getAttribute('src'))).toEqual(SIDE_PHOTOS.strip.map(({ src }) => src));
+  stripImgs.forEach((img, i) => {
+    const { width, height, alt } = SIDE_PHOTOS.strip[i];
+    expect(img).toHaveAttribute('loading', 'lazy');
+    expect(img).toHaveAttribute('width', String(width));
+    expect(img).toHaveAttribute('height', String(height));
+    expect(img).toHaveAttribute('alt', alt);
+    expect(img.classList.contains('pv-strip__img--tall')).toBe(height > width);
+  });
   all.forEach(({ src, alt, width, height }) => {
-    const img = container.querySelector(`img[src="${src}"]`);
+    const img = container.querySelector(`.pv-side img[src="${src}"]`);
     expect(src).toMatch(/^\/images\/side\/[a-z0-9-]+\.webp$/);
     const file = path.join(__dirname, '..', 'public', src);
     expect(fs.existsSync(file)).toBe(true);
