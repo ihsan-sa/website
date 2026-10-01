@@ -22,9 +22,9 @@
 // - and 1. lists, ``` fenced code, one > pull quote, footnotes ([^id] with `[^id]: text` lines),
 // <mark class="wr-added">…</mark> around an added passage (inside one block; see SHOW_ADDED),
 // and figures: an image alone in its paragraph, `![caption](file)`. A .svg figure is a diagram,
-// anything else an image. Clicking a figure enlarges it; a .gif with a same-named .mp4 beside
-// it (hero.gif, hero.mp4) plays that video instead (src/writing/zoom.js), and a
-// hero-poster.webp beside them stands in for the GIF when reduced motion is asked for. A `## Further reading`
+// anything else an image. Clicking a figure enlarges it; a .webp (or .gif) with a same-named .mp4 beside
+// it (hero.webp, hero.mp4) plays that video instead (src/writing/zoom.js), and a
+// hero-poster.webp beside them stands in for the clip when reduced motion is asked for. A `## Further reading`
 // section of `- [title](href): note (N pages)` items becomes the further-reading block. A draft
 // whose figure file is missing still builds, with a placeholder; a published essay with any
 // problem fails the build.
@@ -180,13 +180,13 @@ function parseEssay(source, slug, assets = () => ({ exists: true })) {
       caption: parseInline(fig[1]),
     };
     if (a.width) Object.assign(block, { width: a.width, height: a.height });
-    // A GIF with an .mp4 of the same name beside it plays that video, full size, when clicked.
-    // The page still shows the GIF, which autoplays everywhere; a <name>-poster.webp
+    // A clip with an .mp4 of the same name beside it plays that video, full size, when clicked.
+    // The page still shows the animated WebP, which autoplays everywhere; a <name>-poster.webp
     // beside them stands in for it when reduced motion is asked for.
-    const video = file.replace(/\.gif$/i, '.mp4');
+    const video = file.replace(/\.(?:gif|webp)$/i, '.mp4');
     if (video !== file && assets(slug, video).exists) {
       block.video = `/writing/${slug}/${video}`;
-      const poster = file.replace(/\.gif$/i, '-poster.webp');
+      const poster = file.replace(/\.(?:gif|webp)$/i, '-poster.webp');
       if (assets(slug, poster).exists) block.poster = `/writing/${slug}/${poster}`;
     }
     if (!a.exists) {

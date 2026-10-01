@@ -16,7 +16,7 @@ Each section below covers one project: what it does, how it works, and how far i
 
 autobox runs Claude Code on my projects while nobody is watching, and I steer it from my phone over Slack. It runs my projects, my coursework and my job search from a small server at home. I wrote about how I built it and how I use it day to day in [a separate essay](https://ihsan.cc/writing/autobox), so here I'll stick to what makes it safe to leave alone.
 
-<!-- GIF: /writing/autobox/hero.gif, autobox at work from the phone, a Slack thread through to a merged PR -->
+<!-- GIF: /writing/autobox/hero.webp, autobox at work from the phone, a Slack thread through to a merged PR -->
 
 Claude Code is good at one sitting of work. Left running for days it has three problems: its context fills up and it forgets, it can run any command it likes, and nothing stops it merging broken code. autobox is the layer around it that fixes those three. It isn't another agent. It's shell and Python glue around Claude Code.
 
@@ -74,7 +74,7 @@ A digital block's testbench is written before its RTL, by an agent that has read
 
 There's no analog autorouter, so an analog layout is a Python script that draws it. Magic, KLayout and netgen only judge the result, with DRC, LVS and a simulation of the extracted layout. A DRC finding becomes a work order for the script, so the fix goes into the code and the layout can be rebuilt from it.
 
-<!-- GIF: the 8-bit counter's GF180 layout in 3D (/writing/autobox/chip.gif) -->
+<!-- GIF: the 8-bit counter's GF180 layout in 3D (/writing/autobox/chip.webp) -->
 
 An 8-bit counter and a UART have gone from spec to a hardened, timed netlist with every check green, and the UART's testbench kills every mutant. A current mirror and a comparator have gone to a checked layout, though those two runs were told to take the default at both checkpoints, so no person signed them. A mixed-signal example went green on every check, but I don't count it, because two of its mutant rulings were edited by hand. The SPI FIFO is stuck at its formal proof, which times out before it can close. Nothing has been sent to a fab yet.
 
@@ -84,7 +84,7 @@ An 8-bit counter and a UART have gone from spec to a hardened, timed netlist wit
 
 lesson-builder builds the interactive web lessons I study from, each with a tutor inside it. It was the first agent system I built, to study for my exams. A lesson is a small web app with LaTeX for notation, SVG for graphs, manim for animation, and a chat panel where the tutor answers questions about it.
 
-<!-- GIF: /writing/autobox/lessons.gif, a lesson on Fourier series with its tutor drawing into the chat -->
+<!-- GIF: /writing/autobox/lessons.webp, a lesson on Fourier series with its tutor drawing into the chat -->
 
 Specialist agents research, plan, draw and build demos. I approve the plan once, and the pipeline can't skip that step. Separate reviewers then check the code, the teaching, the visuals and the science, each on its own so no review softens because another passed. Each verdict is recorded against a hash of the files it read, so an update skips anything that passed and hasn't changed. That's what makes it affordable to re-check every diagram and demo on every update.
 

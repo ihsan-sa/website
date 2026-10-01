@@ -16,7 +16,7 @@ I often get asked “Are you working right now? Why are you on Slack?” The ans
 
 For example, the chip and board renders further down, which I asked for in Slack, went through four projects. The chip is an 8-bit counter that the chip-design skill took to a finished GF180 layout, and the board is a motor driver the hwde skill designed. A video session rendered both in Blender for a demo, a critic agent reviewed the stills, and the website session put them in this essay.
 
-![Autobox at work](hero.gif)
+![Autobox at work](hero.webp)
 
 ## How Autobox works
 
@@ -92,15 +92,15 @@ Autobox runs my AI-enabled PCB design flow called hwde. This includes both impro
 
 In addition to hwde, the box runs chip design flows for digital, analog, and mixed-signal designs, as well as firmware and new product integration/bring-up flows.
 
-![The motor driver hwde designed, rendered in 3D from its KiCad board](pcb.gif)
+![The motor driver hwde designed, rendered in 3D from its KiCad board](pcb.webp)
 
-![A small test chip from the chip flow, an 8-bit counter, its layout in 3D](chip.gif)
+![A small test chip from the chip flow, an 8-bit counter, its layout in 3D](chip.webp)
 
 ### Library
 
 I built the library to manage all my documents, both human and AI written. Generating documentation is important for me to be able to understand the systems and findings the AI system has developed. In order to better track revisions and interact with and edit documents, I built an “AI Overleaf” which allows for easy tracking of documents and their versions, document numbering, and editing. Through this flow, I can easily edit documents by commenting on existing work, adding lines to be rephrased, or adding text to keep in my writing.
 
-![The library](library.gif)
+![The library](library.webp)
 
 Every document gets a number such as 001-0004-B (project, document, revision), and a filed revision never changes. The recording shows the editor: I draw a box on the PDF and comment on it, change a line, or edit the LaTeX directly, then send the edits to the session that wrote the document, which files the next revision. The library holds 143 documents and 278 revisions so far.
 
@@ -108,7 +108,7 @@ Every document gets a number such as 001-0004-B (project, document, revision), a
 
 The lesson-builder skill was the first agent system I built back in March to study for my exams. Today, it ingests course materials and my notes automatically and builds lessons and teaches me. The pipeline employs a range of breadth and depth agents. The former survey the topic area and resources at hand and make a research plan, while the latter drill into certain topics and compile in-depth course notes. Those notes are then reformatted into an outline by pedagogy agents, which decide on the best way to both explain the content and present it using available media. Specialist agents will then generate the media and put the lesson together. The tutor runs a system prompt shaped to teach effectively, and can generate graphs, diagrams, or videos.
 
-![A lesson and its tutor](lessons.gif)
+![A lesson and its tutor](lessons.webp)
 
 The recording shows a lesson on Fourier series. Its figures are live, and when I ask the tutor to draw what the filter does, it draws it into the chat.
 

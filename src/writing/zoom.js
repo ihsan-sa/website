@@ -6,9 +6,9 @@
 // gives focus back to the figure. With this script absent the link still works:
 // it opens the video or image on its own.
 //
-// An essay's clips are GIFs, which autoplay everywhere (a <picture> swaps in the
+// An essay's clips are animated WebP, which autoplays everywhere (a <picture> swaps in the
 // poster under reduced motion); the overlay plays the .mp4 with controls, on the
-// frame the figure shows (img.currentSrc: the GIF, or the poster).
+// frame the figure shows (img.currentSrc: the clip, or the poster).
 //
 // One copy serves both kinds of essay page: Writing.js imports it, and
 // build-static.js inlines this file in a <script>, so it holds no import or

@@ -10,7 +10,7 @@ const read = (...parts) => fs.readFileSync(path.join(ROOT, ...parts), 'utf8');
 
 beforeEach(() => window.history.pushState({}, '', '/'));
 
-// Every file exists but one named "missing", and only hero.gif has an .mp4 and a poster beside it.
+// Every file exists but one named "missing", and only hero.webp has an .mp4 and a poster beside it.
 const assets = (src) => {
   if (/missing/.test(src)) return { exists: false };
   if (/-poster\.webp$|\.mp4$/.test(src) && !/(hero|clip)/.test(src)) return { exists: false };
@@ -31,7 +31,7 @@ Intro with *em*.
 
 [github.com/ihsan-sa/autobox](https://github.com/ihsan-sa/autobox)
 
-<!-- GIF: /writing/autobox/hero.gif, autobox at work -->
+<!-- GIF: /writing/autobox/hero.webp, autobox at work -->
 
 <!-- FIGURE: portfolio/figures/a.png, portfolio/figures/b.png, two boards -->
 
@@ -45,8 +45,8 @@ Text.
 `;
 
 test('a media comment splits into its files and its caption', () => {
-  expect(splitMedia('/writing/autobox/hero.gif, autobox at work')).toEqual({ files: ['/writing/autobox/hero.gif'], caption: 'autobox at work' });
-  expect(splitMedia("the counter's layout in 3D (/writing/autobox/chip.gif)")).toEqual({ files: ['/writing/autobox/chip.gif'], caption: "the counter's layout in 3D" });
+  expect(splitMedia('/writing/autobox/hero.webp, autobox at work')).toEqual({ files: ['/writing/autobox/hero.webp'], caption: 'autobox at work' });
+  expect(splitMedia("the counter's layout in 3D (/writing/autobox/chip.webp)")).toEqual({ files: ['/writing/autobox/chip.webp'], caption: "the counter's layout in 3D" });
   expect(splitMedia('portfolio/figures/x.svg')).toEqual({ files: ['portfolio/figures/x.svg'], caption: '' });
   expect(splitMedia('one post before and after')).toEqual({ files: [], caption: 'one post before and after' });
 });
@@ -62,7 +62,7 @@ test('the markdown becomes a title, a standfirst, the PDF link, headed sections 
   expect(page.blocks[2].repo).toEqual({ label: 'github.com/ihsan-sa/autobox', href: 'https://github.com/ihsan-sa/autobox' });
   expect(page.blocks[6].repo).toBeUndefined();
   const [gif, row, video] = page.blocks.filter((b) => b.t === 'media');
-  expect(gif.items[0]).toMatchObject({ src: '/writing/autobox/hero.gif', video: '/writing/autobox/hero.mp4', poster: '/writing/autobox/hero-poster.webp' });
+  expect(gif.items[0]).toMatchObject({ src: '/writing/autobox/hero.webp', video: '/writing/autobox/hero.mp4', poster: '/writing/autobox/hero-poster.webp' });
   expect(gif.alt).toBe('autobox at work');
   expect(row.items.map((i) => i.src)).toEqual(['/portfolio/figures/a.png', '/portfolio/figures/b.png']);
   expect(video.items[0].kind).toBe('video');

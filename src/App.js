@@ -62,14 +62,16 @@ function usePreviewFont() {
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
 
 // The draft's banner under the intro: the essay's clip (src/essayBanner.js) as a
-// looping GIF over its title and standfirst, the whole of it one link to the essay.
-// A GIF, not a <video>, because a GIF plays everywhere, Safari's Low Power Mode
-// included, which refuses muted video autoplay. It loads lazily, after the text, and
-// its width and height hold its 16:9 box so nothing shifts, and the still poster is the
-// <img>'s own background, so it shows at once and the GIF paints over it once loaded.
-// With reduced motion asked for, <picture> swaps in the poster and the GIF never loads. It is decorative (alt=""): the link's own text names the essay.
+// looping animated WebP over its title and standfirst, the whole of it one link to the
+// essay. An animated WebP, not a <video>, because it is an image and plays everywhere,
+// Safari's Low Power Mode included (Safari has played it since 14), which refuses muted
+// video autoplay. It loads lazily, after the text, and its width and height hold its
+// 16:9 box so nothing shifts, and the still poster is the <img>'s own background, so it
+// shows at once and the clip paints over it once loaded. With reduced motion asked for,
+// <picture> swaps in the poster and the clip never loads. It is decorative (alt=""): the
+// link's own text names the essay.
 // A clip's still as its <img>'s CSS background: it shows the moment the box is laid
-// out, and the loaded GIF covers it. No script, and the static build writes the same.
+// out, and the loaded clip covers it. No script, and the static build writes the same.
 const stillStyle = (poster) => (poster ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover' } : undefined);
 
 function EssayBanner({ essay, href, label }) {
@@ -133,7 +135,7 @@ function Intro({ block }) {
 // too (the strip on a desktop, the columns on a phone). The one thing fetched up front
 // is the banner's small poster. Each has its width and height, which hold its place, so
 // the text paints first and nothing shifts. (A clip's poster, a small webp, loads early
-// too, as its GIF's background.)
+// too, as its clip's background.)
 const imgProps = ({ src, width, height, alt }) => ({ src, width, height, alt, loading: 'lazy', decoding: 'async' });
 
 function SidePhotos({ side }) {
@@ -280,10 +282,10 @@ function monthYear(iso) {
   return `${MONTHS[Number(m) - 1]} ’${y.slice(2)}`;
 }
 
-// An AI row's visual: an image, or a GIF clip as the essay shows its clips (see
+// An AI row's visual: an image, or an animated WebP clip as the essay shows its clips (see
 // EssayBanner): a lazy, sized <img> in a <picture> whose reduced-motion source is
-// the still poster, so the GIF never loads then; the same poster is the <img>'s background,
-// shown until the GIF loads. A clip with a `video` sits in the
+// the still poster, so the clip never loads then; the same poster is the <img>'s
+// background, shown until the clip loads. A clip with a `video` sits in the
 // essay figures' link, so a click plays the .mp4 full size with its controls
 // (src/writing/zoom.js, which Writing.js loads for every page); without the script
 // the link still opens the video.

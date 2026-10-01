@@ -19,7 +19,7 @@
 // Media are HTML comments alone on a line, as the owner's drafts write them:
 //   <!-- FIGURE: portfolio/figures/x.svg -->          a diagram (any .svg)
 //   <!-- FIGURE: a.png, b.png, caption -->           images side by side, with a caption
-//   <!-- GIF: /writing/autobox/hero.gif, caption --> a clip, as the essays show it
+//   <!-- GIF: /writing/autobox/hero.webp, caption --> a clip, as the essays show it
 //   <!-- VIDEO: portfolio/x.mp4, caption -->         a video with controls
 //   <!-- LINK: ... -->                               where the link to the PDF goes
 // A path names a file under public/ (a leading / is optional), and whatever is not a path is
@@ -27,7 +27,7 @@
 // markdown works too: `![caption](file)` alone in its paragraph, an .mp4 as a video. Any other
 // comment is a note to the editor and shown nowhere.
 //
-// A GIF with a same-named .mp4 beside it opens that video on a click, and a <name>-poster.webp
+// A clip with a same-named .mp4 beside it opens that video on a click, and a <name>-poster.webp
 // stands in for it when reduced motion is asked for, as on the essays. In the PDF a GIF or a
 // video is its poster still (the -poster.webp, else its first frame), and an .svg is the .pdf
 // of the same path under content/portfolio/print/.
@@ -73,10 +73,10 @@ function mediaItem(file, assets) {
   if (a.width) Object.assign(item, { width: a.width, height: a.height });
   if (a.title) item.title = a.title;
   if (!a.exists) item.missing = true;
-  const video = src.replace(/\.gif$/i, '.mp4');
+  const video = src.replace(/\.(?:gif|webp)$/i, '.mp4');
   if (video !== src && assets(video).exists) {
     item.video = video;
-    const poster = src.replace(/\.gif$/i, '-poster.webp');
+    const poster = src.replace(/\.(?:gif|webp)$/i, '-poster.webp');
     if (assets(poster).exists) item.poster = poster;
   }
   return item;
