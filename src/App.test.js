@@ -454,7 +454,7 @@ test('the front page is unchanged: Experience first, no banner, no Show more, no
   prototype.aiWork.items.forEach(({ visual }) => expect(container.innerHTML).not.toContain(visual.src));
 });
 
-test('the draft banner plays the essay clip muted, looping and inline, and links the draft essay', () => {
+test('the draft banner shows the essay clip as a lazy, sized GIF, and links the draft essay', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   const { container } = render(<Prototype essays={[AUTOBOX_ESSAY]} />);
   const banner = container.querySelector('a.pv-banner');
@@ -464,92 +464,37 @@ test('the draft banner plays the essay clip muted, looping and inline, and links
   expect(banner).toHaveTextContent(prototype.essays.banner);
   expect(banner).toHaveTextContent(AUTOBOX_ESSAY.title);
   expect(banner).toHaveTextContent(AUTOBOX_ESSAY.standfirst);
-  const video = banner.querySelector('video');
-  expect(video.muted).toBe(true);
-  expect(video).toHaveAttribute('muted');
-  expect(video.loop).toBe(true);
-  expect(video.autoplay).toBe(true);
-  expect(video).toHaveAttribute('playsinline');
-  expect(video).toHaveAttribute('poster', ESSAY_BANNER.poster);
-  expect(video).toHaveAttribute('width', String(ESSAY_BANNER.width));
-  expect(video).toHaveAttribute('height', String(ESSAY_BANNER.height));
-  expect(video.playsInline).toBe(true);
-  expect(video.defaultMuted).toBe(true);
-  // It may fetch the clip's first bytes, never the whole of it up front.
-  expect(video).toHaveAttribute('preload', 'metadata');
-  expect(video.querySelector('source')).toHaveAttribute('src', ESSAY_BANNER.video);
-  // No GIF stands behind it: an <img> inside a <video> downloads even when unseen.
-  expect(video.querySelector('img')).toBeNull();
-  expect(container.innerHTML).not.toMatch(/\.gif\b/);
-  // The clip and its light poster ship with the site, at web weight.
-  [ESSAY_BANNER.video, ESSAY_BANNER.poster].forEach((src) =>
+  // A GIF, never a <video>: a GIF autoplays where Low Power Mode refuses muted video.
+  expect(banner.querySelector('video')).toBeNull();
+  const picture = banner.querySelector('picture.pv-banner__media');
+  const img = picture.querySelector('img.pv-banner__video');
+  expect(img).toHaveAttribute('src', ESSAY_BANNER.gif);
+  expect(ESSAY_BANNER.gif).toMatch(/\.gif$/);
+  expect(img).toHaveAttribute('loading', 'lazy');
+  expect(img).toHaveAttribute('decoding', 'async');
+  expect(img).toHaveAttribute('width', String(ESSAY_BANNER.width));
+  expect(img).toHaveAttribute('height', String(ESSAY_BANNER.height));
+  expect(ESSAY_BANNER.width / ESSAY_BANNER.height).toBeCloseTo(16 / 9, 2);
+  // Decorative: the link's text names the essay.
+  expect(img).toHaveAttribute('alt', '');
+  // With reduced motion asked for, the still poster stands in and the GIF never loads.
+  const sources = picture.querySelectorAll('source');
+  expect(sources).toHaveLength(1);
+  expect(sources[0]).toHaveAttribute('media', '(prefers-reduced-motion: reduce)');
+  expect(sources[0]).toHaveAttribute('srcset', ESSAY_BANNER.poster);
+  expect(picture.lastElementChild).toBe(img);
+  // The GIF and its light poster ship with the site.
+  [ESSAY_BANNER.gif, ESSAY_BANNER.poster].forEach((src) =>
     expect(fs.existsSync(path.join(__dirname, '..', 'public', src))).toBe(true));
   expect(ESSAY_BANNER.poster).toMatch(/\.webp$/);
   expect(fs.statSync(path.join(__dirname, '..', 'public', ESSAY_BANNER.poster)).size).toBeLessThanOrEqual(60 * 1024);
-  expect(fs.statSync(path.join(__dirname, '..', 'public', ESSAY_BANNER.video)).size).toBeLessThanOrEqual(4 * 1024 * 1024);
-});
-
-test('the banner asks to play as it nears the screen, keeps its poster if refused, and pauses off it', async () => {
-  const observers = [];
-  const original = window.IntersectionObserver;
-  window.IntersectionObserver = class {
-    constructor(cb, opts) { this.cb = cb; this.opts = opts; this.targets = []; this.gone = false; observers.push(this); }
-    observe(t) { this.targets.push(t); }
-    disconnect() { this.gone = true; }
-  };
-  const refused = Promise.reject(new DOMException('Low Power Mode', 'NotAllowedError'));
-  refused.catch(() => {});
-  const play = jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => refused);
-  const pause = jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
-  try {
-    window.history.pushState({}, '', PREVIEW_PATH);
-    const { container, unmount } = render(<Prototype essays={[AUTOBOX_ESSAY]} />);
-    const video = container.querySelector('.pv-banner video');
-    expect(observers).toHaveLength(1);
-    const [io] = observers;
-    expect(io.targets).toEqual([video]);
-    expect(io.opts.rootMargin).toMatch(/px/);
-    expect(play).not.toHaveBeenCalled();
-    io.cb([{ isIntersecting: true, target: video }]);
-    expect(play).toHaveBeenCalledTimes(1);
-    expect(video.muted).toBe(true);
-    // The refusal is caught: nothing throws, and the poster is still there.
-    await Promise.resolve();
-    expect(video).toHaveAttribute('poster', ESSAY_BANNER.poster);
-    io.cb([{ isIntersecting: false, target: video }]);
-    expect(pause).toHaveBeenCalled();
-    unmount();
-    expect(io.gone).toBe(true);
-  } finally {
-    window.IntersectionObserver = original;
-    play.mockRestore();
-    pause.mockRestore();
-  }
+  expect(fs.statSync(path.join(__dirname, '..', 'public', ESSAY_BANNER.gif)).size).toBeLessThanOrEqual(4 * 1024 * 1024);
 });
 
 test('with no Autobox essay the draft shows no banner', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   const { container } = render(<Prototype essays={ONE_ESSAY} />);
   expect(container.querySelector('.pv-banner')).toBeNull();
-});
-
-test('with reduced motion asked for, the banner neither autoplays nor preloads, and shows its poster', () => {
-  const original = window.matchMedia;
-  window.matchMedia = (query) => ({ ...original(query), matches: query === '(prefers-reduced-motion: reduce)' });
-  const pause = jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
-  try {
-    window.history.pushState({}, '', PREVIEW_PATH);
-    const { container } = render(<Prototype essays={[AUTOBOX_ESSAY]} />);
-    const video = container.querySelector('.pv-banner video');
-    expect(video.autoplay).toBe(false);
-    expect(video).not.toHaveAttribute('autoplay');
-    expect(video).toHaveAttribute('preload', 'none');
-    expect(video).toHaveAttribute('poster', ESSAY_BANNER.poster);
-    expect(pause).toHaveBeenCalled();
-  } finally {
-    window.matchMedia = original;
-    pause.mockRestore();
-  }
 });
 
 test('the draft about folds on a phone behind a Show more button that says whether it is open', () => {

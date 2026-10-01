@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import './Writing.css';
 import './zoom';
 import allEssays from './essays.generated.json';
@@ -90,35 +90,16 @@ function Inline({ nodes, notes, seen }) {
   });
 }
 
-// A GIF with its .mp4 and a poster beside it (scripts/writing.js) is shown as the
-// video: muted, looping, inline, on its poster, with nothing preloaded. zoom.js plays
-// it as it nears the screen; the GIF itself never loads. React sets `muted` as a
-// property only, so the ref adds the attribute too.
-function InlineClip({ video, poster, alt, width, height }) {
-  const ref = useRef(null);
-  useEffect(() => {
-    const v = ref.current;
-    v.defaultMuted = true;
-    v.muted = true;
-    v.setAttribute('muted', '');
-    if (window.wrZoom) window.wrZoom.watch(v.parentNode);
-  }, []);
+// A GIF with its .mp4 beside it (scripts/writing.js) is a clip: the GIF itself, lazy
+// and sized, because a GIF autoplays everywhere (Safari's Low Power Mode refuses muted
+// video). With reduced motion asked for, its poster stands in and the GIF never loads.
+// A click still opens the .mp4 full size with its controls (zoom.js).
+function Clip({ src, poster, alt, width, height }) {
   return (
-    <video
-      ref={ref}
-      className="wr-figure__img wr-figure__video"
-      poster={poster}
-      width={width}
-      height={height}
-      style={width && height ? { aspectRatio: `${width} / ${height}` } : undefined}
-      muted
-      loop
-      playsInline
-      preload="none"
-      aria-label={alt}
-    >
-      <source src={video} type="video/mp4" />
-    </video>
+    <picture className="wr-figure__clip">
+      {poster && <source media="(prefers-reduced-motion: reduce)" srcSet={poster} />}
+      <img className="wr-figure__img" src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
+    </picture>
   );
 }
 
@@ -133,8 +114,8 @@ function Figure({ block, notes, seen }) {
           <div className="wr-figure__missing">Figure not added yet: {src.split('/').pop()}</div>
         ) : (
           <a className="wr-figure__zoom" href={video || src} data-video={video} aria-label={`${video ? 'Play full size' : 'Enlarge'}: ${alt}`} aria-haspopup="dialog">
-            {video && poster ? (
-              <InlineClip video={video} poster={poster} alt={alt} width={width} height={height} />
+            {video ? (
+              <Clip src={src} poster={poster} alt={alt} width={width} height={height} />
             ) : (
               <img className="wr-figure__img" src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
             )}
