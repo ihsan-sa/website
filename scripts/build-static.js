@@ -234,7 +234,8 @@ function renderDraft(content, essays = [], { v2 = false, front = false } = {}) {
   const pt = front ? frontPage(content.prototype) : content.prototype;
   const writing = `${STATIC_PATH}writing/`;
   const link = ({ label, href }) => `<a class="pv-link" href="${esc(href)}"${NEW_TAB}>${esc(label)}</a>`;
-  const sections = [pt.experience, pt.aiWork]
+  // The front page puts AI work first, as the React one does.
+  const sections = (front ? [pt.aiWork, pt.experience] : [pt.experience, pt.aiWork])
     .map((sec) => `<section class="pv-block">
 ${heading(sec)}
 ${sec.items.map((item) => protoEntry(item, v2)).join('\n')}
@@ -273,10 +274,9 @@ ${projects}
 </section>`;
 }
 
-// The front page is the draft minus its documents, with no essays: the owner
-// has published none, and this copy's /writing lists the drafts.
-function renderFront(content) {
-  return renderDraft(content, [], { front: true });
+// The front page is the draft minus its documents, with published essays only.
+function renderFront(content, essays = []) {
+  return renderDraft(content, essays.filter((e) => !e.draft), { front: true });
 }
 
 // ---- essays: the markup of src/writing/Writing.js, as strings ---------------
@@ -479,7 +479,7 @@ function build(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
   cssVersion.writing = versionOf(writingCss);
   fs.writeFileSync(path.join(out, 'site.css'), css);
   fs.writeFileSync(path.join(out, 'index.html'),
-    page(shell, { mainClass: 'pv pv-proto', body: renderFront(content), noindex: true }));
+    page(shell, { mainClass: 'pv pv-proto', body: renderFront(content, essays), noindex: true }));
   fs.writeFileSync(path.join(buildDir, DRAFT_PATH, 'index.html'),
     page(shell, { mainClass: 'pv pv-proto', body: renderDraft(content, essays), noindex: true }));
   fs.mkdirSync(path.join(buildDir, DRAFT_V2_PATH), { recursive: true });

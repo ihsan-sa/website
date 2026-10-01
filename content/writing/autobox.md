@@ -1,7 +1,11 @@
 ---
 title: Autobox
 date: 2026-09-30
-draft: true
+library: 012-0004
+revision: N
+pdf: https://library.ihsan.cc/files/012-0004-N.pdf
+approved_by: Ihsan
+approved_at: 2026-10-01
 summary: how I built and use my agentic orchestration system.
 standfirst: "How I built Autobox, the AI agents on a small home server that run my projects, and how I use it."
 ---
