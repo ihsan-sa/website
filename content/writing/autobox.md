@@ -73,7 +73,7 @@ Knowledge and information are stored and sent in various manners which allow the
 
 Agents work in separate worktrees and on separate branches. In some cases, this new work can be deployed as a prototype for immediate use before the PR lands. In order for a PR to land, it must go through the lander. This system triggers a set of agent reviews as well as hard gates which are run adaptively based on the files that have been edited. Projects merge their own PRs: the gates and reviews decide, with no approval from me, and a red gate or a review finding still stops it and asks a person. Small PRs land alongside large ones, and large test suites are offloaded to another machine.
 
-<mark class="wr-added">The motor driver’s review caught that its fab files had been exported from an earlier copper revision than the board that passed its checks. The queue sent its own repair round and a rebase, and the PR landed without me.</mark>
+<mark class="wr-added">The motor driver’s review caught that its fab files had been exported from an earlier copper revision than the board that passed its checks. The queue sent its own repair round and a rebase, and the PR landed when the checks passed.</mark>
 
 ## How I use Autobox
 
@@ -107,6 +107,8 @@ The lesson-builder skill was the first agent system I built back in March to stu
 
 <mark class="wr-added">The recording shows a lesson on Fourier series. Its figures are live, and when I ask the tutor to draw what the filter does, it draws it into the chat.</mark>
 
-## <mark class="wr-added">What’s next</mark>
+## What’s next
 
-<mark class="wr-added">The limitation I’m tackling next is the harness. I want any agent harness, not just Claude Code, to be able to run any seat. Codex will first review ten landed PRs in shadow, workers move after that, and planning sessions stay on Claude Code for now.</mark>
+Currently, the system is compute constrained. While the lander runs adaptive test suites, and some intense processes are handed off to my laptop when it is on, the server remains a 2017 i5 based machine. Beyond upgrading the hardware, I plan to further develop the self improvement flows and more specifically, the long horizon planning capabilities of the system. One function I would like to see implemented is long term goal setting and adjusting, where agents evaluate progress towards current goals, and brainstorm to set new ones. While Autobox often correctly chooses to engage in the same short term work trajectory I would have chosen, I have yet to consistently observe true open-ended, long-horizon work and exploration. That being said, I am increasingly moving towards this and look forward to seeing where it goes.
+
+Another key priority is ensuring Autobox remains lightweight from a context perspective and flexible in the sense that much of the choice of how to approach a problem is left to the LLM to decide. This is important as it will ensure Autobox will have the greatest potential leap in capability as models improve. Part of this is also working towards making the framework model/harness agnostic so that various models can be run.
