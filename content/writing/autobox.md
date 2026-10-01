@@ -65,13 +65,11 @@ Knowledge and information are stored and sent in various manners which allow the
 
 **Raised problems;** when an agent loses time to the box’s own tools, it files a “raised-” row on the board saying what broke and what it cost. The planning session reads the board and decides what to fix, so the box’s problems get reported by the agents that hit them, not by me.
 
-**Self-landing;** projects merge their own PRs. Once a PR is ready, it’s queued for the lander, and the gates and reviews decide, with no approval from me. A red gate or a review finding still stops it and asks a person.
-
 **Spend tiers;** how much the box takes on by itself is one setting: stop, essential, moderate or autonomous. On autonomous it finds, fixes and explores work on its own, lower tiers take on less of what it finds, and on stop it only answers me. <mark class="wr-added">For scale, in the last week the box used about $3,500 of tokens at API prices (an estimate; the tokens are the real measure), and its own repository landed 219 PRs. The motor driver’s runs came to about $111.</mark>
 
 ### Landing PRs
 
-Agents work in separate worktrees and on separate branches. In some cases, this new work can be deployed as a prototype for immediate use before the PR lands. In order for a PR to land, it must go through the lander. This system triggers a set of agent reviews as well as hard gates which are run adaptively based on the files that have been edited. Small PRs land alongside large ones, and large test suites are offloaded to another machine.
+Agents work in separate worktrees and on separate branches. In some cases, this new work can be deployed as a prototype for immediate use before the PR lands. In order for a PR to land, it must go through the lander. This system triggers a set of agent reviews as well as hard gates which are run adaptively based on the files that have been edited. Projects merge their own PRs: the gates and reviews decide, with no approval from me, and a red gate or a review finding still stops it and asks a person. Small PRs land alongside large ones, and large test suites are offloaded to another machine.
 
 <mark class="wr-added">The motor driver’s review caught that its fab files had been exported from an earlier copper revision than the board that passed its checks. The queue sent its own repair round and a rebase, and the PR landed without me.</mark>
 
