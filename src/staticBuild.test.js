@@ -69,9 +69,12 @@ test('the draft folds its rows with <details> and keeps the folded copy', () => 
   folded.forEach((r) => r.result && expect(html).toContain(r.result));
   folded.forEach((r) => r.detail && expect(html).toContain(r.detail));
   expect(html).not.toContain('<button type="button" class="pv-entry__btn"');
-  // A row with a `short` carries both lengths; the fold opens on the full text.
-  expect(html).toContain('<span class="pv-t-long">, RF Engineering in San Francisco, working on plasma generation. Summer ’26.</span><span class="pv-t-short">, RF plasma, ’26.</span>');
-  expect(html).toContain('<p class="pv-result pv-fold__long">RF Engineering in San Francisco, working on plasma generation. Summer ’26.</p>');
+  // A row with a `short` carries both lengths; the fold opens on the result alone.
+  // Its `where` follows the full text in italics, and stays off the phone line.
+  expect(html).toContain('<span class="pv-t-long">, RF Plasma Generation, <em>San Francisco, Summer ’26</em></span><span class="pv-t-short">, RF plasma, ’26.</span>');
+  expect(html).not.toContain('pv-fold__long');
+  // A row without a `where` has no italic part.
+  expect(html).toContain('<span class="pv-t-long">, BASc Electrical Engineering. 2024–2029.</span>');
   // No page counts anywhere, and no foot: the contact card is in the links bar.
   expect(html).not.toMatch(/PDF, \d+ page/);
   expect(html).not.toContain('pv-foot');
@@ -134,7 +137,11 @@ test('the review copy of /writing lists and renders drafts, all noindex', () => 
   expect(essay).toContain('A paragraph of Second with <em>emphasis</em>.');
   expect(essay).toContain('<title>Second · Ihsan Salari</title>');
   expect(essay).toContain(`href="${STATIC_PATH}writing.css"`);
-  expect(essay).toMatch(/<nav class="wr-top"><a class="wr-top__link" href="[^"]+">Essays<\/a><button[^>]*role="switch"[^>]*hidden/);
+  // Every essay page's bar reads "ihsan.cc · Essays": the real front page, then the index.
+  const bar = `<nav class="wr-top"><span class="wr-top__crumbs"><a class="wr-top__link" href="/">ihsan.cc</a> · <a class="wr-top__link" href="${STATIC_PATH}writing/">Essays</a></span>`;
+  expect(essay).toContain(bar);
+  expect(index).toContain(bar);
+  expect(essay).toMatch(/<\/span><button[^>]*role="switch"[^>]*hidden/);
   expect(essay).toContain('All essays');
   expect(index).toContain('<h1 class="wr-index__title">Essays</h1>');
   expect(index).toContain('<title>Essays · Ihsan Salari</title>');

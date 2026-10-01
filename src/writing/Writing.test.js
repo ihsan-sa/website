@@ -186,6 +186,18 @@ test('an essay page has its head, figures, notes, further reading and pager', ()
   expect(container.querySelector('.wr-pager__index')).toHaveAttribute('href', '/writing');
 });
 
+test('every essay page’s bar reads "ihsan.cc · Essays", ihsan.cc going to the real front page', () => {
+  [[false, null], [false, 'middle'], [true, null], [true, 'newest']].forEach(([preview, slug]) => {
+    const { container, unmount } = at({ preview, slug });
+    const bar = container.querySelector('.wr-top');
+    expect(bar.textContent).toBe('ihsan.cc · Essays');
+    const [home, index] = bar.querySelectorAll('a.wr-top__link');
+    expect(home).toHaveAttribute('href', '/');
+    expect(index).toHaveAttribute('href', `${preview ? PREVIEW_PATH : ''}/writing`);
+    unmount();
+  });
+});
+
 test('a GIF figure plays the same-named .mp4 beside it, when there is one', () => {
   const src = essay(`${FRONT}\ndraft: true`, '![Moving.](demo.gif)\n\n![Still moving.](other.gif)\n\n![A photo.](shot.png)\n');
   const asked = [];

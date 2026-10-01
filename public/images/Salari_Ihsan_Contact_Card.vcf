@@ -7,14 +7,18 @@ ORG:EE @ UWaterloo;
 EMAIL;type=INTERNET;type=WORK;type=pref:hi@ihsan.cc
 TEL;type=CELL;type=VOICE;type=pref:(236) 996-7441
 X-SOCIALPROFILE;type=GitHub;x-user=ihsan-sa:x-apple:ihsan-sa
-X-SOCIALPROFILE;type=LinkedIn:http://www.linkedin.com/in/ihsan-sa
-NOTE:EE @ UWaterloo\nHW\, ASIC\, FW\, SI\, Photonics
-item1.URL;type=pref:https://ihsan.cc/images/Ihsan_Salari_Portfolio.pdf
-item1.X-ABLabel:Portfolio
-item2.URL:https://ihsan.cc/images/Ihsan_Salari_Resume.pdf
-item2.X-ABLabel:Resume
-item3.URL:https://www.ihsan.cc
-item3.X-ABLabel:Website
+X-SOCIALPROFILE;type=LinkedIn:https://www.linkedin.com/in/ihsan-sa
+NOTE:UWaterloo EE student building AI systems\, after co-ops in signal integrity\, datacenter optics and RF for chip manufacturing.
+item1.URL;type=pref:https://ihsan.cc
+item1.X-ABLabel:Website
+item2.URL:https://ihsan.cc/airesume
+item2.X-ABLabel:AI résumé
+item3.URL:https://ihsan.cc/hwresume
+item3.X-ABLabel:HW résumé
+item4.URL:https://ihsan.cc/hwportfolio
+item4.X-ABLabel:Hardware portfolio
+item5.URL:https://github.com/ihsan-sa
+item5.X-ABLabel:GitHub
 PHOTO;ENCODING=b:AAAAJGZ0eXBoZWljAAAAAG1pZjFNaVBybWlhZk1pSEJoZWljAAADlW1ldG
  EAAAAAAAAAIWhkbHIAAAAAAAAAAHBpY3QAAAAAAAAAAAAAAAAAAAAAJGRpbmYAAAAcZHJlZgAA
  AAAAAAABAAAADHVybCAAAAABAAAADnBpdG0AAAAAAAEAAAAjaWluZgAAAAAAAQAAABVpbmZlAg
