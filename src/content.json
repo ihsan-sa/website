@@ -97,7 +97,7 @@
           "text": "High‑frequency Power Electronics",
           "where": "Vancouver, Winter ’25",
           "short": "sonar power, ’25.",
-          "href": "https://docs.ihsan.cc/Projects/GaN_DCDC_Converter/overview/",
+          "href": "https://airadar.com/",
           "result": "Redesigned a 3.5 MHz multi‑stage GaN dc‑dc converter end to end, from topology choice to STM32 firmware and bring‑up."
         },
         {
