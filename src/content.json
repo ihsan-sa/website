@@ -28,7 +28,7 @@
     "public/images/foo.jpg. Project photos are cropped to 4:3 from the centre;",
     "ship them around 480x360.",
     "",
-    "A row has a `result` line, an optional `short` (the row's text on a phone; the full `text` then opens the fold), an optional `where` (place and date, in italics after `text`; not on a phone), and may have `detail`, `figure`, `docs` and `start`, a `note` (a closing line in the fold with a link to an essay: `text`, the link's `label`, and the essay's `slug`), and a `visual` (an image with `src`, `width`, `height`, `alt` and `caption`, shown in the fold; a GIF also has a still `poster`, shown in its place when reduced motion is asked for, and may have a `video` that a click plays full size). A `figure` has `image`, `alt` and `caption`, and `width` and `height` so nothing shifts. A section may have a `headLink` (one link beside its heading) or `docs` (documents beside it). `essays` is the heading of the list built from content/writing/. `pages` on a PDF is kept but not shown. The PDFs under /docs/notes/ come from the career repo; refresh them with scripts/sync-portfolio-notes.sh, never edit them here.",
+    "A row has a `result` line, an optional `short` (the row's text on a phone; the full `text` then opens the fold), an optional `where` (place and date, in italics after `text`; not on a phone), an optional `sub` (a one- or two-line subtitle under the row's head line, for stats; shown on desktop only, and it stays visible while the row is folded), and may have `detail`, `figure`, `docs` and `start`, a `note` (a closing line in the fold with a link to an essay: `text`, the link's `label`, and the essay's `slug`), and a `visual` (an image with `src`, `width`, `height`, `alt` and `caption`, shown in the fold; a GIF also has a still `poster`, shown in its place when reduced motion is asked for, and may have a `video` that a click plays full size). A `figure` has `image`, `alt` and `caption`, and `width` and `height` so nothing shifts. A section may have a `headLink` (one link beside its heading; `\"arrow\": true` ends it in a small ↗) or `docs` (documents beside it). `essays` is the heading of the list built from content/writing/. `pages` on a PDF is kept but not shown. The PDFs under /docs/notes/ come from the career repo; refresh them with scripts/sync-portfolio-notes.sh, never edit them here.",
     "",
     "Draft only, for now: `aboutFold` labels the button that folds the `about` paragraphs on a phone, and `essays.banner` is the small label over the essay banner (which essay and which clip: src/essayBanner.js).",
     "",
@@ -108,21 +108,11 @@
     },
     "aiWork": {
       "heading": "AI work",
-      "docs": [
-        {
-          "label": "AI portfolio",
-          "pending": "held until it’s final"
-        },
-        {
-          "label": "Overview",
-          "href": "/docs/notes/overview.pdf",
-          "pages": 2
-        }
-      ],
       "items": [
         {
           "name": "hwde",
           "text": "an AI PCB engineer, from brief to fabricated board.",
+          "sub": "Designed 21 boards so far, with the latest, an amplifier, on order for testing.",
           "short": "an AI PCB engineer.",
           "href": "https://github.com/ihsan-sa/hwde",
           "result": "A multi‑stage agentic pipeline in the form of a Claude Code skill takes in a simple brief and produces a PCB design and fab package. Soft orchestration layered with deterministic evals and scripts ensures a pipeline which produces consistent, verifiable, and iteratively improvable outputs, while maintaining a flexible pipeline which evolves as models and harnesses do.",
@@ -138,7 +128,8 @@
         },
         {
           "name": "autobox",
-          "text": "autonomous agent orchestration.",
+          "text": "autonomous agent orchestration on a remote server.",
+          "sub": "1,250+ PRs merged in a month across 15+ projects, in 1,300+ agent hours.",
           "href": "https://github.com/ihsan-sa/autobox",
           "result": "Agent orchestration system which runs on a server and autonomously develops projects and improves its own systems. Communication takes place via Slack, and agents follow thorough work patterns which abstract the user away, enabling autonomous development. Agents share a central library and exchange information via sockets and Slack in order to coordinate development. A PR lander runs reviews and adaptive tests based on edited files before merging. A self‑improvement flow catches failures and evaluates project status against goals to both improve current work and re‑evaluate said goals.",
           "figure": {
@@ -157,6 +148,7 @@
         {
           "name": "lesson-builder",
           "text": "course material into interactive lessons.",
+          "sub": "47 lessons across 14 topics, each with its own tutor, videos, interactive demos, graphs and more.",
           "short": "courses into lessons.",
           "href": "https://github.com/ihsan-sa/lesson-builder",
           "result": "Builds interactive lessons with a chatbot tutor via custom content ingestion, supplemental research, and a thorough review pipeline. Lessons feature multimedia content, from videos to interactive demos, Desmos graphs, and SVGs. The chatbot is built on pedagogical theory and can generate content to better explain concepts. I’ve made 47 lessons spanning 14 topics.",
@@ -173,6 +165,7 @@
         {
           "name": "chip design flow",
           "text": "AI chip design for digital, analog, and mixed‑signal.",
+          "sub": "Designs tiles for Tiny Tapeout GF180 with soft orchestration over deterministic checks and iterative, script-based optimization. 13 circuits so far: digital, analog and mixed-signal.",
           "short": "AI chip design.",
           "href": "https://github.com/ihsan-sa/chip-flow",
           "result": "Three pipelines in the form of Claude Code skills aimed at digital, analog, and mixed‑signal design. These function similarly to hwde’s PCB pipeline, and leverage a combination of deterministic checks and evals, iterative improvement flows based on Karpathy’s autoresearch, and a soft orchestration layer which leverages agent judgement. These skills are being developed and used to design tiles for the Tiny Tapeout GF180 chip.",
@@ -203,7 +196,8 @@
       "heading": "Projects",
       "headLink": {
         "label": "Hardware portfolio",
-        "href": "/hwportfolio"
+        "href": "/hwportfolio",
+        "arrow": true
       },
       "items": [
         {

@@ -204,8 +204,11 @@ function protoEntry(item, writing, v2 = false) {
   const folds = result || visual || detail || figure || docs || start || note;
   const name = v2 && folds ? `<strong class="pv-strong">${esc(item.name)}</strong>` : nameHtml(item, 'pv-strong pv-name-link', true);
   const line = `${name}${rowText(item)}`;
+  // A <details> hides everything but its <summary> while shut, so a folded row's
+  // subtitle sits inside the summary, as a block; a plain row's is a <p> as in the app.
+  const subText = item.sub ? esc(item.sub) : '';
   if (!folds) {
-    return `<div class="pv-entry"><p class="pv-entry__head">${line}</p></div>`;
+    return `<div class="pv-entry"><p class="pv-entry__head">${line}</p>${subText ? `<p class="pv-entry__sub">${subText}</p>` : ''}</div>`;
   }
   const own = v2 && href
     ? `<span><a class="pv-link pv-doc pv-row-link" href="${esc(href)}"${NEW_TAB}>${linkLabel(href)}</a></span>`
@@ -220,7 +223,7 @@ function protoEntry(item, writing, v2 = false) {
     note && `<p class="pv-note">${esc(note.text)}<a class="pv-link" href="${writing}${esc(note.slug)}/">${esc(note.label)}</a></p>`,
   ].filter(Boolean).join('\n');
   return `<details class="pv-entry">
-<summary class="pv-entry__head">${line}<span class="pv-entry__mark" aria-hidden="true"></span></summary>
+<summary class="pv-entry__head">${line}<span class="pv-entry__mark" aria-hidden="true"></span>${subText ? `<span class="pv-entry__sub">${subText}</span>` : ''}</summary>
 <div class="pv-fold__inner">
 ${inner}
 </div>
@@ -232,7 +235,7 @@ ${inner}
 function heading({ heading: h, headLink, docs }) {
   if (!headLink && !docs) return `<h2>${esc(h)}</h2>`;
   const head = headLink
-    ? ` <a class="pv-link pv-head-link" href="${esc(headLink.href)}"${NEW_TAB}>${esc(headLink.label)}</a>`
+    ? ` <a class="pv-link pv-head-link" href="${esc(headLink.href)}"${NEW_TAB}>${esc(headLink.label)}${headLink.arrow ? '<span class="pv-name-link__out" aria-hidden="true">\u2197</span>' : ''}</a>`
     : '';
   const rest = (docs || [])
     .map((d) => ` <span>${d.href

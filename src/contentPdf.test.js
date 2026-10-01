@@ -17,7 +17,7 @@ test('the untouched document reads back to the same file', () => {
 });
 
 test('the phone text, heading links and Essays heading are editable too', () => {
-  ['prototype.aiWork.items.0.short', 'prototype.aiWork.docs.0.label', 'prototype.projects.headLink.label',
+  ['prototype.aiWork.items.0.short', 'prototype.projects.headLink.label',
     'prototype.essays.heading', 'prototype.contactCard.label'].forEach((k) => expect(tex).toContain(`\\cf{${k}}`));
 });
 
