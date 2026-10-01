@@ -133,10 +133,13 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pv-proto .pv-pending { white-space: nowrap; }
 .pv-proto .pv-pending { opacity: 0.6; }
 
-.pv-proto .pv-figure { margin: 6px 0 2px; max-width: 280px; }
+/* A row's diagram under its visual, as wide as the visual so its labels stay legible;
+   its width and height are set, so height: auto keeps its own shape. */
+.pv-proto .pv-figure { margin: 6px 0 2px; max-width: 520px; }
 .pv-proto .pv-figure img {
   display: block;
   width: 100%;
+  height: auto;
   border-radius: 3px;
   background: var(--thumb-bg);
 }
@@ -346,9 +349,14 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pv-proto .pv-banner:hover .pv-banner__title { text-decoration-color: currentColor; }
 .pv-proto .pv-banner__stand { font-size: 15px; line-height: 1.5; opacity: 0.85; }
 
-/* Draft only: a visual in an AI row's fold, under its result: a screenshot, a render or
-   a diagram, lazy, with its width and height set so opening the row does not jump. */
+/* A visual in an AI row's fold, under its result: a GIF clip (a <picture> with its
+   poster for reduced motion) or an image, lazy, with its width and height set so
+   opening the row does not jump. A clip sits in a link that plays its video full
+   size (zoom.js); the link and the <picture> fill the column like the image does. */
 .pv-proto .pv-visual { margin: 8px 0 6px; max-width: 520px; }
+.pv-proto .pv-visual picture { display: block; }
+.pv-proto .pv-visual__zoom { display: block; width: 100%; margin: 0; cursor: zoom-in; }
+.pv-proto .pv-visual__zoom:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .pv-proto .pv-visual img {
   display: block;
   width: 100%;

@@ -172,13 +172,33 @@ function rowText({ text, where, short }) {
 // The second draft names a row's own link by where it goes.
 const linkLabel = (href) => (/^https:\/\/github\.com\//.test(href) ? 'GitHub' : 'Project page');
 
+// An AI row's visual, as App.js's RowVisual writes it: a GIF clip in a <picture>
+// whose reduced-motion source is its poster, lazy and sized, in a link to its .mp4
+// (no zoom script here, so the link opens the video itself), or a plain image.
+function rowVisual({ src, poster, video, width, height, alt, caption }) {
+  const img = `<img src="${esc(src)}" width="${width}" height="${height}" alt="${esc(alt)}" loading="lazy" decoding="async" />`;
+  const media = poster
+    ? `<picture><source media="(prefers-reduced-motion: reduce)" srcset="${esc(poster)}" />${img}</picture>`
+    : img;
+  const linked = video
+    ? `<a class="wr-figure__zoom pv-visual__zoom" href="${esc(video)}" data-video="${esc(video)}" aria-label="${esc(`Play full size: ${alt}`)}">${media}</a>`
+    : media;
+  return `<figure class="pv-visual">${linked}${caption ? `<figcaption>${esc(caption)}</figcaption>` : ''}</figure>`;
+}
+
+// A row's diagram; its width and height, when given, hold its place.
+function rowFigure({ image, width, height, alt, caption }) {
+  const size = width && height ? ` width="${width}" height="${height}"` : '';
+  return `<figure class="pv-figure"><img src="${esc(image)}"${size} alt="${esc(alt)}" loading="lazy" decoding="async" /><figcaption>${esc(caption)}</figcaption></figure>`;
+}
+
 // A draft row: its one line is the <summary>, and opening it shows the result,
-// the longer sentences, the figure, the PDFs and where to start. In the second
-// draft (v2) the whole line opens the row: the name is plain text, and its
-// link waits in the panel, labelled, ahead of the PDFs.
+// the visual, the longer sentences, the figure, the PDFs and where to start. In
+// the second draft (v2) the whole line opens the row: the name is plain text, and
+// its link waits in the panel, labelled, ahead of the PDFs.
 function protoEntry(item, v2 = false) {
-  const { result, detail, figure, docs, start, href } = item;
-  const folds = result || detail || figure || docs || start;
+  const { result, visual, detail, figure, docs, start, href } = item;
+  const folds = result || visual || detail || figure || docs || start;
   const name = v2 && folds ? `<strong class="pv-strong">${esc(item.name)}</strong>` : nameHtml(item, 'pv-strong pv-name-link');
   const line = `${name}${rowText(item)}`;
   if (!folds) {
@@ -189,8 +209,9 @@ function protoEntry(item, v2 = false) {
     : '';
   const inner = [
     result && `<p class="pv-result">${esc(result)}</p>`,
+    visual && rowVisual(visual),
     detail && `<p class="pv-detail">${esc(detail)}</p>`,
-    figure && `<figure class="pv-figure"><img src="${esc(figure.image)}" alt="${esc(figure.alt)}" loading="lazy" /><figcaption>${esc(figure.caption)}</figcaption></figure>`,
+    figure && rowFigure(figure),
     (own || docs) && `<p class="pv-docs">${own}${docs ? docList(docs, !!own) : ''}</p>`,
     start && `<p class="pv-start">${esc(start)}</p>`,
   ].filter(Boolean).join('\n');

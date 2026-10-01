@@ -8,7 +8,7 @@
 // checks every href on the page for a 2xx. Then it loads each static page with
 // JavaScript off and checks that all its text (from content.json, or the
 // essay's markdown) is in the raw HTML and on screen, and that no React ships.
-// Last, it screenshots the static draft and one essay beside the design
+// Last, it screenshots one essay, when it is published, beside the design
 // handoff's reference HTML (docs/design-handoff/reference, read with the repo's
 // own CSS) and compares the two pixel by pixel.
 //
@@ -102,13 +102,30 @@ function refFile(url) {
   return { root: REF_DIR, file: path.join(REF_DIR, rest) };
 }
 
-// Static server: a real file (or a directory's index.html) wins, the preview
-// path, anything under it and any other /writing path get index.html (as
-// _redirects says, and as the host's fallback does for /writing itself), and
-// anything else is a 404 so broken links show up.
+// The short links in _redirects (/airesume, /hwportfolio): a path with no
+// wildcard and a 301 or 302, as the host answers it. A rule to another site is
+// checked as that site's link, so it can only warn, like any external link.
+const SHORT_LINKS = new Map(
+  (fs.existsSync(path.join(BUILD, '_redirects')) ? fs.readFileSync(path.join(BUILD, '_redirects'), 'utf8') : '')
+    .split('\n')
+    .map((l) => l.trim().split(/\s+/))
+    .filter(([from, to, code]) => from && to && !from.startsWith('#') && !from.includes('*') && /^30[12]$/.test(code))
+    .map(([from, to, code]) => [from, { to, code: Number(code) }]),
+);
+
+// Static server: a short link answers with its redirect, a real file (or a
+// directory's index.html) wins, the preview path, anything under it and any
+// other /writing path get index.html (as _redirects says, and as the host's
+// fallback does for /writing itself), and anything else is a 404 so broken
+// links show up.
 function serve() {
   const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url.split('?')[0]);
+    const short = SHORT_LINKS.get(url);
+    if (short) {
+      res.writeHead(short.code, { Location: short.to });
+      return res.end();
+    }
     const { root, file: refPath } = url.startsWith('/__ref/') ? refFile(url) : { root: BUILD };
     let file = refPath || path.join(BUILD, url);
     if (fs.existsSync(path.join(file, 'index.html'))) file = path.join(file, 'index.html');
@@ -242,10 +259,12 @@ async function main() {
         // Essay figures, at a phone and a desktop width: the first with a video
         // and the first without open large in the overlay, focus inside and the
         // page held still, and close (Escape, then the backdrop) with focus back
-        // on the figure. Each open overlay is shot as <tag>-zoom-<kind>.png.
-        if ((vp.width === 360 || vp.width === 1440) && (await page.locator('.wr-figure__zoom').count())) {
+        // on the figure. Each open overlay is shot as <tag>-zoom-<kind>.png. Only an
+        // essay's figures (.wr-figure): an AI row's clip uses the same link, but sits
+        // in a fold that is shut here.
+        if ((vp.width === 360 || vp.width === 1440) && (await page.locator('.wr-figure .wr-figure__zoom').count())) {
           for (const kind of ['video', 'image']) {
-            const fig = page.locator(`.wr-figure__zoom${kind === 'video' ? '[data-video]' : ':not([data-video])'}`).first();
+            const fig = page.locator(`.wr-figure .wr-figure__zoom${kind === 'video' ? '[data-video]' : ':not([data-video])'}`).first();
             if (!(await fig.count())) continue;
             if ((await fig.evaluate((a) => getComputedStyle(a).cursor)) !== 'zoom-in') problems.push(where(`${kind} figure has no zoom-in cursor`));
             await fig.click();
@@ -499,15 +518,18 @@ async function main() {
     await context.close();
   }
 
-  // The design reference: the static draft and one essay beside the handoff's
+  // The design reference: one essay beside the handoff's
   // HTML, at a phone and a desktop width in both themes. Its demo-only site.js
   // and demo.css are left out, and its https://ihsan.cc images come from this
   // build. A page whose height strays by more than 2%, or whose pixels differ
   // on more than REF_TOLERANCE of the page, fails; each pair's two shots and a
   // diff image (differing pixels in red) are saved.
   const REF_TOLERANCE = 0.03;
+  // The draft's pair is retired: the owner has reshaped the draft since the 28 Sep
+  // handoff (photos, AI work first, the essay banner, live stats), so it no longer
+  // matches reference/site/index.html by design, and the pair failed on every run
+  // from then on.
   const refs = [
-    { name: 'draft', ours: DRAFT_PATH, ref: '/__ref/reference/site/index.html' },
     // The reference essay is the worked example now, off the site, so its pair runs only if it is published again.
     ...(ESSAYS.includes(REF_ESSAY)
       ? [{ name: `essay-${REF_ESSAY}`, ours: `${STATIC_PATH}writing/${REF_ESSAY}/`, ref: `/__ref/reference/site/essays/${REF_ESSAY}.html` }]
@@ -591,10 +613,12 @@ async function main() {
       links.push({ url, status: 'mailto' });
       continue;
     }
-    const s = await status(url);
+    const short = url.startsWith(base) && SHORT_LINKS.get(new URL(url).pathname);
+    const away = short && /^https?:/.test(short.to) ? short.to : null;
+    const s = await status(away || url);
     links.push({ url, status: s });
     const ok = typeof s === 'number' && s >= 200 && s < 400;
-    if (!ok) (url.startsWith(base) ? problems : warnings).push(`${seen}: link ${url} -> ${s}`);
+    if (!ok) (url.startsWith(base) && !away ? problems : warnings).push(`${seen}: link ${url}${away ? ` (${away})` : ''} -> ${s}`);
   }
 
   await browser.close();

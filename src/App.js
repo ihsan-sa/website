@@ -308,10 +308,37 @@ function monthYear(iso) {
   return `${MONTHS[Number(m) - 1]} ’${y.slice(2)}`;
 }
 
+// An AI row's visual: an image, or a GIF clip as the essay shows its clips (see
+// EssayBanner): a lazy, sized <img> in a <picture> whose reduced-motion source is
+// the still poster, so the GIF never loads then. A clip with a `video` sits in the
+// essay figures' link, so a click plays the .mp4 full size with its controls
+// (src/writing/zoom.js, which Writing.js loads for every page); without the script
+// the link still opens the video.
+export function RowVisual({ visual }) {
+  const { src, poster, video, width, height, alt, caption } = visual;
+  const img = <img src={src} width={width} height={height} alt={alt} loading="lazy" decoding="async" />;
+  const media = poster ? (
+    <picture>
+      <source media="(prefers-reduced-motion: reduce)" srcSet={poster} />
+      {img}
+    </picture>
+  ) : img;
+  return (
+    <figure className="pv-visual">
+      {video ? (
+        <a className="wr-figure__zoom pv-visual__zoom" href={video} data-video={video} aria-label={`Play full size: ${alt}`} aria-haspopup="dialog">
+          {media}
+        </a>
+      ) : media}
+      {caption && <figcaption>{caption}</figcaption>}
+    </figure>
+  );
+}
+
 // A prototype row, folded to one line until opened: the linked name and what
-// it is. Opening it shows one concrete result, then a visual (draft only:
-// src/frontPage.js drops it), optional longer sentences, a small figure, the
-// PDFs and a pointer to the one to open first. A doc with
+// it is. Opening it shows one concrete result, then a visual, optional longer
+// sentences, a small figure, the PDFs (draft only: src/frontPage.js drops them)
+// and a pointer to the one to open first. A doc with
 // no href is a spot still waiting for its link. With a `short`, a phone shows
 // that on the line in place of the full text (Preview.css). A
 // `where` (place and date) follows the full text on the line, in italics.
@@ -359,23 +386,11 @@ function ProtoEntry({ name: entryName, text, where, short, href, result, visual,
         <div className="pv-fold" id={panelId} inert={!open}>
           <div className="pv-fold__inner">
             {result && <p className="pv-result">{result}</p>}
-            {visual && (
-              <figure className="pv-visual">
-                <img
-                  src={visual.src}
-                  width={visual.width}
-                  height={visual.height}
-                  alt={visual.alt}
-                  loading="lazy"
-                  decoding="async"
-                />
-                {visual.caption && <figcaption>{visual.caption}</figcaption>}
-              </figure>
-            )}
+            {visual && <RowVisual visual={visual} />}
             {detail && <p className="pv-detail">{detail}</p>}
             {figure && (
               <figure className="pv-figure">
-                <img src={figure.image} alt={figure.alt} loading="lazy" />
+                <img src={figure.image} width={figure.width} height={figure.height} alt={figure.alt} loading="lazy" decoding="async" />
                 <figcaption>{figure.caption}</figcaption>
               </figure>
             )}
@@ -409,10 +424,9 @@ function ProtoEntry({ name: entryName, text, where, short, href, result, visual,
 // Both pages have the owner's photos in the side margins (a strip on a phone),
 // AI work above Experience, the about folded on a phone and an essay banner
 // under the intro. `front` renders ihsan.cc/: the draft minus its documents
-// (src/frontPage.js, which also drops each AI row's visual), published essays
-// only, linked at /writing, and no noindex. Without it, this is the draft at
-// PREVIEW_PATH: documents, a visual in each AI row, every essay (drafts too),
-// and noindex.
+// (src/frontPage.js), published essays only, linked at /writing, and no noindex.
+// Without it, this is the draft at PREVIEW_PATH: documents, every essay (drafts
+// too), and noindex. Both show a visual in each AI row.
 export function Prototype({ front: isFront = false, essays = isFront ? published : allEssays }) {
   const [isDark, toggleTheme] = useTheme();
   useNoindex(!isFront);
