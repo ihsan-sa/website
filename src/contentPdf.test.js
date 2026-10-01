@@ -17,22 +17,22 @@ test('the untouched document reads back to the same file', () => {
 });
 
 test('the phone text, heading links and Essays heading are editable too', () => {
-  ['prototype.aiWork.items.0.short', 'prototype.aiWork.headLink.label', 'prototype.projects.headLink.label',
+  ['prototype.aiWork.items.0.short', 'prototype.aiWork.docs.0.label', 'prototype.projects.headLink.label',
     'prototype.essays.heading', 'prototype.contactCard.label'].forEach((k) => expect(tex).toContain(`\\cf{${k}}`));
 });
 
 test('an edit changes that one string, reflowed and unescaped, and keeps the file layout', () => {
-  const edited = tex.replace('GPA 89\\%.', 'GPA 89\\%,\n  and E\\&M in first year.');
+  const edited = tex.replace('GPA 87\\%.', 'GPA 87\\%,\n  and E\\&M in first year.');
   const { out, changed, problems } = applyEdits(text, edited);
   expect(changed).toEqual(['prototype.experience.items.3.result']);
   expect(problems).toEqual([]);
-  expect(JSON.parse(out).prototype.experience.items[3].result).toBe('GPA 89%, and E&M in first year.');
-  expect(out.replace('GPA 89%, and E&M in first year.', 'GPA 89%.')).toBe(text);
+  expect(JSON.parse(out).prototype.experience.items[3].result).toBe('Class academic rep and WEEF engineering fund rep. GPA 87%, and E&M in first year.');
+  expect(out.replace('GPA 87%, and E&M in first year.', 'GPA 87%.')).toBe(text);
 });
 
 test('what it cannot map is listed and not written', () => {
   const edited = tex
-    .replace('GPA 89\\%.', 'GPA \\emph{89}\\%.')
+    .replace('GPA 87\\%.', 'GPA \\emph{87}\\%.')
     .replace('\\cf{prototype.projects.items.4.title}', '\\cf{prototype.projects.items.4.result}');
   const { out, changed, problems } = applyEdits(text, edited);
   expect(out).toBe(text);

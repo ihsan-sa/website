@@ -41,13 +41,16 @@ const ESSAYS = fs.readdirSync(path.join(ROOT, 'content/writing'))
 
 const { STATIC_PATH, DRAFT_PATH, DRAFT_V2_PATH } = require('./build-static');
 const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/content.json'), 'utf8'));
+const { frontPage } = require('../src/frontPage');
 
 const PAGES = [
   { name: 'front', path: '/' },
   { name: 'preview', path: PREVIEW_PATH },
+  // Nothing published yet, so this is the front page: the app falls through.
   { name: 'writing', path: '/writing' },
   ...ESSAYS.map((slug) => ({ name: `essay-${slug}`, path: `${PREVIEW_PATH}/writing/${slug}` })),
-  { name: 'static', path: STATIC_PATH, block: content.preview },
+  // The static front page lists no essays, so its Essays heading is not expected.
+  { name: 'static', path: STATIC_PATH, block: { ...frontPage(content.prototype), essays: undefined } },
   { name: 'static-draft', path: DRAFT_PATH, block: content.prototype },
   { name: 'static-draft-v2', path: DRAFT_V2_PATH, block: content.prototype, v2: true },
   { name: 'static-writing', path: `${STATIC_PATH}writing/`, index: true },
@@ -101,14 +104,15 @@ function refFile(url) {
 
 // Static server: a real file (or a directory's index.html) wins, the preview
 // path, anything under it and any other /writing path get index.html (as
-// _redirects says), and anything else is a 404 so broken links show up.
+// _redirects says, and as the host's fallback does for /writing itself), and
+// anything else is a 404 so broken links show up.
 function serve() {
   const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url.split('?')[0]);
     const { root, file: refPath } = url.startsWith('/__ref/') ? refFile(url) : { root: BUILD };
     let file = refPath || path.join(BUILD, url);
     if (fs.existsSync(path.join(file, 'index.html'))) file = path.join(file, 'index.html');
-    else if (url === '/' || url === PREVIEW_PATH || url.startsWith(`${PREVIEW_PATH}/writing`) || url.startsWith('/writing/')) {
+    else if (url === '/' || url === PREVIEW_PATH || url.startsWith(`${PREVIEW_PATH}/writing`) || url === '/writing' || url.startsWith('/writing/')) {
       if (!fs.existsSync(file) || fs.statSync(file).isDirectory()) file = path.join(BUILD, 'index.html');
     }
     if (!file.startsWith(root) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
@@ -295,6 +299,9 @@ async function main() {
           // a reader would; the rest by the + button itself.
           if (i === 0) {
             const head = btn.locator('xpath=..');
+            // elementFromPoint sees only the viewport, and on a short screen the
+            // intro can push the first row below it.
+            await head.scrollIntoViewIfNeeded();
             const spot = await head.evaluate((p) => {
               const r = p.getBoundingClientRect();
               for (let x = r.right - 2; x > r.left; x -= 4) {
@@ -417,7 +424,7 @@ async function main() {
 
         // Theme toggle flips data-theme and the page background; a switch
         // also flips aria-checked.
-        const toggle = page.locator('.pv-toggle, .theme-switch');
+        const toggle = page.locator('.theme-switch');
         if (!(await toggle.count())) {
           await context.close();
           continue;
@@ -473,7 +480,7 @@ async function main() {
     const raw = decode(await (await fetch(base + pg.path)).text());
     // With no essay built, the draft rightly leaves its Essays link and section out.
     const block = pg.block.essays && !essays.length ? { ...pg.block, essays: undefined } : pg.block;
-    const copy = copyOf(block).concat(pg.block === content.preview ? content.theme.toDark : []);
+    const copy = copyOf(block);
     copy.filter((t) => !raw.includes(t)).forEach((t) => problems.push(where(`not in the raw HTML: "${t.slice(0, 60)}"`)));
     if (/<script[^>]+src="\/static\/js\//.test(raw)) problems.push(where('ships the React bundle'));
     const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
@@ -484,7 +491,7 @@ async function main() {
       // At 390px a row with a `short` shows that; its full text waits in the fold.
       ...pg.block.experience.items.map((i) => i.short || i.text), ...pg.block.aiWork.items.map((i) => i.name)];
     heads.filter((t) => !seen.includes(t.replace(/\s+/g, ' '))).forEach((t) => problems.push(where(`not on screen: "${t.slice(0, 60)}"`)));
-    if (await page.locator('.pv-toggle:visible, .theme-switch:visible').count()) problems.push(where('theme toggle shows with JavaScript off'));
+    if (await page.locator('.theme-switch:visible').count()) problems.push(where('theme toggle shows with JavaScript off'));
     const shot = path.join(OUT, `${pg.name}-nojs.png`);
     await page.screenshot({ path: shot, fullPage: true });
     shots.push(shot);

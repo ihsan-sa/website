@@ -5,23 +5,55 @@ const { renderFront, renderDraft, renderWriting, page, headFrom, STATIC_PATH, DR
 const fs = require('fs');
 const path = require('path');
 const content = require('./content.json');
+const { frontPage } = require('./frontPage');
 
 const shell = headFrom(fs.readFileSync(path.join(__dirname, '../public/index.html'), 'utf8'));
 const decode = (s) => s.replace(/&nbsp;/g, ' ').replace(/&quot;/g, '"').replace(/&amp;/g, '&');
 
-test('the front page carries its copy in the HTML', () => {
-  const html = decode(page(shell, { mainClass: 'pv', body: renderFront(content), noindex: true }));
-  const { preview } = content;
-  [preview.name, preview.subtitle, ...preview.about,
-    ...preview.experience.items.flatMap((i) => [i.name, i.text]),
-    ...preview.aiWork.items.flatMap((i) => [i.name, i.text]),
-    ...preview.hardware.items.map((i) => i.title)].forEach((t) => expect(html).toContain(t));
+test('the front page is the draft minus its documents, with all its copy in the HTML', () => {
+  const body = renderFront(content);
+  const html = decode(page(shell, { mainClass: 'pv pv-proto', body, noindex: true }));
+  const pt = frontPage(content.prototype);
+  [pt.name, pt.subtitle, ...pt.about,
+    ...pt.experience.items.flatMap((i) => [i.name, i.text, i.result]),
+    ...pt.aiWork.items.flatMap((i) => [i.name, i.text, i.result]),
+    ...pt.projects.items.map((i) => i.title)].forEach((t) => expect(html).toContain(t));
+  // Every AI row keeps its GitHub link; every project tile its own link.
+  pt.aiWork.items.forEach(({ href }) => expect(html).toContain(`href="${href}"`));
+  pt.projects.items.forEach(({ href }) => expect(html).toContain(`href="${href}"`));
+  // The draft's documents beside AI work, and its essays, are not on it.
+  expect(content.prototype.aiWork.docs.length).toBeGreaterThan(0);
+  content.prototype.aiWork.docs.forEach(({ label }) => expect(body).not.toContain(label));
+  expect(body).not.toMatch(/pv-docs|pv-pending|pv-start/);
+  expect(body).not.toContain(`href="${STATIC_PATH}writing/"`);
   expect(html).toContain('<meta name="robots" content="noindex" />');
   expect(html).toContain('property="og:image"');
   expect(html).toContain(`href="${STATIC_PATH}site.css"`);
   expect(html).not.toMatch(/src="\/static\/js\//);
-  // The toggle starts hidden, so a page without JavaScript shows no dead button.
+  // The switch starts hidden, so a page without JavaScript shows no dead button.
   expect(html).toMatch(/<button[^>]*id="theme-toggle"[^>]*hidden/);
+});
+
+test('frontPage drops section and row documents and keeps every link of its own', () => {
+  const block = {
+    experience: { heading: 'E', docs: [{ label: 'D', href: '/d.pdf' }], items: [{ name: 'a', href: '/a', docs: [{ label: 'x', href: '/x.pdf' }], start: 'S.' }] },
+    aiWork: { heading: 'A', items: [{ name: 'b', href: 'https://github.com/ihsan-sa/b', result: 'R.' }] },
+    projects: { heading: 'P', headLink: { label: 'H', href: '/h' }, items: [] },
+  };
+  expect(frontPage(block)).toEqual({
+    experience: { heading: 'E', items: [{ name: 'a', href: '/a' }] },
+    aiWork: { heading: 'A', items: [{ name: 'b', href: 'https://github.com/ihsan-sa/b', result: 'R.' }] },
+    projects: { heading: 'P', headLink: { label: 'H', href: '/h' }, items: [] },
+  });
+});
+
+test('the draft puts its documents beside the AI work heading, a pending one as text', () => {
+  const html = renderDraft(content);
+  const head = html.match(/<h2 class="pv-head-with-link">AI work[\s\S]*?<\/h2>/)[0];
+  content.prototype.aiWork.docs.forEach(({ label, href, pending }) => {
+    if (href) expect(head).toContain(`<a class="pv-link pv-head-link" href="${href}" target="_blank" rel="noopener noreferrer">${label}</a>`);
+    else expect(head).toContain(`<span class="pv-head-link pv-pending">${label} (${pending})</span>`);
+  });
 });
 
 test('page() leaves noindex out when asked, for the day it moves to /', () => {
@@ -38,8 +70,8 @@ test('the draft folds its rows with <details> and keeps the folded copy', () => 
   folded.forEach((r) => r.detail && expect(html).toContain(r.detail));
   expect(html).not.toContain('<button type="button" class="pv-entry__btn"');
   // A row with a `short` carries both lengths; the fold opens on the full text.
-  expect(html).toContain('<span class="pv-t-long">, RF for plasma generation. Summer ’26.</span><span class="pv-t-short">, RF plasma, ’26.</span>');
-  expect(html).toContain('<p class="pv-result pv-fold__long">RF for plasma generation. Summer ’26.</p>');
+  expect(html).toContain('<span class="pv-t-long">, RF Engineering in San Francisco, working on plasma generation. Summer ’26.</span><span class="pv-t-short">, RF plasma, ’26.</span>');
+  expect(html).toContain('<p class="pv-result pv-fold__long">RF Engineering in San Francisco, working on plasma generation. Summer ’26.</p>');
   // No page counts anywhere, and no foot: the contact card is in the links bar.
   expect(html).not.toMatch(/PDF, \d+ page/);
   expect(html).not.toContain('pv-foot');

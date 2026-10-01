@@ -357,14 +357,20 @@ function pages(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
     fs.mkdirSync(path.join(buildDir, rel), { recursive: true });
     fs.writeFileSync(path.join(buildDir, rel, 'index.html'), html);
   };
+  // A draft gets no page: it is served only at the preview path, as the app.
+  // With nothing published, /writing gets no page either: the app shows the
+  // front page there, which must not carry the essay list's title.
+  const live = essays.filter((e) => !e.draft);
+  if (!live.length) {
+    console.log('writing: no essay published, so no /writing pages');
+    return;
+  }
   write('writing', withMeta(shell, {
     title: 'Writing · Ihsan Salari',
     description: 'Essays on the AI systems I build.',
     url: `${SITE}/writing`,
     type: 'website',
   }));
-  // A draft gets no page: it is served only at the preview path, as the app.
-  const live = essays.filter((e) => !e.draft);
   for (const e of live) {
     write(path.join('writing', e.slug), withMeta(shell, {
       title: `${e.title} · Ihsan Salari`,
