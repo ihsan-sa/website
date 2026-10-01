@@ -39,14 +39,17 @@ A research first and low context approach is core to both maintaining a lightwei
 
 Knowledge and information is stored and sent in various manners which allow the system to grow and improve as the models do:
 
-1. Library → everything the box writes (journals, board rows, goals, docs, memory files, Slack messages, landing records and failures) is indexed as it's written. Before an agent claims something, it asks the library with `cc-lib ask` and gets back a small, capped answer instead of reading whole files.
-2. Journals → every session keeps a running md journal of what it did, what's next and what went wrong. When a session hands off, its successor reads the journal first and asks its predecessor one batch of questions.
-3. Task files → a worker starts from a task.md with its brief, and each round of its loop starts with fresh context: just the task.md and the end of its journal.
-4. Boards and goals → each project has a board with one row per piece of work and a goals.md with its standing goals. A row points at the work; it isn't the brief itself.
-5. Messages → sessions message each other by name, and events from the box's own scripts go through a broker that batches them, so a burst of them wakes a session only once.
-6. Forced context → every session starts with a short role prompt with a few shared rules appended: how to hand out work, how to write, how to raise a problem, how to spend and how to use the library. A worker is also told to read its journal before anything else.
-7. CLAUDE.md and memory → a short CLAUDE.md points to a few guides, which point to the specific docs, so an agent only reads as deep as it needs to. Memory files keep only rules loaded, and facts move to a file the library searches instead.
-8. Failure ledger → when an agent gets something wrong, it records it with `cc-failures record`, and the ledger counts which kinds of failure come back.
+**Library;** everything Autobox writes (journals, docs, goals, failures, memory, etc) gets filed in the library. Before agents do work or make a claim, they query the library via a search engine which is both algorithmic and agentic.
+
+**Journals;** sessions keep a running markdown journal of completed work, what’s next and what failed. Future sessions ingest only select parts of the log when deeper insight into past work is needed in order to manage context.
+
+**Task files;** new workers receive a short `task.md` with information on the job at hand.
+
+**Boards;** projects file tasks to a board to track their progress and failures on a failure ledger.
+
+**Messages;** agents message one another via either back-end sockets, slack, or prompt injection into one another’s sessions.
+
+**Forced context;** forced context is kept as small as possible. This includes a brief `CLAUDE.md` and a few other files which provide insight into how the system works, communication guidelines, etc.
 
 ### Self-improvement and autonomous development
 
