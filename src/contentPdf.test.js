@@ -21,6 +21,17 @@ test('the phone text, heading links and Essays heading are editable too', () => 
     'prototype.essays.heading', 'prototype.contactCard.label'].forEach((k) => expect(tex).toContain(`\\cf{${k}}`));
 });
 
+test('a row’s place and date is italic in the .tex and an edit to it reads back', () => {
+  expect(tex).toContain('\\emph{\\cf{prototype.experience.items.0.where}{San Francisco, Summer ’26}}');
+  expect(tex).not.toContain('prototype.experience.items.3.where');
+  const edited = tex.replace('{San Francisco, Summer ’26}', '{San Francisco, Summer ’27}');
+  const { out, changed, problems } = applyEdits(text, edited);
+  expect(changed).toEqual(['prototype.experience.items.0.where']);
+  expect(problems).toEqual([]);
+  expect(JSON.parse(out).prototype.experience.items[0].where).toBe('San Francisco, Summer ’27');
+  expect(out.replace('Summer ’27', 'Summer ’26')).toBe(text);
+});
+
 test('an edit changes that one string, reflowed and unescaped, and keeps the file layout', () => {
   const edited = tex.replace('GPA 87\\%.', 'GPA 87\\%,\n  and E\\&M in first year.');
   const { out, changed, problems } = applyEdits(text, edited);

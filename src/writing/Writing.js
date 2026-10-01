@@ -154,13 +154,25 @@ function Meta({ essay }) {
   );
 }
 
+// The bar above every essay page: the main site, then the essays index. ihsan.cc
+// always goes to the real front page, even from the hidden preview path.
+function TopBar({ base }) {
+  return (
+    <nav className="wr-top">
+      <span className="wr-top__crumbs">
+        <a className="wr-top__link" href="/">ihsan.cc</a>
+        {' · '}
+        <a className="wr-top__link" href={`${base}/writing`}>Essays</a>
+      </span>
+    </nav>
+  );
+}
+
 function Index({ essays, base, preview }) {
   useHead({ title: 'Essays · Ihsan Salari', description: 'Essays on the AI systems I build.', noindex: preview });
   return (
     <main className="wr wr-index">
-      <nav className="wr-top">
-        <a className="wr-top__link" href="/">Ihsan Salari</a>
-      </nav>
+      <TopBar base={base} />
       <h1 className="wr-index__title">Essays</h1>
       {essays.length === 0 ? (
         <p className="wr-index__empty">Nothing here yet.</p>
@@ -185,9 +197,7 @@ function Essay({ essay, older, newer, base, preview }) {
   const seen = new Set();
   return (
     <main className="wr wr-essay">
-      <nav className="wr-top">
-        <a className="wr-top__link" href={`${base}/writing`}>Essays</a>
-      </nav>
+      <TopBar base={base} />
       <article>
         <header className="wr-head">
           <h1 className="wr-title">{essay.title}</h1>

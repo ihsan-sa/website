@@ -251,16 +251,34 @@ test('the prototype theme switch says whether dark is on and persists the choice
   localStorage.clear();
 });
 
-test('a prototype row with a short text carries both, and the fold opens on the full one', () => {
+test('a prototype row with a short text carries both, and the fold opens on its result alone', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
   ROWS().filter(({ short }) => short).forEach(({ name, text, short }) => {
     const head = rowButton(name).closest('.pv-entry__head');
     expect(head.querySelector('.pv-t-long')).toHaveTextContent(`, ${text}`);
     expect(head.querySelector('.pv-t-short')).toHaveTextContent(`, ${short}`);
-    expect(rowPanel(name).querySelector('.pv-fold__long').textContent).toBe(text[0].toUpperCase() + text.slice(1));
+    expect(rowPanel(name).querySelector('.pv-fold__long')).toBeNull();
+    expect(rowPanel(name)).not.toHaveTextContent(text);
   });
   expect(ROWS().filter(({ short }) => short).length).toBeGreaterThan(0);
+});
+
+test('a prototype row shows its place and date in italics after the full text, not on a phone', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  const withWhere = ROWS().filter(({ where }) => where);
+  withWhere.forEach(({ name, text, where }) => {
+    const head = rowButton(name).closest('.pv-entry__head');
+    expect(head.querySelector('.pv-t-long').textContent).toBe(`, ${text}, ${where}`);
+    expect(head.querySelector('.pv-t-long em')).toHaveTextContent(where);
+    expect(head.querySelector('.pv-t-short em')).toBeNull();
+  });
+  expect(withWhere.length).toBeGreaterThan(0);
+  // A row without one has no italic part.
+  ROWS().filter(({ where }) => !where).forEach(({ name }) => {
+    expect(rowButton(name).closest('.pv-entry__head').querySelector('em')).toBeNull();
+  });
 });
 
 test('the prototype lists each essay newest first, linked, with its month', () => {

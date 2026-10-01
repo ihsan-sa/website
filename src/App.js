@@ -150,16 +150,18 @@ function monthYear(iso) {
 // it is. Opening it shows one concrete result, then optional longer sentences,
 // a small figure, the PDFs and a pointer to the one to open first. A doc with
 // no href is a spot still waiting for its link. With a `short`, a phone shows
-// that on the line and the full text at the top of the fold (Preview.css).
+// that on the line in place of the full text (Preview.css). A
+// `where` (place and date) follows the full text on the line, in italics.
 //
 // The toggle is a real button at the end of the line; its ::before stretches
 // over the whole line, so a click anywhere on it opens the row, while the name
 // link sits above that layer and still just opens its page. The panel is inert
 // while folded, so its links are neither tabbable nor read out.
-function ProtoEntry({ name: entryName, text, short, href, result, detail, figure, docs, start }) {
+function ProtoEntry({ name: entryName, text, where, short, href, result, detail, figure, docs, start }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const hasMore = Boolean(result || detail || figure || docs || start);
+  const place = where && <>, <em>{where}</em></>;
 
   return (
     <div className="pv-entry">
@@ -173,11 +175,11 @@ function ProtoEntry({ name: entryName, text, short, href, result, detail, figure
         )}
         {short ? (
           <>
-            <span className="pv-t-long">, {text}</span>
+            <span className="pv-t-long">, {text}{place}</span>
             <span className="pv-t-short">, {short}</span>
           </>
         ) : (
-          `, ${text}`
+          <>, {text}{place}</>
         )}
         {hasMore && (
           <button
@@ -193,7 +195,6 @@ function ProtoEntry({ name: entryName, text, short, href, result, detail, figure
       {hasMore && (
         <div className="pv-fold" id={panelId} inert={!open}>
           <div className="pv-fold__inner">
-            {short && <p className="pv-result pv-fold__long">{text[0].toUpperCase() + text.slice(1)}</p>}
             {result && <p className="pv-result">{result}</p>}
             {detail && <p className="pv-detail">{detail}</p>}
             {figure && (

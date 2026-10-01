@@ -158,13 +158,15 @@ function docList(docs, after = false) {
     .join('');
 }
 
-// A row's text after its name. With a `short`, the phone shows that and the
-// fold opens on the full text (Preview.css swaps them at ≤640px); the comma
-// sits inside each span so no stray space is left between them.
-function rowText({ text, short }) {
+// A row's text after its name. With a `short`, the phone shows that in place of
+// the full text (Preview.css swaps them at ≤640px); the comma
+// sits inside each span so no stray space is left between them. A `where`
+// (place and date) follows the full text, in italics; the phone line leaves it out.
+function rowText({ text, where, short }) {
+  const full = `, ${esc(text)}${where ? `, <em>${esc(where)}</em>` : ''}`;
   return short
-    ? `<span class="pv-t-long">, ${esc(text)}</span><span class="pv-t-short">, ${esc(short)}</span>`
-    : `, ${esc(text)}`;
+    ? `<span class="pv-t-long">${full}</span><span class="pv-t-short">, ${esc(short)}</span>`
+    : full;
 }
 
 // The second draft names a row's own link by where it goes.
@@ -175,7 +177,7 @@ const linkLabel = (href) => (/^https:\/\/github\.com\//.test(href) ? 'GitHub' : 
 // draft (v2) the whole line opens the row: the name is plain text, and its
 // link waits in the panel, labelled, ahead of the PDFs.
 function protoEntry(item, v2 = false) {
-  const { text, short, result, detail, figure, docs, start, href } = item;
+  const { result, detail, figure, docs, start, href } = item;
   const folds = result || detail || figure || docs || start;
   const name = v2 && folds ? `<strong class="pv-strong">${esc(item.name)}</strong>` : nameHtml(item, 'pv-strong pv-name-link');
   const line = `${name}${rowText(item)}`;
@@ -186,7 +188,6 @@ function protoEntry(item, v2 = false) {
     ? `<span><a class="pv-link pv-doc pv-row-link" href="${esc(href)}"${NEW_TAB}>${linkLabel(href)}</a></span>`
     : '';
   const inner = [
-    short && `<p class="pv-result pv-fold__long">${esc(text[0].toUpperCase() + text.slice(1))}</p>`,
     result && `<p class="pv-result">${esc(result)}</p>`,
     detail && `<p class="pv-detail">${esc(detail)}</p>`,
     figure && `<figure class="pv-figure"><img src="${esc(figure.image)}" alt="${esc(figure.alt)}" loading="lazy" /><figcaption>${esc(figure.caption)}</figcaption></figure>`,
@@ -345,7 +346,7 @@ function renderEssay(e, { older, newer, base }) {
   const pager = (x, dir, label) => (x
     ? `<a class="wr-pager__link wr-pager__link--${dir}" href="${base}writing/${x.slug}/"><span class="wr-pager__label">${label}</span><span class="wr-pager__title">${esc(x.title)}</span></a>`
     : '');
-  return `<nav class="wr-top"><a class="wr-top__link" href="${base}writing/">Essays</a>${THEME_SWITCH}</nav>
+  return `${topBar(base)}
 <article>
 <header class="wr-head"><h1 class="wr-title">${esc(e.title)}</h1>${essayMeta(e)}<p class="wr-standfirst">${esc(e.standfirst)}</p></header>
 <div class="wr-body">
@@ -356,13 +357,19 @@ ${foot}${reading}
 <nav class="wr-pager" aria-label="More essays">${pager(older, 'prev', 'Previous')}${pager(newer, 'next', 'Next')}<a class="wr-pager__index" href="${base}writing/">All essays</a></nav>`;
 }
 
-function renderIndex(essays, { base, home }) {
+// The bar above every essay page: the main site, then the essays index. ihsan.cc
+// always goes to the real front page, even from the hidden preview path.
+function topBar(base) {
+  return `<nav class="wr-top"><span class="wr-top__crumbs"><a class="wr-top__link" href="/">ihsan.cc</a> · <a class="wr-top__link" href="${base}writing/">Essays</a></span>${THEME_SWITCH}</nav>`;
+}
+
+function renderIndex(essays, { base }) {
   const list = essays.length
     ? `<ol class="wr-index__list">
 ${essays.map((e) => `<li class="wr-index__item"><a class="wr-index__link" href="${base}writing/${e.slug}/">${esc(e.title)}</a><p class="wr-index__summary">${esc(e.summary)}</p>${essayMeta(e)}</li>`).join('\n')}
 </ol>`
     : '<p class="wr-index__empty">Nothing here yet.</p>';
-  return `<nav class="wr-top"><a class="wr-top__link" href="${home}">Ihsan Salari</a>${THEME_SWITCH}</nav>
+  return `${topBar(base)}
 <h1 class="wr-index__title">Essays</h1>
 ${list}`;
 }
@@ -370,15 +377,12 @@ ${list}`;
 // Every /writing page as { rel, html }, rel being the directory under base.
 // "Draft essays never appear on the public site": with preview false a draft is
 // neither listed nor given a page, and every page is noindex when preview is on.
-// The list's name links home: the draft front page in the review copy, since
-// that is the page the essays are linked from there.
 function renderWriting(essays, shell, { base = STATIC_PATH, preview = true } = {}) {
-  const home = preview ? `${base}draft/` : base;
   const shown = preview ? essays : essays.filter((e) => !e.draft);
   const out = [{
     rel: 'writing',
     html: page(shell, {
-      mainClass: 'wr wr-index', body: renderIndex(shown, { base, home }), noindex: preview, essay: true,
+      mainClass: 'wr wr-index', body: renderIndex(shown, { base }), noindex: preview, essay: true,
       meta: { title: 'Essays · Ihsan Salari', description: 'Essays on the AI systems I build.', url: `${SITE}/writing`, type: 'website' },
     }),
   }];

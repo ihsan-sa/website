@@ -129,6 +129,7 @@ function renderTex(content, date = new Date()) {
     s.items.forEach((it, i) => {
       const k = [key, 'items', i];
       L.push(`\\needspace{4\\baselineskip}\\noindent\\textbf{${cf(it.name, ...k, 'name')}}, ${cf(it.text, ...k, 'text')}`
+        + (it.where ? `, \\emph{${cf(it.where, ...k, 'where')}}` : '')
         + (it.short ? ` {\\small\\color{inkfiftyfive}(on a phone: ${cf(it.short, ...k, 'short')})}` : ''), '');
       if (it.result) L.push(cf(it.result, ...k, 'result'), '');
       if (it.detail) L.push(`{\\color{inkseventy}${cf(it.detail, ...k, 'detail')}}`, '');
