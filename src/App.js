@@ -65,9 +65,13 @@ const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
 // looping GIF over its title and standfirst, the whole of it one link to the essay.
 // A GIF, not a <video>, because a GIF plays everywhere, Safari's Low Power Mode
 // included, which refuses muted video autoplay. It loads lazily, after the text, and
-// its width and height and a light fill hold its 16:9 box so nothing shifts. With
-// reduced motion asked for, <picture> swaps in the still poster and the GIF never
-// loads. It is decorative (alt=""): the link's own text names the essay.
+// its width and height hold its 16:9 box so nothing shifts, and the still poster is the
+// <img>'s own background, so it shows at once and the GIF paints over it once loaded.
+// With reduced motion asked for, <picture> swaps in the poster and the GIF never loads. It is decorative (alt=""): the link's own text names the essay.
+// A clip's still as its <img>'s CSS background: it shows the moment the box is laid
+// out, and the loaded GIF covers it. No script, and the static build writes the same.
+const stillStyle = (poster) => (poster ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover' } : undefined);
+
 function EssayBanner({ essay, href, label }) {
   const { gif, poster, width, height } = ESSAY_BANNER;
   return (
@@ -82,6 +86,7 @@ function EssayBanner({ essay, href, label }) {
           height={height}
           loading="lazy"
           decoding="async"
+          style={stillStyle(poster)}
         />
       </picture>
       <span className="pv-banner__text">
@@ -126,8 +131,9 @@ function Intro({ block }) {
 // Every image on the page is lazy, even the strip above the name: a lazy image already
 // on screen loads at once, while an eager one would load in the layout that hides it
 // too (the strip on a desktop, the columns on a phone). The one thing fetched up front
-// is the banner's small poster. Each has its width and height, and a light fill holds
-// its place, so the text paints first and nothing shifts.
+// is the banner's small poster. Each has its width and height, which hold its place, so
+// the text paints first and nothing shifts. (A clip's poster, a small webp, loads early
+// too, as its GIF's background.)
 const imgProps = ({ src, width, height, alt }) => ({ src, width, height, alt, loading: 'lazy', decoding: 'async' });
 
 function SidePhotos({ side }) {
@@ -276,13 +282,14 @@ function monthYear(iso) {
 
 // An AI row's visual: an image, or a GIF clip as the essay shows its clips (see
 // EssayBanner): a lazy, sized <img> in a <picture> whose reduced-motion source is
-// the still poster, so the GIF never loads then. A clip with a `video` sits in the
+// the still poster, so the GIF never loads then; the same poster is the <img>'s background,
+// shown until the GIF loads. A clip with a `video` sits in the
 // essay figures' link, so a click plays the .mp4 full size with its controls
 // (src/writing/zoom.js, which Writing.js loads for every page); without the script
 // the link still opens the video.
 export function RowVisual({ visual }) {
   const { src, poster, video, width, height, alt, caption } = visual;
-  const img = <img src={src} width={width} height={height} alt={alt} loading="lazy" decoding="async" />;
+  const img = <img src={src} width={width} height={height} alt={alt} loading="lazy" decoding="async" style={stillStyle(poster)} />;
   const media = poster ? (
     <picture>
       <source media="(prefers-reduced-motion: reduce)" srcSet={poster} />

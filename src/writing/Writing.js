@@ -94,13 +94,15 @@ function Inline({ nodes, notes, seen }) {
 
 // A GIF with its .mp4 beside it (scripts/writing.js) is a clip: the GIF itself, lazy
 // and sized, because a GIF autoplays everywhere (Safari's Low Power Mode refuses muted
-// video). With reduced motion asked for, its poster stands in and the GIF never loads.
+// video). Its poster is the <img>'s background, shown until the GIF loads; with reduced
+// motion asked for, the poster stands in and the GIF never loads.
 // A click still opens the .mp4 full size with its controls (zoom.js).
 function Clip({ src, poster, alt, width, height }) {
   return (
     <picture className="wr-figure__clip">
       {poster && <source media="(prefers-reduced-motion: reduce)" srcSet={poster} />}
-      <img className="wr-figure__img" src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
+      <img className="wr-figure__img" src={src} alt={alt} width={width} height={height} loading="lazy" decoding="async"
+        style={poster ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover' } : undefined} />
     </picture>
   );
 }

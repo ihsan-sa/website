@@ -491,6 +491,9 @@ test('the draft banner shows the essay clip as a lazy, sized GIF, and links the 
   expect(sources[0]).toHaveAttribute('media', '(prefers-reduced-motion: reduce)');
   expect(sources[0]).toHaveAttribute('srcset', ESSAY_BANNER.poster);
   expect(picture.lastElementChild).toBe(img);
+  // The poster is also the <img>'s background, so it shows until the GIF loads.
+  expect(img.style.backgroundImage).toBe(`url(${ESSAY_BANNER.poster})`);
+  expect(img.style.backgroundSize).toBe('cover');
   // The GIF and its light poster ship with the site.
   [ESSAY_BANNER.gif, ESSAY_BANNER.poster].forEach((src) =>
     expect(fs.existsSync(path.join(__dirname, '..', 'public', src))).toBe(true));
@@ -582,6 +585,7 @@ test('every AI row opens on a light GIF clip, lazy and sized, its poster under r
     const img = rowPanel(name).querySelector('.pv-visual picture > img');
     expect(img).toHaveAttribute('src', visual.src);
     expect(img).toHaveAttribute('loading', 'lazy');
+    expect(img.style.backgroundImage).toBe(`url(${visual.poster})`);
     // The GIF's own pixel size, so the box is right before it loads.
     expect(visual.src).toMatch(/\.gif$/);
     expect(rasterSize(pub(visual.src))).toEqual({ width: visual.width, height: visual.height });

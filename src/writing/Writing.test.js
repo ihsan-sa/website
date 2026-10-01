@@ -286,11 +286,13 @@ test('a GIF with its .mp4 beside it shows as the lazy GIF, its poster under redu
   expect(gif).toHaveAttribute('decoding', 'async');
   expect(gif).toHaveAttribute('width', '640');
   expect(gif).toHaveAttribute('height', '360');
+  expect(gif.style.backgroundImage).toBe('url(/writing/s/demo-poster.webp)');
   const source = picture.querySelector('source');
   expect(source).toHaveAttribute('media', '(prefers-reduced-motion: reduce)');
   expect(source).toHaveAttribute('srcset', '/writing/s/demo-poster.webp');
   // Without a poster the GIF is still a clip, with no source to swap in.
   expect(plainLink.querySelector('picture.wr-figure__clip source')).toBeNull();
+  expect(plainLink.querySelector('img').style.backgroundImage).toBe('');
   expect(plainLink.querySelector('img')).toHaveAttribute('loading', 'lazy');
 
   // A click opens the .mp4 full size, on the frame the figure shows, sized from it.
@@ -439,4 +441,15 @@ test('the worked example parses, its diagrams found beside it, and never reaches
   expect(e.furtherReading.length).toBeGreaterThan(0);
   expect(generated.map((x) => x.slug)).not.toContain(slug);
   expect(loadEssays().map((x) => x.slug)).not.toContain(slug);
+});
+
+test('a clip link wears a play badge under reduced motion only', () => {
+  const css = fs.readFileSync(path.join(__dirname, 'Writing.css'), 'utf8');
+  const rule = css.match(/@media \(prefers-reduced-motion: reduce\) \{\s*a\[data-video\]\.wr-figure__zoom \{[^}]*\}\s*a\[data-video\]\.wr-figure__zoom::after \{([^}]*)\}\s*\}/);
+  expect(rule).not.toBeNull();
+  expect(rule[1]).toMatch(/border-radius: 50%/);
+  expect(rule[1]).toMatch(/pointer-events: none/);
+  expect(rule[1]).not.toMatch(/transition/);
+  // Nothing outside that media query draws it.
+  expect(css.replace(rule[0], '')).not.toMatch(/data-video\][^{]*::after/);
 });
