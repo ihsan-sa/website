@@ -181,6 +181,17 @@
 .wr-figure--image .wr-figure__clip .wr-figure__img { width: 100%; height: auto; object-fit: contain; }
 .wr-figure--image .wr-figure__caption { max-width: 30em; margin-inline: auto; text-align: center; }
 
+/* The AI portfolio (Portfolio in Writing.js): several images side by side under one caption,
+   wrapping to one a row on a phone; a repo link under each project's heading; the PDF link. */
+.wr-figure--row .wr-figure__frame { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; overflow: visible; }
+.wr-figure--row .wr-figure__zoom { flex: 1 1 200px; width: auto; margin: 0; }
+.wr-figure--row .wr-figure__img { width: 100%; height: auto; }
+.wr-portfolio__head { display: flex; flex-direction: column; gap: 2px; margin-top: 24px; }
+.wr-portfolio__head .wr-h2, .wr-portfolio__head .wr-h3 { margin: 0 !important; }
+.wr-portfolio__repo { font-size: 15px; color: var(--label); text-decoration: none; }
+.wr-portfolio__repo:hover { text-decoration: underline; }
+.wr-portfolio__pdf { font-size: 15px; }
+
 /* A click on a figure enlarges it (src/writing/zoom.js). The link is as wide as the image,
    and its focus ring goes on the frame, which nothing clips. */
 .wr-figure__zoom { display: block; width: fit-content; max-width: 100%; margin-inline: auto; cursor: zoom-in; }

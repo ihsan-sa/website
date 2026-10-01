@@ -3,6 +3,7 @@ import { useTheme } from '../theme';
 import './Writing.css';
 import './zoom';
 import allEssays from './essays.generated.json';
+import portfolio from './portfolio.generated.json';
 
 // The essays at /writing. essays.generated.json is built from content/writing/*.md
 // by scripts/writing.js (see its header for the markdown the pipeline takes).
@@ -301,6 +302,87 @@ function NotFound({ base }) {
     <main className="wr wr-missing">
       <p className="wr-p">There's no essay at this address.</p>
       <a className="wr-link" href={`${base}/writing`}>All essays</a>
+    </main>
+  );
+}
+
+// One media block of the AI portfolio (scripts/portfolio.js): a single file is shown as an
+// essay figure is; several sit side by side under one caption, each enlarging on its own.
+function Media({ block }) {
+  const { items, alt, caption } = block;
+  if (items.length === 1 && items[0].kind !== 'video') {
+    const it = items[0];
+    return <Figure block={{ ...it, alt, caption }} notes={[]} seen={new Set()} />;
+  }
+  return (
+    <figure className={`wr-figure wr-figure--image${items.length > 1 ? ' wr-figure--row' : ''}`}>
+      <div className="wr-figure__frame">
+        {items.map((it) => {
+          const label = items.length > 1 ? `${alt}: ${it.src.split('/').pop().replace(/\.\w+$/, '')}` : alt;
+          if (it.missing) return <div key={it.src} className="wr-figure__missing">Figure not added yet: {it.src.split('/').pop()}</div>;
+          if (it.kind === 'video') {
+            return <video key={it.src} className="wr-figure__img" src={it.src} poster={it.poster} width={it.width} height={it.height} controls preload="none" aria-label={label} />;
+          }
+          return (
+            <a key={it.src} className="wr-figure__zoom" href={it.video || it.src} data-video={it.video} aria-label={`${it.video ? 'Play full size' : 'Enlarge'}: ${label}`} aria-haspopup="dialog">
+              {it.video ? (
+                <Clip src={it.src} poster={it.poster} alt={label} width={it.width} height={it.height} />
+              ) : (
+                <img className="wr-figure__img" src={it.src} alt={label} width={it.width} height={it.height} loading="lazy" decoding="async" />
+              )}
+            </a>
+          );
+        })}
+      </div>
+      {caption.length > 0 && (
+        <figcaption className="wr-figure__caption">
+          <Inline nodes={caption} notes={[]} seen={new Set()} />
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
+// The AI portfolio, built from content/portfolio/ai.md: shaped like an essay, with a
+// repo link under each project's heading and the PDF of the same text linked at the top.
+// It is served only at the preview path for now, so it always asks not to be indexed.
+export function Portfolio({ page = portfolio }) {
+  useHead({ title: `${page.title} · Ihsan Salari`, description: page.standfirst.map((n) => n.v || '').join(''), noindex: true });
+  const seen = new Set();
+  return (
+    <main className="wr wr-essay wr-portfolio">
+      <nav className="wr-top">
+        <span className="wr-top__crumbs">
+          <a className="wr-top__link" href="/">ihsan.cc</a>
+        </span>
+      </nav>
+      <article>
+        <header className="wr-head">
+          <h1 className="wr-title">{page.title}</h1>
+          <p className="wr-standfirst"><Inline nodes={page.standfirst} notes={[]} seen={seen} /></p>
+        </header>
+        <div className="wr-body">
+          {page.blocks.map((b, i) => {
+            if (b.t === 'pdf') {
+              return (
+                <p key={i} className="wr-p wr-portfolio__pdf">
+                  <a className="wr-link" href={b.href} {...NEW_TAB}>Read this as a PDF</a>
+                </p>
+              );
+            }
+            if (b.t === 'media') return <Media key={i} block={b} />;
+            if ((b.t === 'h2' || b.t === 'h3') && b.repo) {
+              return (
+                <div key={i} className="wr-portfolio__head">
+                  <Block block={b} notes={[]} seen={seen} />
+                  <a className="wr-portfolio__repo" href={b.repo.href} {...NEW_TAB}>{b.repo.label}</a>
+                </div>
+              );
+            }
+            return <Block key={i} block={b} notes={[]} seen={seen} />;
+          })}
+        </div>
+      </article>
     </main>
   );
 }

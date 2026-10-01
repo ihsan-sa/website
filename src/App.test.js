@@ -106,7 +106,7 @@ test('shelved AI rows do not render', () => {
 
 test('the prototype path is unguessable, served by its own rules and published nowhere', () => {
   expect(PREVIEW_PATH).toMatch(/^\/[a-z0-9]{32}$/);
-  // The path itself, the draft essays under it, and the app for any /writing
+  // The path itself, the draft essays and the AI portfolio under it, and the app for any /writing
   // path the build wrote no page for.
   expect(read('public', '_redirects').trim().split('\n')).toEqual([
     '/airesume    https://library.ihsan.cc/p/HJ_OcIicMe1DrL_-tcArV8pt31HHd_oz    302',
@@ -115,6 +115,7 @@ test('the prototype path is unguessable, served by its own rules and published n
     '/portfolio    /hwportfolio    302',
     `${PREVIEW_PATH}    /index.html    200`,
     `${PREVIEW_PATH}/writing    /index.html    200`,
+    `${PREVIEW_PATH}/aiportfolio    /index.html    200`,
     `${PREVIEW_PATH}/writing/*    /index.html    200`,
     '/writing/*    /index.html    200',
   ]);

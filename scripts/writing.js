@@ -429,7 +429,9 @@ function pages(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
   console.log(`writing: link-preview pages for /writing and ${live.length} essay(s)`);
 }
 
-module.exports = { SHOW_ADDED, parseEssay, parseReading, loadEssays, pages, withMeta, rasterSize, EXAMPLES };
+module.exports = {
+  SHOW_ADDED, parseEssay, parseReading, parseInline, plainText, loadEssays, pages, withMeta, rasterSize, svgSize, EXAMPLES,
+};
 
 if (require.main === module) {
   const cmd = process.argv[2];
