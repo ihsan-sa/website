@@ -1,6 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import './Preview.css';
 import rawContent from './content.json';
+import { ESSAY_BANNER } from './essayBanner';
 import { fillStats } from './fillStats';
 import { frontPage } from './frontPage';
 import { SIDE_PHOTOS } from './sidePhotos';
@@ -95,6 +96,110 @@ function usePreviewFont() {
 }
 
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
+
+const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+
+// jsdom ships no matchMedia; treat a missing implementation as motion allowed.
+function prefersReducedMotion() {
+  return typeof window.matchMedia === 'function' && window.matchMedia(REDUCED_MOTION).matches;
+}
+
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(prefersReducedMotion);
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return undefined;
+    const query = window.matchMedia(REDUCED_MOTION);
+    const onChange = (event) => setReduced(event.matches);
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
+  return reduced;
+}
+
+// The draft's banner under the intro: the essay's clip (src/essayBanner.js), muted,
+// looping and inline, over its title and standfirst, the whole of it one link to the
+// essay. With reduced motion asked for, it neither autoplays nor preloads, and the
+// poster frame stands in its place. React sets `muted` as a property only, so the
+// attribute is added as well: some phones read it before they will autoplay.
+function EssayBanner({ essay, href, label }) {
+  const still = useReducedMotion();
+  const videoRef = useRef(null);
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.defaultMuted = true;
+    video.muted = true;
+    video.setAttribute('muted', '');
+  }, []);
+  useEffect(() => {
+    if (still && videoRef.current) videoRef.current.pause();
+  }, [still]);
+  const { video, gif, poster, width, height } = ESSAY_BANNER;
+
+  return (
+    <a className="pv-banner" href={href}>
+      <video
+        ref={videoRef}
+        className="pv-banner__video"
+        poster={poster}
+        width={width}
+        height={height}
+        autoPlay={!still}
+        loop
+        muted
+        playsInline
+        preload={still ? 'none' : 'auto'}
+        aria-hidden="true"
+        tabIndex={-1}
+      >
+        <source src={video} type="video/mp4" />
+        <img src={gif} alt="" width={width} height={height} />
+      </video>
+      <span className="pv-banner__text">
+        <span className="pv-banner__label">{label}</span>
+        <span className="pv-banner__title">{essay.title}</span>
+        <span className="pv-banner__stand">{essay.standfirst || essay.summary}</span>
+      </span>
+    </a>
+  );
+}
+
+// The intro. On the draft, a phone shows the name and subtitle with the about
+// paragraphs folded behind a button; Preview.css hides them with display: none,
+// so while folded they are neither tabbable nor read out. Above 640px the button
+// is hidden and the paragraphs always show. The front page keeps its plain intro.
+function Intro({ block, folds }) {
+  const [open, setOpen] = useState(false);
+  const aboutId = useId();
+  const paragraphs = block.about.map((para, i) => <p key={i}>{para}</p>);
+  if (!folds) {
+    return (
+      <header className="pv-intro">
+        <h1 className="pv-name">{block.name}</h1>
+        <p>{block.subtitle}</p>
+        {paragraphs}
+      </header>
+    );
+  }
+  return (
+    <header className="pv-intro">
+      <h1 className="pv-name">{block.name}</h1>
+      <p>{block.subtitle}</p>
+      <div id={aboutId} className={open ? 'pv-about pv-about--open' : 'pv-about'}>
+        {paragraphs}
+      </div>
+      <button
+        type="button"
+        className="pv-about__btn"
+        aria-expanded={open}
+        aria-controls={aboutId}
+        onClick={() => setOpen((o) => !o)}
+      >
+        {open ? block.aboutFold.less : block.aboutFold.more}
+      </button>
+    </header>
+  );
+}
 
 // The owner's photos on the draft only (src/sidePhotos.js). Preview.css places the
 // two side columns (desktop) and the strip (phone) and hides each where it does not fit.
@@ -232,8 +337,9 @@ function monthYear(iso) {
 }
 
 // A prototype row, folded to one line until opened: the linked name and what
-// it is. Opening it shows one concrete result, then optional longer sentences,
-// a small figure, the PDFs and a pointer to the one to open first. A doc with
+// it is. Opening it shows one concrete result, then a visual (draft only:
+// src/frontPage.js drops it), optional longer sentences, a small figure, the
+// PDFs and a pointer to the one to open first. A doc with
 // no href is a spot still waiting for its link. With a `short`, a phone shows
 // that on the line in place of the full text (Preview.css). A
 // `where` (place and date) follows the full text on the line, in italics.
@@ -242,10 +348,10 @@ function monthYear(iso) {
 // over the whole line, so a click anywhere on it opens the row, while the name
 // link sits above that layer and still just opens its page. The panel is inert
 // while folded, so its links are neither tabbable nor read out.
-function ProtoEntry({ name: entryName, text, where, short, href, result, detail, figure, docs, start }) {
+function ProtoEntry({ name: entryName, text, where, short, href, result, visual, detail, figure, docs, start }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
-  const hasMore = Boolean(result || detail || figure || docs || start);
+  const hasMore = Boolean(result || visual || detail || figure || docs || start);
   const place = where && <>, <em>{where}</em></>;
 
   return (
@@ -281,6 +387,19 @@ function ProtoEntry({ name: entryName, text, where, short, href, result, detail,
         <div className="pv-fold" id={panelId} inert={!open}>
           <div className="pv-fold__inner">
             {result && <p className="pv-result">{result}</p>}
+            {visual && (
+              <figure className="pv-visual">
+                <img
+                  src={visual.src}
+                  width={visual.width}
+                  height={visual.height}
+                  alt={visual.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+                {visual.caption && <figcaption>{visual.caption}</figcaption>}
+              </figure>
+            )}
             {detail && <p className="pv-detail">{detail}</p>}
             {figure && (
               <figure className="pv-figure">
@@ -317,8 +436,9 @@ function ProtoEntry({ name: entryName, text, where, short, href, result, detail,
 //
 // `front` renders ihsan.cc/: the draft minus its documents, published essays
 // only (none yet), linked at /writing, and no noindex. Without it, this is the
-// draft at PREVIEW_PATH: documents, every essay (drafts too), noindex, and the
-// owner's photos in the side margins.
+// draft at PREVIEW_PATH: documents, every essay (drafts too), noindex, the
+// owner's photos in the side margins, AI work above Experience, the about folded
+// on a phone, an essay banner under the intro, and a visual in each AI row.
 export function Prototype({ front: isFront = false, essays = isFront ? published : allEssays }) {
   const [isDark, toggleTheme] = useTheme();
   useNoindex(!isFront);
@@ -327,8 +447,9 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
   useFitSidePhotos(mainRef, !isFront);
 
   const block = isFront ? front : prototype;
-  const sections = [block.experience, block.aiWork];
+  const sections = isFront ? [block.experience, block.aiWork] : [block.aiWork, block.experience];
   const writing = isFront ? '/writing' : `${PREVIEW_PATH}/writing`;
+  const bannerEssay = !isFront && essays.find((e) => e.slug === ESSAY_BANNER.slug);
 
   return (
     <main ref={mainRef} className={isFront ? 'pv pv-proto' : 'pv pv-proto pv-proto--photos'}>
@@ -362,13 +483,11 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
 
       {!isFront && <PhotoStrip />}
 
-      <header className="pv-intro">
-        <h1 className="pv-name">{block.name}</h1>
-        <p>{block.subtitle}</p>
-        {block.about.map((para, i) => (
-          <p key={i}>{para}</p>
-        ))}
-      </header>
+      <Intro block={block} folds={!isFront} />
+
+      {bannerEssay && (
+        <EssayBanner essay={bannerEssay} href={`${writing}/${bannerEssay.slug}`} label={block.essays.banner} />
+      )}
 
       {sections.map((section) => (
         <section className="pv-block" key={section.heading}>
