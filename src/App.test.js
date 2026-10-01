@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import fs from 'fs';
 import path from 'path';
-import App, { PREVIEW_PATH, Prototype } from './App';
+import App, { PREVIEW_PATH, Prototype, RowVisual } from './App';
 import content from './content.json';
 import shelved from './content.shelved.json';
 import { ESSAY_BANNER } from './essayBanner';
@@ -15,6 +15,7 @@ beforeEach(() => {
 });
 
 const { prototype } = content;
+const { rasterSize } = require('../scripts/writing');
 const read = (...parts) => fs.readFileSync(path.join(__dirname, '..', ...parts), 'utf8');
 const LIVE_ESSAY = { slug: 'live', title: 'Live one', blurb: 'the published one.', summary: 'S.', date: '2026-10-02', draft: false };
 const DRAFT_ESSAY = { slug: 'secret', title: 'Secret one', summary: 'Not yet.', date: '2026-09-01', draft: true };
@@ -437,7 +438,7 @@ test('the draft puts AI work above Experience', () => {
   prototype.experience.items.forEach(({ name }) => expect(rowButton(name)).toHaveAttribute('aria-expanded', 'false'));
 });
 
-test('the front page is the draft: AI work first, the banner to the published essay, Show more, but no documents or row visuals', () => {
+test('the front page is the draft: AI work first, the banner to the published essay, Show more and the row visuals, but no documents', () => {
   const { container } = render(<App essays={[{ ...AUTOBOX_ESSAY, draft: false }]} />);
   expect(h2s()).toEqual([
     prototype.aiWork.heading,
@@ -449,8 +450,12 @@ test('the front page is the draft: AI work first, the banner to the published es
   expect(banner).toHaveAttribute('href', '/writing/autobox');
   expect(banner.querySelector('img.pv-banner__video')).toHaveAttribute('src', ESSAY_BANNER.gif);
   expect(screen.getByRole('button', { name: prototype.aboutFold.more })).toHaveAttribute('aria-expanded', 'false');
-  expect(container.querySelector('.pv-docs, .pv-pending, .pv-start, .pv-visual, .pv-doc')).toBeNull();
-  prototype.aiWork.items.forEach(({ visual }) => expect(container.innerHTML).not.toContain(visual.src));
+  expect(container.querySelector('.pv-docs, .pv-pending, .pv-start, .pv-doc')).toBeNull();
+  // Each AI row still opens on its clip, and on its diagram where it has one.
+  prototype.aiWork.items.forEach(({ name, visual, figure }) => {
+    expect(rowPanel(name).querySelector('.pv-visual img')).toHaveAttribute('src', visual.src);
+    if (figure) expect(rowPanel(name).querySelector('.pv-figure img')).toHaveAttribute('src', figure.image);
+  });
   expect(container.innerHTML).not.toContain(PREVIEW_PATH);
   // Every row's fold still holds its result, so none opens on nothing.
   ROWS().forEach(({ name, result }) => expect(rowPanel(name)).toHaveTextContent(result));
@@ -566,28 +571,84 @@ test('the front page shows the small project images, lazy and sized', () => {
   });
 });
 
-test('every AI row on the draft opens on a light visual, lazy and sized so nothing shifts', () => {
+test('every AI row opens on a light GIF clip, lazy and sized, its poster under reduced motion and its video a click away', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
+  const pub = (src) => path.join(__dirname, '..', 'public', src);
   prototype.aiWork.items.forEach(({ name, visual }) => {
     expect(visual).toBeTruthy();
-    const img = rowPanel(name).querySelector('.pv-visual img');
+    const img = rowPanel(name).querySelector('.pv-visual picture > img');
     expect(img).toHaveAttribute('src', visual.src);
     expect(img).toHaveAttribute('loading', 'lazy');
+    // The GIF's own pixel size, so the box is right before it loads.
+    expect(visual.src).toMatch(/\.gif$/);
+    expect(rasterSize(pub(visual.src))).toEqual({ width: visual.width, height: visual.height });
     expect(img).toHaveAttribute('width', String(visual.width));
     expect(img).toHaveAttribute('height', String(visual.height));
     expect(visual.alt.length).toBeGreaterThan(20);
     expect(img).toHaveAttribute('alt', visual.alt);
-    expect(visual.src).toMatch(/\.(webp|svg)$/);
-    const file = path.join(__dirname, '..', 'public', visual.src);
-    expect(fs.existsSync(file)).toBe(true);
-    expect(fs.statSync(file).size).toBeLessThanOrEqual(60 * 1024);
+    // Light enough for a fold the owner opens on a phone.
+    expect(fs.statSync(pub(visual.src)).size).toBeLessThanOrEqual(3.5 * 1024 * 1024);
+    // Under reduced motion the still poster stands in, at the clip's shape.
+    const source = img.previousElementSibling;
+    expect(source.tagName).toBe('SOURCE');
+    expect(source).toHaveAttribute('media', '(prefers-reduced-motion: reduce)');
+    expect(source).toHaveAttribute('srcset', visual.poster);
+    const still = rasterSize(pub(visual.poster));
+    expect(still.width / still.height).toBeCloseTo(visual.width / visual.height, 2);
+    expect(fs.statSync(pub(visual.poster)).size).toBeLessThanOrEqual(200 * 1024);
+    // A click plays the .mp4 full size (zoom.js); without the script the link opens it.
+    const link = img.closest('a');
+    expect(link).toHaveClass('wr-figure__zoom');
+    expect(link).toHaveAttribute('href', visual.video);
+    expect(link).toHaveAttribute('data-video', visual.video);
+    expect(fs.existsSync(pub(visual.video))).toBe(true);
   });
   // Experience rows carry none.
   prototype.experience.items.forEach(({ name, visual }) => {
     expect(visual).toBeUndefined();
     expect(rowPanel(name).querySelector('.pv-visual')).toBeNull();
   });
+});
+
+test('a visual with no poster or video is a plain sized image, no link', () => {
+  const { container } = render(<RowVisual visual={{ src: '/a.webp', width: 4, height: 3, alt: 'A plain still.', caption: 'Cap.' }} />);
+  const img = container.querySelector('figure.pv-visual > img');
+  expect(img).toHaveAttribute('src', '/a.webp');
+  expect(img).toHaveAttribute('width', '4');
+  expect(img).toHaveAttribute('loading', 'lazy');
+  expect(container.querySelector('picture, a')).toBeNull();
+  expect(container.querySelector('figcaption')).toHaveTextContent('Cap.');
+});
+
+test('a click on a row clip plays its video full size', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  const { name, visual } = prototype.aiWork.items[0];
+  fireEvent.click(rowButton(name));
+  fireEvent.click(rowPanel(name).querySelector('.pv-visual__zoom'));
+  const dialog = screen.getByRole('dialog');
+  expect(dialog).toHaveAttribute('aria-label', visual.alt);
+  expect(dialog.querySelector('video')).toHaveAttribute('src', visual.video);
+  fireEvent.keyDown(document.activeElement, { key: 'Escape' });
+  expect(screen.queryByRole('dialog')).toBeNull();
+});
+
+test('a row diagram is sized, so opening the row does not jump', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  const withFigure = prototype.aiWork.items.filter((i) => i.figure);
+  expect(withFigure.length).toBeGreaterThan(0);
+  withFigure.forEach(({ name, figure }) => {
+    const img = rowPanel(name).querySelector('.pv-figure img');
+    expect(img).toHaveAttribute('width', String(figure.width));
+    expect(img).toHaveAttribute('height', String(figure.height));
+    expect(img).toHaveAttribute('alt', figure.alt);
+    expect(fs.existsSync(path.join(__dirname, '..', 'public', figure.image))).toBe(true);
+  });
+  const css = read('src', 'Preview.css');
+  const rule = css.slice(css.indexOf('.pv-proto .pv-figure img {'));
+  expect(rule.slice(0, rule.indexOf('}'))).toContain('height: auto');
 });
 
 test('the Autobox essay is published with the owner\'s OK and carries its standfirst', () => {

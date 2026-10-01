@@ -34,7 +34,7 @@ test('the front page is the draft minus its documents, with all its copy in the 
   expect(html).toMatch(/<button[^>]*id="theme-toggle"[^>]*hidden/);
 });
 
-test('frontPage drops section and row documents and row visuals, and keeps every link of its own', () => {
+test('frontPage drops section and row documents, and keeps every link of its own and the row visuals', () => {
   const block = {
     experience: { heading: 'E', docs: [{ label: 'D', href: '/d.pdf' }], items: [{ name: 'a', href: '/a', docs: [{ label: 'x', href: '/x.pdf' }], start: 'S.' }] },
     aiWork: { heading: 'A', items: [{ name: 'b', href: 'https://github.com/ihsan-sa/b', result: 'R.', visual: { src: '/v.webp', width: 1, height: 1, alt: 'V' } }] },
@@ -42,9 +42,30 @@ test('frontPage drops section and row documents and row visuals, and keeps every
   };
   expect(frontPage(block)).toEqual({
     experience: { heading: 'E', items: [{ name: 'a', href: '/a' }] },
-    aiWork: { heading: 'A', items: [{ name: 'b', href: 'https://github.com/ihsan-sa/b', result: 'R.' }] },
+    aiWork: { heading: 'A', items: [{ name: 'b', href: 'https://github.com/ihsan-sa/b', result: 'R.', visual: { src: '/v.webp', width: 1, height: 1, alt: 'V' } }] },
     projects: { heading: 'P', headLink: { label: 'H', href: '/h' }, items: [] },
   });
+});
+
+test('the static pages show each AI row\'s clip, poster, video and diagram, sized', () => {
+  [decode(renderFront(content)), decode(renderDraft(content)), decode(renderDraft(content, [], { v2: true }))].forEach((html) => {
+    content.prototype.aiWork.items.forEach(({ visual, figure }) => {
+      expect(html).toContain(`<a class="wr-figure__zoom pv-visual__zoom" href="${visual.video}" data-video="${visual.video}"`);
+      expect(html).toContain(`<picture><source media="(prefers-reduced-motion: reduce)" srcset="${visual.poster}" /><img src="${visual.src}" width="${visual.width}" height="${visual.height}" alt="${visual.alt}" loading="lazy" decoding="async" /></picture>`);
+      expect(html).toContain(`<figcaption>${visual.caption}</figcaption>`);
+      if (figure) expect(html).toContain(`<img src="${figure.image}" width="${figure.width}" height="${figure.height}" alt="${figure.alt}"`);
+    });
+  });
+});
+
+test('a static row visual with no poster or video is a plain image', () => {
+  const block = {
+    ...content.prototype,
+    aiWork: { heading: 'A', items: [{ name: 'b', text: 't.', result: 'R.', visual: { src: '/v.webp', width: 4, height: 3, alt: 'V.' }, figure: { image: '/f.svg', alt: 'F.', caption: 'C.' } }] },
+  };
+  const html = renderDraft({ ...content, prototype: block });
+  expect(html).toContain('<figure class="pv-visual"><img src="/v.webp" width="4" height="3" alt="V." loading="lazy" decoding="async" /></figure>');
+  expect(html).toContain('<figure class="pv-figure"><img src="/f.svg" alt="F." loading="lazy" decoding="async" /><figcaption>C.</figcaption></figure>');
 });
 
 test('the draft puts its documents beside the AI work heading, a pending one as text', () => {
@@ -64,7 +85,7 @@ test('page() leaves noindex out when asked, for the day it moves to /', () => {
 test('the draft folds its rows with <details> and keeps the folded copy', () => {
   const html = decode(renderDraft(content));
   const rows = [...content.prototype.experience.items, ...content.prototype.aiWork.items];
-  const folded = rows.filter((r) => r.result || r.detail || r.figure || r.docs || r.start);
+  const folded = rows.filter((r) => r.result || r.visual || r.detail || r.figure || r.docs || r.start);
   expect(html.match(/<details class="pv-entry">/g)).toHaveLength(folded.length);
   folded.forEach((r) => r.result && expect(html).toContain(r.result));
   folded.forEach((r) => r.detail && expect(html).toContain(r.detail));
@@ -100,7 +121,7 @@ test('the second draft is hidden, and opens each row on its whole line', () => {
   expect(html).toContain('<meta name="robots" content="noindex" />');
   expect(html).toContain(`<link rel="stylesheet" href="${DRAFT_V2_PATH}v2.css" />`);
   const rows = [...content.prototype.experience.items, ...content.prototype.aiWork.items];
-  const folded = rows.filter((r) => r.result || r.detail || r.figure || r.docs || r.start);
+  const folded = rows.filter((r) => r.result || r.visual || r.detail || r.figure || r.docs || r.start);
   expect(body.match(/<details class="pv-entry">\n<summary class="pv-entry__head">/g)).toHaveLength(folded.length);
   // No link in any row's line: the name is text, its link sits in the panel, labelled.
   body.match(/<summary[\s\S]*?<\/summary>/g).forEach((line) => expect(line).not.toContain('<a '));
