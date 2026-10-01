@@ -51,7 +51,7 @@ test('the static pages show each AI row\'s clip, poster, video and diagram, size
   [decode(renderFront(content)), decode(renderDraft(content)), decode(renderDraft(content, [], { v2: true }))].forEach((html) => {
     content.prototype.aiWork.items.forEach(({ visual, figure }) => {
       expect(html).toContain(`<a class="wr-figure__zoom pv-visual__zoom" href="${visual.video}" data-video="${visual.video}"`);
-      expect(html).toContain(`<picture><source media="(prefers-reduced-motion: reduce)" srcset="${visual.poster}" /><img src="${visual.src}" width="${visual.width}" height="${visual.height}" alt="${visual.alt}" loading="lazy" decoding="async" /></picture>`);
+      expect(html).toContain(`<picture><source media="(prefers-reduced-motion: reduce)" srcset="${visual.poster}" /><img src="${visual.src}" width="${visual.width}" height="${visual.height}" alt="${visual.alt}" loading="lazy" decoding="async" style="background-image:url(${visual.poster});background-size:cover" /></picture>`);
       expect(html).toContain(`<figcaption>${visual.caption}</figcaption>`);
       if (figure) expect(html).toContain(`<img src="${figure.image}" width="${figure.width}" height="${figure.height}" alt="${figure.alt}"`);
     });
@@ -192,7 +192,7 @@ test('a static essay shows a GIF with an .mp4 as the lazy GIF, its poster under 
   const html = renderWriting([essay], shell)[1].html;
   expect(html).toContain('<a class="wr-figure__zoom" href="/writing/z/m.mp4" data-video="/writing/z/m.mp4" aria-label="Play full size: Moving." aria-haspopup="dialog">'
     + '<picture class="wr-figure__clip"><source media="(prefers-reduced-motion: reduce)" srcset="/writing/z/m-poster.webp" />'
-    + '<img class="wr-figure__img" src="/writing/z/m.gif" alt="Moving." width="640" height="360" loading="lazy" decoding="async" /></picture></a>');
+    + '<img class="wr-figure__img" src="/writing/z/m.gif" alt="Moving." width="640" height="360" loading="lazy" decoding="async" style="background-image:url(/writing/z/m-poster.webp);background-size:cover" /></picture></a>');
   // No <video> loads with the page; the script opens the .mp4 on a click.
   expect(html).not.toContain('<video');
   expect(html).toContain('wrZoom');

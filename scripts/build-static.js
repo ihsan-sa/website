@@ -173,10 +173,13 @@ function rowText({ text, where, short }) {
 const linkLabel = (href) => (/^https:\/\/github\.com\//.test(href) ? 'GitHub' : 'Project page');
 
 // An AI row's visual, as App.js's RowVisual writes it: a GIF clip in a <picture>
-// whose reduced-motion source is its poster, lazy and sized, in a link to its .mp4
+// whose reduced-motion source is its poster (also the <img>'s background, shown until
+// the GIF loads), lazy and sized, in a link to its .mp4
 // (no zoom script here, so the link opens the video itself), or a plain image.
+const stillAttr = (poster) => (poster ? ` style="background-image:url(${esc(poster)});background-size:cover"` : '');
+
 function rowVisual({ src, poster, video, width, height, alt, caption }) {
-  const img = `<img src="${esc(src)}" width="${width}" height="${height}" alt="${esc(alt)}" loading="lazy" decoding="async" />`;
+  const img = `<img src="${esc(src)}" width="${width}" height="${height}" alt="${esc(alt)}" loading="lazy" decoding="async"${stillAttr(poster)} />`;
   const media = poster
     ? `<picture><source media="(prefers-reduced-motion: reduce)" srcset="${esc(poster)}" />${img}</picture>`
     : img;
@@ -341,11 +344,11 @@ function block(b, notes, seen) {
       const { kind, src, alt, caption, width, height, missing, video, poster } = b;
       // A diagram shrinks to fit the column on a phone rather than scrolling sideways.
       // A click on the figure enlarges it, or plays its video (ZOOM_SCRIPT). A GIF with
-      // its .mp4 is a clip: the lazy GIF in a <picture>, its poster in its place under
-      // reduced motion (Writing.js, Clip).
+      // its .mp4 is a clip: the lazy GIF in a <picture>, its poster its background until it
+      // loads, and in its place under reduced motion (Writing.js, Clip).
       const label = `${video ? 'Play full size' : 'Enlarge'}: ${alt}`;
       const size = `${width ? ` width="${width}"` : ''}${height ? ` height="${height}"` : ''}`;
-      const gif = `<img class="wr-figure__img" src="${esc(src)}" alt="${esc(alt)}"${size} loading="lazy" decoding="async" />`;
+      const gif = `<img class="wr-figure__img" src="${esc(src)}" alt="${esc(alt)}"${size} loading="lazy" decoding="async"${video ? stillAttr(poster) : ''} />`;
       const media = video
         ? `<picture class="wr-figure__clip">${poster ? `<source media="(prefers-reduced-motion: reduce)" srcset="${esc(poster)}" />` : ''}${gif}</picture>`
         : gif;

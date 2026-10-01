@@ -197,6 +197,31 @@
 .wr-figure__zoom { display: block; width: fit-content; max-width: 100%; margin-inline: auto; cursor: zoom-in; }
 .wr-figure__zoom:focus-visible { outline: none; }
 .wr-figure__frame:has(.wr-figure__zoom:focus-visible) { outline: 2px solid var(--ink); outline-offset: 3px; }
+/* With reduced motion asked for, a clip shows only its still, so it wears a play badge:
+   a round translucent disc with a white triangle, centred over the still. It is drawn on
+   the link (data-video) as a pseudo-element, so it adds no markup, takes no space, reads
+   to no screen reader, and the click that opens the video is the link's own. */
+@media (prefers-reduced-motion: reduce) {
+  a[data-video].wr-figure__zoom { position: relative; }
+  a[data-video].wr-figure__zoom::after {
+    content: "\25B6";
+    content: "\25B6" / "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 56px;
+    height: 56px;
+    margin: -28px 0 0 -28px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    font-size: 22px;
+    line-height: 56px;
+    text-align: center;
+    text-indent: 3px; /* the triangle's weight sits left of its box */
+    pointer-events: none;
+  }
+}
 
 /* The overlay: the video (or image) as large as the screen allows, on a dark backdrop in
    either theme. It sits on <body>, outside .wr, so it reads no .wr tokens. */
