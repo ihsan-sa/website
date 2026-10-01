@@ -307,9 +307,9 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
   .pv-proto .pv-about__btn:hover { color: inherit; }
 }
 
-/* Draft only: the essay banner under the intro, one link. The clip fills the column at
-   16:9 (its width and height are set, so nothing shifts as it loads), with the essay's
-   title and standfirst under it. */
+/* Draft only: the essay banner under the intro, one link. The clip (a GIF in a
+   <picture>) fills the column at 16:9 (its width and height are set, so nothing shifts
+   as it loads), with the essay's title and standfirst under it. */
 .pv-proto .pv-banner {
   display: flex;
   flex-direction: column;
@@ -317,6 +317,7 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
   text-decoration: none;
   color: inherit;
 }
+.pv-proto .pv-banner__media { display: block; min-width: 0; }
 .pv-proto .pv-banner__video {
   display: block;
   width: 100%;

@@ -320,13 +320,14 @@ function block(b, notes, seen) {
       const { kind, src, alt, caption, width, height, missing, video, poster } = b;
       // A diagram shrinks to fit the column on a phone rather than scrolling sideways.
       // A click on the figure enlarges it, or plays its video (ZOOM_SCRIPT). A GIF with
-      // its .mp4 and a poster is the video itself, on its poster, preloading nothing;
-      // ZOOM_SCRIPT plays it as it nears the screen (Writing.js, InlineClip).
+      // its .mp4 is a clip: the lazy GIF in a <picture>, its poster in its place under
+      // reduced motion (Writing.js, Clip).
       const label = `${video ? 'Play full size' : 'Enlarge'}: ${alt}`;
       const size = `${width ? ` width="${width}"` : ''}${height ? ` height="${height}"` : ''}`;
-      const media = video && poster
-        ? `<video class="wr-figure__img wr-figure__video" poster="${esc(poster)}"${size}${width && height ? ` style="aspect-ratio: ${width} / ${height}"` : ''} muted loop playsinline preload="none" aria-label="${esc(alt)}"><source src="${esc(video)}" type="video/mp4" /></video>`
-        : `<img class="wr-figure__img" src="${esc(src)}" alt="${esc(alt)}"${size} loading="lazy" decoding="async" />`;
+      const gif = `<img class="wr-figure__img" src="${esc(src)}" alt="${esc(alt)}"${size} loading="lazy" decoding="async" />`;
+      const media = video
+        ? `<picture class="wr-figure__clip">${poster ? `<source media="(prefers-reduced-motion: reduce)" srcset="${esc(poster)}" />` : ''}${gif}</picture>`
+        : gif;
       const img = missing
         ? `<div class="wr-figure__missing">Figure not added yet: ${esc(src.split('/').pop())}</div>`
         : `<a class="wr-figure__zoom" href="${esc(video || src)}"${video ? ` data-video="${esc(video)}"` : ''} aria-label="${esc(label)}" aria-haspopup="dialog">${media}</a>`;

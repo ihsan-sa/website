@@ -98,81 +98,29 @@ function usePreviewFont() {
 
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
 
-const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
-
-// jsdom ships no matchMedia; treat a missing implementation as motion allowed.
-function prefersReducedMotion() {
-  return typeof window.matchMedia === 'function' && window.matchMedia(REDUCED_MOTION).matches;
-}
-
-function useReducedMotion() {
-  const [reduced, setReduced] = useState(prefersReducedMotion);
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return undefined;
-    const query = window.matchMedia(REDUCED_MOTION);
-    const onChange = (event) => setReduced(event.matches);
-    query.addEventListener('change', onChange);
-    return () => query.removeEventListener('change', onChange);
-  }, []);
-  return reduced;
-}
-
-// The draft's banner under the intro: the essay's clip (src/essayBanner.js), muted,
-// looping and inline, over its title and standfirst, the whole of it one link to the
-// essay. It sits on its poster frame until the clip plays, and nothing else stands in:
-// a browser that will not play it keeps the poster. React sets `muted` as a property
-// only, so the effect sets the attribute and defaultMuted too, which some phones read
-// before they will autoplay. Besides `autoplay`, it asks to play each time the banner
-// comes near the screen (and pauses when it leaves), catching a refusal such as
-// Low Power Mode's. With reduced motion asked for, it neither autoplays nor preloads,
-// and the poster stands in its place.
+// The draft's banner under the intro: the essay's clip (src/essayBanner.js) as a
+// looping GIF over its title and standfirst, the whole of it one link to the essay.
+// A GIF, not a <video>, because a GIF plays everywhere, Safari's Low Power Mode
+// included, which refuses muted video autoplay. It loads lazily, after the text, and
+// its width and height and a light fill hold its 16:9 box so nothing shifts. With
+// reduced motion asked for, <picture> swaps in the still poster and the GIF never
+// loads. It is decorative (alt=""): the link's own text names the essay.
 function EssayBanner({ essay, href, label }) {
-  const still = useReducedMotion();
-  const videoRef = useRef(null);
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return undefined;
-    video.defaultMuted = true;
-    video.muted = true;
-    video.setAttribute('muted', '');
-    if (still) {
-      video.pause();
-      return undefined;
-    }
-    // Without an observer (jsdom, old browsers) `autoplay` alone starts it.
-    if (typeof IntersectionObserver !== 'function') return undefined;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) {
-        video.pause();
-        return;
-      }
-      video.muted = true;
-      const playing = video.play();
-      if (playing && playing.catch) playing.catch(() => {}); // refused: the poster stays
-    }, { rootMargin: '200px 0px' });
-    observer.observe(video);
-    return () => observer.disconnect();
-  }, [still]);
-  const { video, poster, width, height } = ESSAY_BANNER;
-
+  const { gif, poster, width, height } = ESSAY_BANNER;
   return (
     <a className="pv-banner pv-banner--apart" href={href}>
-      <video
-        ref={videoRef}
-        className="pv-banner__video"
-        poster={poster}
-        width={width}
-        height={height}
-        autoPlay={!still}
-        loop
-        muted
-        playsInline
-        preload={still ? 'none' : 'metadata'}
-        aria-hidden="true"
-        tabIndex={-1}
-      >
-        <source src={video} type="video/mp4" />
-      </video>
+      <picture className="pv-banner__media">
+        <source media="(prefers-reduced-motion: reduce)" srcSet={poster} />
+        <img
+          className="pv-banner__video"
+          src={gif}
+          alt=""
+          width={width}
+          height={height}
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
       <span className="pv-banner__text">
         <span className="pv-banner__label">{label}</span>
         <span className="pv-banner__title">{essay.title}</span>

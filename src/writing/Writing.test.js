@@ -232,84 +232,49 @@ test('a GIF figure plays the same-named .mp4 beside it, when there is one', () =
   expect(asked).not.toContain('shot.mp4');
 });
 
-test('a GIF with its .mp4 and a poster beside it plays inline on that poster, and the GIF never loads', () => {
+test('a GIF with its .mp4 beside it shows as the lazy GIF, its poster under reduced motion, and opens the .mp4', () => {
   const src = essay(`${FRONT}\ndraft: true`, '![Moving.](demo.gif)\n\n![No poster.](other.gif)\n');
   const { essay: e } = parseEssay(src, 's', (slug, file) => (
     file === 'demo-poster.webp' ? { exists: true, width: 1280, height: 720 }
-      : file === 'other-poster.webp' ? { exists: false } : { exists: true, width: 480, height: 270 }));
-  expect(e.blocks[0]).toMatchObject({ video: '/writing/s/demo.mp4', poster: '/writing/s/demo-poster.webp', width: 1280, height: 720 });
+      : file === 'other-poster.webp' ? { exists: false } : { exists: true, width: 640, height: 360 }));
+  // The GIF keeps its own size; the poster only stands in for it.
+  expect(e.blocks[0]).toMatchObject({ video: '/writing/s/demo.mp4', poster: '/writing/s/demo-poster.webp', width: 640, height: 360 });
   expect(e.blocks[1].poster).toBeUndefined();
-  expect(e.blocks[1]).toMatchObject({ video: '/writing/s/other.mp4', width: 480, height: 270 });
+  expect(e.blocks[1]).toMatchObject({ video: '/writing/s/other.mp4', width: 640, height: 360 });
 
-  const observers = [];
-  const original = window.IntersectionObserver;
-  window.IntersectionObserver = class {
-    constructor(cb) { this.cb = cb; this.targets = []; observers.push(this); }
-    observe(t) { this.targets.push(t); }
-  };
-  const refused = Promise.reject(new DOMException('No autoplay', 'NotAllowedError'));
-  refused.catch(() => {});
-  const play = jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => refused);
-  const pause = jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
-  try {
-    const { container } = render(<Writing route={{ preview: true, slug: 's' }} previewPath={PREVIEW_PATH} essays={[e]} />);
-    const [clipLink, gifLink] = container.querySelectorAll('.wr-figure__zoom');
-    const clip = clipLink.querySelector('video');
-    expect(clip).toHaveClass('wr-figure__video');
-    expect(clip).toHaveAttribute('poster', '/writing/s/demo-poster.webp');
-    expect(clip).toHaveAttribute('preload', 'none');
-    expect(clip).not.toHaveAttribute('autoplay');
-    expect(clip).toHaveAttribute('muted');
-    expect(clip).toHaveAttribute('playsinline');
-    expect(clip.loop).toBe(true);
-    expect(clip.style.aspectRatio).toBe('1280 / 720');
-    expect(clip.querySelector('source')).toHaveAttribute('src', '/writing/s/demo.mp4');
-    expect(container.querySelector('img[src$="demo.gif"]')).toBeNull();
-    // Without a poster the GIF stays, lazy and sized.
-    expect(gifLink.querySelector('img')).toHaveAttribute('loading', 'lazy');
-    expect(gifLink.querySelector('img')).toHaveAttribute('width', '480');
-    // Nothing plays until the clip nears the screen; a refusal is caught.
-    expect(play).not.toHaveBeenCalled();
-    const io = observers[observers.length - 1];
-    expect(io.targets).toContain(clip);
-    io.cb([{ isIntersecting: true, target: clip }]);
-    expect(play).toHaveBeenCalledTimes(1);
-    clip.pause = pause;
-    Object.defineProperty(clip, 'paused', { value: false, configurable: true });
-    io.cb([{ isIntersecting: false, target: clip }]);
-    expect(pause).toHaveBeenCalled();
-    // A click opens it full size, on the same poster, sized from the clip.
-    fireEvent.click(clip);
-    const big = screen.getByRole('dialog').querySelector('video');
-    expect(big).toHaveAttribute('src', '/writing/s/demo.mp4');
-    expect(big).toHaveAttribute('poster', 'http://localhost/writing/s/demo-poster.webp');
-    expect(screen.getByRole('dialog')).toHaveAttribute('aria-label', 'Moving.');
-    expect(big.style.getPropertyValue('--wr-zoom-ar')).toBe('1280 / 720');
-    fireEvent.keyDown(document.activeElement, { key: 'Escape' });
-  } finally {
-    window.IntersectionObserver = original;
-    play.mockRestore();
-    pause.mockRestore();
-  }
-});
+  const { container } = render(<Writing route={{ preview: true, slug: 's' }} previewPath={PREVIEW_PATH} essays={[e]} />);
+  // No <video> on the page: the GIF autoplays where Low Power Mode refuses muted video.
+  expect(container.querySelector('video')).toBeNull();
+  const [clipLink, plainLink] = container.querySelectorAll('.wr-figure__zoom');
+  expect(clipLink).toHaveAttribute('href', '/writing/s/demo.mp4');
+  expect(clipLink).toHaveAttribute('data-video', '/writing/s/demo.mp4');
+  const picture = clipLink.querySelector('picture.wr-figure__clip');
+  const gif = picture.querySelector('img');
+  expect(gif).toHaveAttribute('src', '/writing/s/demo.gif');
+  expect(gif).toHaveAttribute('alt', 'Moving.');
+  expect(gif).toHaveAttribute('loading', 'lazy');
+  expect(gif).toHaveAttribute('decoding', 'async');
+  expect(gif).toHaveAttribute('width', '640');
+  expect(gif).toHaveAttribute('height', '360');
+  const source = picture.querySelector('source');
+  expect(source).toHaveAttribute('media', '(prefers-reduced-motion: reduce)');
+  expect(source).toHaveAttribute('srcset', '/writing/s/demo-poster.webp');
+  // Without a poster the GIF is still a clip, with no source to swap in.
+  expect(plainLink.querySelector('picture.wr-figure__clip source')).toBeNull();
+  expect(plainLink.querySelector('img')).toHaveAttribute('loading', 'lazy');
 
-test('with reduced motion asked for, an inline clip is never watched, so it stays on its poster', () => {
-  const originalIO = window.IntersectionObserver;
-  const originalMM = window.matchMedia;
-  const observe = jest.fn();
-  window.IntersectionObserver = class { observe(t) { observe(t); } };
-  window.matchMedia = (query) => ({ ...originalMM(query), matches: query === '(prefers-reduced-motion: reduce)' });
-  try {
-    const clip = document.createElement('video');
-    clip.className = 'wr-figure__video';
-    document.body.appendChild(clip);
-    window.wrZoom.watch(document.body);
-    expect(observe).not.toHaveBeenCalled();
-    clip.remove();
-  } finally {
-    window.IntersectionObserver = originalIO;
-    window.matchMedia = originalMM;
-  }
+  // A click opens the .mp4 full size, on the frame the figure shows, sized from it.
+  fireEvent.click(gif);
+  const big = screen.getByRole('dialog').querySelector('video');
+  expect(big).toHaveAttribute('src', '/writing/s/demo.mp4');
+  expect(big).toHaveAttribute('poster', 'http://localhost/writing/s/demo.gif');
+  expect(big.controls).toBe(true);
+  expect(screen.getByRole('dialog')).toHaveAttribute('aria-label', 'Moving.');
+  // jsdom loads no image, so the GIF's width and height attributes stand in.
+  expect(big.style.getPropertyValue('--wr-zoom-ar')).toBe('640 / 360');
+  fireEvent.keyDown(document.activeElement, { key: 'Escape' });
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(window.wrZoom.watch).toBeUndefined();
 });
 
 test('a raster figure reports its pixel size from its header', () => {
