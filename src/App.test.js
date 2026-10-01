@@ -28,7 +28,7 @@ const DRAFT_ESSAY = { slug: 'secret', title: 'Secret one', summary: 'Not yet.', 
 test('the front page is the draft minus its documents, essays and noindex', () => {
   const { container } = render(<App essays={[DRAFT_ESSAY]} />);
   expect(container.querySelector('main.pv.pv-proto')).not.toBeNull();
-  const withLink = ({ heading, headLink }) => (headLink ? `${heading} ${headLink.label}${headLink.arrow ? '\u2197' : ''}` : heading);
+  const withLink = ({ heading, headLink }) => (headLink ? `${heading} ${headLink.label}${headLink.arrow ? '\u2197\uFE0E' : ''}` : heading);
   expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
     prototype.aiWork.heading,
     prototype.experience.heading,
@@ -73,8 +73,8 @@ test('every experience row links out with the arrow, and its text follows with a
     expect(link).toHaveClass('pv-name-link--out');
     expect(link.querySelector('.pv-name-link__out')).toHaveAttribute('aria-hidden', 'true');
     const head = heads.find((h) => h.contains(link));
-    expect(head.textContent).toContain(`${name}\u2197 ${text}`);
-    expect(head.textContent).not.toContain(`${name}\u2197,`);
+    expect(head.textContent).toContain(`${name}\u2197\uFE0E ${text}`);
+    expect(head.textContent).not.toContain(`${name}\u2197\uFE0E,`);
     if (short) expect(head.querySelector('.pv-t-short').textContent).toBe(` ${short}`);
   });
 });
@@ -223,7 +223,7 @@ test('the prototype puts a result under every experience row and AI project', ()
   // waiting for its link says why.
   const doc = ({ label, pending }) => (pending ? `${label} (${pending})` : label);
   const withLink = ({ heading, headLink, docs }) =>
-    [heading, ...(headLink ? [headLink.label + (headLink.arrow ? '\u2197' : '')] : []), ...(docs || []).map(doc)].join(' ');
+    [heading, ...(headLink ? [headLink.label + (headLink.arrow ? '\u2197\uFE0E' : '')] : []), ...(docs || []).map(doc)].join(' ');
   expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
     withLink(prototype.aiWork),
     withLink(prototype.experience),
@@ -474,7 +474,7 @@ test('the front page is the draft: AI work first, the banner to the published es
     prototype.aiWork.heading,
     prototype.experience.heading,
     prototype.essays.heading,
-    `${prototype.projects.heading} ${prototype.projects.headLink.label}\u2197`,
+    `${prototype.projects.heading} ${prototype.projects.headLink.label}\u2197\uFE0E`,
   ]);
   const banner = container.querySelector('a.pv-banner');
   expect(banner).toHaveAttribute('href', '/writing/autobox');
@@ -661,7 +661,7 @@ test('a row name that links out ends in a hidden arrow, and an essay title does 
   names.forEach((a) => {
     expect(a).toHaveClass('pv-name-link--out');
     const arrow = a.querySelector('span[aria-hidden="true"]');
-    expect(arrow.textContent).toBe('\u2197');
+    expect(arrow.textContent).toBe('\u2197\uFE0E');
   });
   const essay = screen.getByRole('link', { name: 'An essay' });
   expect(essay).toHaveClass('pv-name-link');

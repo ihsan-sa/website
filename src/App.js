@@ -252,7 +252,7 @@ function Heading({ heading, headLink, docs }) {
           {' '}
           <a className="pv-link pv-head-link" href={headLink.href} {...NEW_TAB}>
             {headLink.label}
-            {headLink.arrow && <span className="pv-name-link__out" aria-hidden="true">{'\u2197'}</span>}
+            {headLink.arrow && <span className="pv-name-link__out" aria-hidden="true">{'\u2197\uFE0E'}</span>}
           </a>
         </>
       )}
@@ -336,7 +336,7 @@ export function ProtoEntry({ name: entryName, text, where, short, sub, href, res
       <p className="pv-entry__head">
         {href ? (
           <a className="pv-strong pv-name-link pv-name-link--out" href={href} {...NEW_TAB}>
-            {entryName}<span className="pv-name-link__out" aria-hidden="true">{'\u2197'}</span>
+            {entryName}<span className="pv-name-link__out" aria-hidden="true">{'\u2197\uFE0E'}</span>
           </a>
         ) : (
           <strong className="pv-strong">{entryName}</strong>

@@ -39,9 +39,9 @@ test('experience rows link out with the arrow and a space, and an unlinked row k
   content.prototype.experience.items.forEach(({ name, href, text }) => {
     expect(href).toBeTruthy();
     expect(html).toContain(`href="${href}"`);
-    expect(html).toContain(`${name}<span class="pv-name-link__out" aria-hidden="true">\u2197</span></a><span class="pv-t-long"> ${text}`);
+    expect(html).toContain(`${name}<span class="pv-name-link__out" aria-hidden="true">\u2197\uFE0E</span></a><span class="pv-t-long"> ${text}`);
   });
-  expect(html).not.toMatch(/\u2197<\/span><\/a><span class="pv-t-(long|short)">,/);
+  expect(html).not.toMatch(/\u2197\uFE0E<\/span><\/a><span class="pv-t-(long|short)">,/);
   const plain = decode(renderFront({ ...content, prototype: { ...content.prototype, experience: { heading: 'E', items: [{ name: 'Plain', text: 't.' }] } } }));
   expect(plain).toContain('<strong class="pv-strong">Plain</strong>, t.');
 });
@@ -84,7 +84,7 @@ test('the AI work heading is plain, the Hardware portfolio link has the arrow an
   const html = renderDraft(content);
   expect(html).toContain('<h2>AI work</h2>');
   const head = html.match(/<h2 class="pv-head-with-link">Projects[\s\S]*?<\/h2>/)[0];
-  expect(head).toContain('Hardware portfolio<span class="pv-name-link__out" aria-hidden="true">\u2197</span></a>');
+  expect(head).toContain('Hardware portfolio<span class="pv-name-link__out" aria-hidden="true">\u2197\uFE0E</span></a>');
   html.match(/<a class="pv-strong pv-name-link" href="[^"]*\/writing\/[^"]*">[^<]*<\/a>/g)?.forEach((a) => expect(a).not.toContain('__out'));
 });
 
@@ -238,7 +238,7 @@ test('the public /writing rule leaves drafts unlisted and without a page', () =>
 
 test('the static pages mark a linked row name with the arrow, and the autobox note links to its essay', () => {
   [decode(renderFront(content)), decode(renderDraft(content))].forEach((html) => {
-    expect(html).toContain('pv-name-link--out" href="https://github.com/ihsan-sa/autobox" target="_blank" rel="noopener noreferrer">autobox<span class="pv-name-link__out" aria-hidden="true">\u2197</span></a>');
+    expect(html).toContain('pv-name-link--out" href="https://github.com/ihsan-sa/autobox" target="_blank" rel="noopener noreferrer">autobox<span class="pv-name-link__out" aria-hidden="true">\u2197\uFE0E</span></a>');
     expect(html).toMatch(/<p class="pv-note">For more details, read <a class="pv-link" href="[^"]*writing\/autobox\/">the essay<\/a><\/p>/);
   });
 });
