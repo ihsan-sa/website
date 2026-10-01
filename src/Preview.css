@@ -415,3 +415,28 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
   }
   .pv-strip__img--tall { flex-grow: 0.6667; aspect-ratio: 2 / 3; }
 }
+
+/* Not upstream yet: the essay banner set apart from the CV around it, with rules, not
+   fills (.pv-banner--apart). Desktop: a hairline above and below, the clip beside the
+   text so it reads as a notice rather than a hero; the clip still autoplays. Phone: the
+   label opens a hairline that runs the width of the column, clip and text under it,
+   and a closing hairline ends the block. */
+.pv-proto .pv-banner--apart {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 20px;
+  padding: 28px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.pv-proto .pv-banner--apart .pv-banner__text { gap: 4px; margin-top: -3px; }
+@media (max-width: 640px) {
+  .pv-proto .pv-banner--apart { display: flex; flex-direction: column; align-items: stretch; gap: 12px; padding-top: 0; border-top: 0; }
+  .pv-proto .pv-banner--apart .pv-banner__text { display: contents; }
+  .pv-proto .pv-banner--apart .pv-banner__label { order: -1; display: flex; align-items: center; gap: 14px; margin-bottom: 2px; }
+  .pv-proto .pv-banner--apart .pv-banner__label::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+  .pv-proto .pv-banner--apart .pv-banner__title { margin-top: 2px; }
+  .pv-proto .pv-banner--apart .pv-banner__stand { margin-top: -10px; }
+  .pv-proto .pv-banner--apart { padding-bottom: 24px; }
+}
