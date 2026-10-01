@@ -12,7 +12,8 @@
 // src/stats.json first, and one it lacks fails the build (src/fillStats.js).
 //
 // It writes, under buildDir (default build/):
-//   STATIC_PATH/index.html                the front page (content.json `preview`)
+//   STATIC_PATH/index.html                the front page (content.json `prototype` minus its
+//                                         documents, src/frontPage.js; no essays)
 //   STATIC_PATH/draft/index.html          the draft (content.json `prototype`, and an
 //                                         Essays list from content/writing/*.md)
 //   DRAFT_V2_PATH/index.html              the second draft: the same `prototype` block, laid
@@ -41,6 +42,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { loadEssays, withMeta } = require('./writing');
 const { fillStats } = require('../src/fillStats');
+const { frontPage } = require('../src/frontPage');
 
 const ROOT = path.resolve(__dirname, '..');
 const STATIC_PATH = '/fbl6b84nx8v09rotjh22t1jm6jpinmmk/';
@@ -76,25 +78,17 @@ function headFrom(indexHtml) {
   return { head, beacon };
 }
 
-// The toggle is hidden until this runs, so with JavaScript off the page just
+// The switch is hidden until this runs, so with JavaScript off the page just
 // follows the OS theme and shows no dead button. Same rules as before: a
-// click wins and persists in localStorage['ihsan-theme']. Two kinds: the front
-// page's text button names where it goes ("Dark"); the draft's and the essays'
-// role="switch" says whether dark is on through aria-checked.
+// click wins and persists in localStorage['ihsan-theme'], and aria-checked
+// says whether dark is on.
 const TOGGLE_SCRIPT = `<script>
 (function () {
   var b = document.getElementById('theme-toggle'), d = document.documentElement;
   if (!b) return;
   var q = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
   function dark() { var t = d.getAttribute('data-theme'); return t ? t === 'dark' : !!(q && q.matches); }
-  function show() {
-    var k = dark();
-    if (b.getAttribute('role') === 'switch') { b.setAttribute('aria-checked', String(k)); return; }
-    var to = k ? b.getAttribute('data-to-light') : b.getAttribute('data-to-dark');
-    b.textContent = to;
-    b.setAttribute('aria-pressed', String(k));
-    b.setAttribute('aria-label', 'Switch to ' + to + ' theme');
-  }
+  function show() { b.setAttribute('aria-checked', String(dark())); }
   b.addEventListener('click', function () {
     var n = dark() ? 'light' : 'dark';
     d.setAttribute('data-theme', n);
@@ -111,12 +105,8 @@ const TOGGLE_SCRIPT = `<script>
 // same file the React essay pages import, inlined as it is.
 const ZOOM_SCRIPT = `<script>\n${fs.readFileSync(path.join(__dirname, '../src/writing/zoom.js'), 'utf8').trim()}\n</script>`;
 
-// The draft's and the essays' switch, hidden until the script above runs.
+// The pages' switch, hidden until the script above runs.
 const THEME_SWITCH = '<button type="button" id="theme-toggle" class="theme-switch" role="switch" aria-checked="false" aria-label="Dark theme" title="Dark theme" hidden></button>';
-
-function toggleButton(theme) {
-  return `<button type="button" id="theme-toggle" class="pv-link pv-toggle" hidden data-to-dark="${esc(theme.toDark)}" data-to-light="${esc(theme.toLight)}">${esc(theme.toDark)}</button>`;
-}
 
 // Browsers keep a stylesheet for hours, so each link carries a hash of the
 // file's contents and a changed stylesheet is fetched at once. build() sets it.
@@ -156,43 +146,6 @@ function intro(block) {
 <p>${esc(block.subtitle)}</p>
 ${block.about.map((p) => `<p>${esc(p)}</p>`).join('\n')}
 </header>`;
-}
-
-// Order is fixed by the design: links → name + intro → Experience → AI work → Hardware.
-function renderFront(content) {
-  const { theme, preview } = content;
-  const links = preview.links
-    .map(({ label, href, download }) =>
-      `<a class="pv-link" href="${esc(href)}"${download ? ' download' : NEW_TAB}>${esc(label)}</a>`)
-    .join('\n');
-  const entry = (item) => {
-    const docs = (item.docs || [])
-      .map((d) => `<span>${BULLET}<a class="pv-link pv-doc" href="${esc(d.href)}"${NEW_TAB}>${esc(d.label)}</a></span>`)
-      .join('');
-    return `<p>${nameHtml(item, 'pv-strong')}, ${esc(item.text)}${docs}</p>`;
-  };
-  const sections = [preview.experience, preview.aiWork]
-    .map(({ heading, items }) => `<section class="pv-block">
-<h2>${esc(heading)}</h2>
-${items.map(entry).join('\n')}
-</section>`)
-    .join('\n');
-  const hw = preview.hardware.items
-    .map(({ title, href, image }) => `<a class="pv-hw__item" href="${esc(href)}"${NEW_TAB}><img class="pv-hw__img" src="${esc(image)}" alt="" loading="lazy" /><span>${esc(title)}</span></a>`)
-    .join('\n');
-  return `<nav class="pv-links" aria-label="Contact and profiles">
-<a class="pv-link" href="mailto:${esc(preview.email)}">${esc(preview.email)}</a>
-${links}
-${toggleButton(theme)}
-</nav>
-${intro(preview)}
-${sections}
-<section class="pv-block">
-<h2>${esc(preview.hardware.heading)}</h2>
-<div class="pv-hw">
-${hw}
-</div>
-</section>`;
 }
 
 // The draft names each PDF by what it is, with no page count. `after` says
@@ -248,11 +201,19 @@ ${inner}
 </details>`;
 }
 
-// A section heading with one document beside it (content.json `headLink`).
-function heading({ heading: h, headLink }) {
-  return headLink
-    ? `<h2 class="pv-head-with-link">${esc(h)} <a class="pv-link pv-head-link" href="${esc(headLink.href)}"${NEW_TAB}>${esc(headLink.label)}</a></h2>`
-    : `<h2>${esc(h)}</h2>`;
+// A section heading with its documents beside it: content.json `headLink`, and
+// `docs` (one with no href is a spot still waiting for its link).
+function heading({ heading: h, headLink, docs }) {
+  if (!headLink && !docs) return `<h2>${esc(h)}</h2>`;
+  const head = headLink
+    ? ` <a class="pv-link pv-head-link" href="${esc(headLink.href)}"${NEW_TAB}>${esc(headLink.label)}</a>`
+    : '';
+  const rest = (docs || [])
+    .map((d) => ` <span>${d.href
+      ? `<a class="pv-link pv-head-link" href="${esc(d.href)}"${NEW_TAB}>${esc(d.label)}</a>`
+      : `<span class="pv-head-link pv-pending">${esc(d.label)} (${esc(d.pending)})</span>`}</span>`)
+    .join('');
+  return `<h2 class="pv-head-with-link">${esc(h)}${head}${rest}</h2>`;
 }
 
 // "September ’26", from an essay's YYYY-MM-DD date.
@@ -267,9 +228,9 @@ function monthYear(iso) {
 // STATIC_PATH is the noindex review copy. With none, the Essays link in the
 // bar and the Essays section are both left out. `v2` renders the second
 // draft: rows that open on their whole line, and a contact card V2_CSS hides
-// on desktop.
-function renderDraft(content, essays = [], { v2 = false } = {}) {
-  const { prototype: pt } = content;
+// on desktop. `front` renders the front page: the block minus its documents.
+function renderDraft(content, essays = [], { v2 = false, front = false } = {}) {
+  const pt = front ? frontPage(content.prototype) : content.prototype;
   const writing = `${STATIC_PATH}writing/`;
   const link = ({ label, href }) => `<a class="pv-link" href="${esc(href)}"${NEW_TAB}>${esc(label)}</a>`;
   const sections = [pt.experience, pt.aiWork]
@@ -309,6 +270,12 @@ ${heading(pt.projects)}
 ${projects}
 </div>
 </section>`;
+}
+
+// The front page is the draft minus its documents, with no essays: the owner
+// has published none, and this copy's /writing lists the drafts.
+function renderFront(content) {
+  return renderDraft(content, [], { front: true });
 }
 
 // ---- essays: the markup of src/writing/Writing.js, as strings ---------------
@@ -434,8 +401,8 @@ function renderWriting(essays, shell, { base = STATIC_PATH, preview = true } = {
 // (whose rules match nothing on these pages). The fold marker is drawn as
 // Preview.css draws .pv-entry__btn: a + that turns 45° to × when open.
 const STATIC_CSS = `
-/* A switch stays hidden until its script runs; the phone rule's inline-flex would show the text toggle. */
-.pv-toggle[hidden], .theme-switch[hidden] { display: none !important; }
+/* A switch stays hidden until its script runs. */
+.theme-switch[hidden] { display: none !important; }
 /* Static pages: a draft row is <details>; its <summary> is the one line. */
 .pv-proto summary.pv-entry__head { display: block; list-style: none; cursor: pointer; text-wrap: pretty; }
 /* A folded React row kept its panel's 4px top padding; keep the same rhythm. */
@@ -501,7 +468,7 @@ function build(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
   cssVersion.writing = versionOf(writingCss);
   fs.writeFileSync(path.join(out, 'site.css'), css);
   fs.writeFileSync(path.join(out, 'index.html'),
-    page(shell, { mainClass: 'pv', body: renderFront(content), noindex: true }));
+    page(shell, { mainClass: 'pv pv-proto', body: renderFront(content), noindex: true }));
   fs.writeFileSync(path.join(buildDir, DRAFT_PATH, 'index.html'),
     page(shell, { mainClass: 'pv pv-proto', body: renderDraft(content, essays), noindex: true }));
   fs.mkdirSync(path.join(buildDir, DRAFT_V2_PATH), { recursive: true });

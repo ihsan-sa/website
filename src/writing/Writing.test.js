@@ -98,6 +98,15 @@ test('the build writes a link-preview page for /writing and each published essay
   expect(fs.existsSync(path.join(dir, 'writing', 'secret'))).toBe(false);
 });
 
+test('with only drafts, the build writes no /writing page, so the front page keeps its own title', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'writing-build-'));
+  fs.copyFileSync(path.join(__dirname, '..', '..', 'public', 'index.html'), path.join(dir, 'index.html'));
+  const log = jest.spyOn(console, 'log').mockImplementation(() => {});
+  pages(dir, [{ slug: 'secret', title: 'Secret', summary: 'Not yet.', draft: true }]);
+  log.mockRestore();
+  expect(fs.existsSync(path.join(dir, 'writing'))).toBe(false);
+});
+
 test('matchWriting takes /writing paths, with or without the preview path, and nothing else', () => {
   expect(matchWriting('/writing', PREVIEW_PATH)).toEqual({ preview: false, slug: null });
   expect(matchWriting('/writing/a-b/', PREVIEW_PATH)).toEqual({ preview: false, slug: 'a-b' });
@@ -247,13 +256,38 @@ test('a click on a figure opens it large, and Escape, the × and the backdrop cl
   expect(screen.queryByRole('dialog')).toBeNull();
 });
 
-test('the app routes /writing to the essays and leaves the front page and prototype alone', () => {
+// The owner has published no essay yet, so off the preview path /writing and
+// any essay under it fall through to the front page, like any unknown path.
+// Once one is published, /writing answers with it and never with a draft.
+const DRAFT = { slug: 'draft', title: 'Draft one', summary: 'S.', standfirst: 'S.', date: '2026-09-01', draft: true, blocks: [], footnotes: [], furtherReading: [] };
+const LIVE = { ...DRAFT, slug: 'live', title: 'Live one', draft: false };
+
+test('with only drafts, /writing and /writing/<slug> fall through to the front page', () => {
+  ['/writing', '/writing/', '/writing/draft'].forEach((url) => {
+    window.history.pushState({}, '', url);
+    const { container, unmount } = render(<App essays={[DRAFT]} />);
+    expect(container.querySelector('.pv-proto')).not.toBeNull();
+    expect(container.querySelector('.wr')).toBeNull();
+    expect(container.textContent).not.toContain('Draft one');
+    expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
+    unmount();
+  });
+  // The preview path still serves the draft essay.
+  window.history.pushState({}, '', `${PREVIEW_PATH}/writing/draft`);
+  const preview = render(<App essays={[DRAFT]} />);
+  expect(preview.container.querySelector('.wr-essay')).not.toBeNull();
+  preview.unmount();
+});
+
+test('with an essay published, the app routes /writing to it and leaves the front page and draft alone', () => {
   window.history.pushState({}, '', '/writing');
-  const { container, unmount } = render(<App />);
+  const { container, unmount } = render(<App essays={[LIVE, DRAFT]} />);
   expect(container.querySelector('.wr-index')).not.toBeNull();
+  expect(container.textContent).toContain('Live one');
+  expect(container.textContent).not.toContain('Draft one');
   unmount();
   window.history.pushState({}, '', PREVIEW_PATH);
-  const proto = render(<App />);
+  const proto = render(<App essays={[LIVE, DRAFT]} />);
   expect(proto.container.querySelector('.pv-proto')).not.toBeNull();
   expect(proto.container.querySelector('.wr')).toBeNull();
 });

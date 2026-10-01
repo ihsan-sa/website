@@ -37,17 +37,6 @@
 
 .pv-link:hover { text-decoration-color: currentColor; }
 
-.pv-toggle {
-  appearance: none;
-  background: none;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
-}
-
 .pv-intro { display: flex; flex-direction: column; gap: 14px; }
 
 .pv-name {
@@ -115,11 +104,10 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 @media print {
   .pv { color: #000; }
-  .pv-toggle { display: none; }
 }
 
-/* The prototype at PREVIEW_PATH. Everything below is scoped under .pv-proto,
-   so the front page renders exactly as above. */
+/* The page itself: the front page and the draft at PREVIEW_PATH both carry
+   .pv-proto, and everything below is scoped under it. */
 
 .pv-proto .pv-entry { display: flex; flex-direction: column; margin-bottom: 10px; }
 

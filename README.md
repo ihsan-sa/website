@@ -4,9 +4,9 @@ Single-page personal index. Built with [Create React App](https://github.com/fac
 
 ## Editing the content
 
-**All the text on the site is in [`src/content.json`](src/content.json).** Its `preview`
+**All the text on the site is in [`src/content.json`](src/content.json).** Its `prototype`
 block is the page: name, subtitle, about paragraphs, the link row, experience, AI work
-and hardware — edit that one file and you are done. You never need to touch `App.js`.
+and projects — edit that one file and you are done. You never need to touch `App.js`.
 
 The file opens with a `_readme` block explaining the JSON rules (quotes, commas) and how
 to add or remove an entry. Every `_note` and `_readme` key is documentation only; the site
@@ -75,20 +75,24 @@ install chromium`); it runs on this machine, not in CI.
 
 ## The page
 
-One single-column page built from `content.json`'s `preview` block and styled by `src/Preview.css`.
-It loads Newsreader 600 from Google Fonts itself.
+One single-column page built from `content.json`'s `prototype` block and styled by
+`src/Preview.css`. It loads Newsreader 600 from Google Fonts itself. Each experience and AI
+row starts folded to its one line and opens on a click; the project grid is never folded.
 
-A draft of the next front page renders from the `prototype` block, only at the unguessable
-`PREVIEW_PATH` in `src/App.js`. `public/_redirects` serves `index.html` there, the page adds
-`noindex` at runtime, and nothing links to it. A snapshot test holds the front page unchanged.
-On the draft, each experience and AI row starts folded to its one line and opens on a click;
-the project grid is never folded.
+The front page is that block minus its documents (`src/frontPage.js`): the PDFs beside the
+AI work heading and any row's `docs` and `start` are left off, and it lists only published
+essays, of which there are none yet. Until one is published, `/writing` and anything under
+it show the front page, like any unknown path.
+
+The draft renders the whole block, documents and draft essays included, only at the
+unguessable `PREVIEW_PATH` in `src/App.js`. `public/_redirects` serves `index.html` there,
+the page adds `noindex` at runtime, and nothing links to it.
 
 ### The static version (under review)
 
 `npm run build` also runs `scripts/build-static.js`, which writes the same two pages from
-`content.json` as plain HTML + CSS, with no React: the front page at `STATIC_PATH` in that
-script and the draft at `STATIC_PATH/draft/`. It writes `/writing` and each essay there too,
+`content.json` as plain HTML + CSS, with no React: the front page (no documents, no
+essays) at `STATIC_PATH` in that script and the draft at `STATIC_PATH/draft/`. It writes `/writing` and each essay there too,
 at `STATIC_PATH/writing/`, styled by `src/writing/Writing.css` alone; as at the preview
 path, drafts are listed there, marked Draft. They read in full with JavaScript off, so
 scrapers, crawlers and link previewers see the text. The only script is the theme toggle's
@@ -96,7 +100,7 @@ few lines (hidden until it runs; without it the OS theme applies), and the draft
 with `<details>`. The `<head>` (tab title, link-preview tags, fonts) and the analytics beacon
 are copied from `public/index.html`. Both pages carry a `noindex` meta, nothing links to
 them and robots.txt does not name them; they are real files, so no `_redirects` rule is
-needed. `/` stays the React page until the owner approves the switch.
+needed. `/` stays the React page.
 
 ## Where everything else lives
 

@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from 'react';
 import './Preview.css';
 import rawContent from './content.json';
 import { fillStats } from './fillStats';
+import { frontPage } from './frontPage';
 import stats from './stats.json';
 import Writing, { matchWriting } from './writing/Writing';
 import allEssays from './writing/essays.generated.json';
@@ -9,11 +10,17 @@ import allEssays from './writing/essays.generated.json';
 // All copy lives in content.json — edit there, not here. Its {autobox.prs}-style
 // placeholders are filled from stats.json, which the box refreshes (docs/stats.md).
 const content = fillStats(rawContent, stats);
-const { theme, preview, prototype } = content;
+const { prototype } = content;
+// The front page is the draft minus its documents (src/frontPage.js).
+const front = frontPage(prototype);
+// Only an essay the owner approved for publishing (no `draft: true`) is ever
+// shown off the preview path.
+const published = allEssays.filter((e) => !e.draft);
 
-// The prototype of the next front page lives at this unguessable path. Nothing
-// links here and robots.txt does not name it; public/_redirects serves
-// index.html at it. Every other path renders the front page exactly as before.
+// The draft lives at this unguessable path, with its documents and every essay,
+// drafts too. Nothing links here and robots.txt does not name it;
+// public/_redirects serves index.html at it. Every other path renders the
+// front page.
 export const PREVIEW_PATH = '/ua6x0zhyeewlevzyh9c87r3wb29m9qlu';
 
 const THEME_KEY = 'ihsan-theme';
@@ -57,16 +64,18 @@ function useTheme() {
   return [isDark, toggle];
 }
 
-// Keep the prototype out of search results. Added at mount rather than listed
-// in robots.txt, because listing the path there would publish it.
-function useNoindex() {
+// Keep the draft out of search results. Added at mount rather than listed in
+// robots.txt, because listing the path there would publish it. The front page
+// passes false: it is the page search should find.
+function useNoindex(on) {
   useEffect(() => {
+    if (!on) return undefined;
     const meta = document.createElement('meta');
     meta.name = 'robots';
     meta.content = 'noindex';
     document.head.appendChild(meta);
     return () => meta.remove();
-  }, []);
+  }, [on]);
 }
 
 // Headings and names are Newsreader 600; index.html's font link does not carry
@@ -86,93 +95,6 @@ function usePreviewFont() {
 
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
 
-// One sentence: bold name (linked when it has an href), then text, then any PDFs.
-function Entry({ name: entryName, text, href, docs }) {
-  return (
-    <p>
-      {href ? (
-        <a className="pv-strong" href={href} {...NEW_TAB}>
-          {entryName}
-        </a>
-      ) : (
-        <strong className="pv-strong">{entryName}</strong>
-      )}
-      , {text}
-      {docs &&
-        docs.map(({ label, href: docHref }, i) => (
-          <span key={label}>
-            {/* The bullet travels with the link after it, never ending a line. */}
-            {' •\u00a0'}
-            <a className="pv-link pv-doc" href={docHref} {...NEW_TAB}>
-              {label}
-            </a>
-          </span>
-        ))}
-    </p>
-  );
-}
-
-// Order is fixed by the design: links → name + intro → Experience → AI work → Hardware.
-function Page() {
-  const [isDark, toggleTheme] = useTheme();
-  usePreviewFont();
-
-  const sections = [preview.experience, preview.aiWork];
-
-  return (
-    <main className="pv">
-      <nav className="pv-links" aria-label="Contact and profiles">
-        <a className="pv-link" href={`mailto:${preview.email}`}>{preview.email}</a>
-        {preview.links.map(({ label, href, download }) => (
-          <a key={label} className="pv-link" href={href} {...(download ? { download: true } : NEW_TAB)}>
-            {label}
-          </a>
-        ))}
-        {/* Looks like a link; the label names the destination. */}
-        <button
-          type="button"
-          className="pv-link pv-toggle"
-          onClick={toggleTheme}
-          aria-pressed={isDark}
-          aria-label={`Switch to ${isDark ? theme.toLight : theme.toDark} theme`}
-        >
-          {isDark ? theme.toLight : theme.toDark}
-        </button>
-      </nav>
-
-      <header className="pv-intro">
-        <h1 className="pv-name">{preview.name}</h1>
-        <p>{preview.subtitle}</p>
-        {preview.about.map((para, i) => (
-          <p key={i}>{para}</p>
-        ))}
-      </header>
-
-      {sections.map(({ heading, items }) => (
-        <section className="pv-block" key={heading}>
-          <h2>{heading}</h2>
-          {items.map((item) => (
-            <Entry key={item.name} {...item} />
-          ))}
-        </section>
-      ))}
-
-      {/* The only imagery on the page. The whole tile is one link. */}
-      <section className="pv-block">
-        <h2>{preview.hardware.heading}</h2>
-        <div className="pv-hw">
-          {preview.hardware.items.map(({ title, href, image }) => (
-            <a className="pv-hw__item" href={href} key={title} {...NEW_TAB}>
-              <img className="pv-hw__img" src={image} alt="" loading="lazy" />
-              <span>{title}</span>
-            </a>
-          ))}
-        </div>
-      </section>
-    </main>
-  );
-}
-
 // A PDF link on the prototype names what it is, with no page count.
 function DocLink({ label, href }) {
   return (
@@ -182,15 +104,36 @@ function DocLink({ label, href }) {
   );
 }
 
-// A section heading with one document beside it (content.json `headLink`).
-function Heading({ heading, headLink }) {
-  if (!headLink) return <h2>{heading}</h2>;
+// A section heading with its documents beside it: content.json `headLink`, and
+// `docs` (a doc with no href is a spot still waiting for its link).
+function Heading({ heading, headLink, docs }) {
+  if (!headLink && !docs) return <h2>{heading}</h2>;
   return (
     <h2 className="pv-head-with-link">
-      {heading}{' '}
-      <a className="pv-link pv-head-link" href={headLink.href} {...NEW_TAB}>
-        {headLink.label}
-      </a>
+      {heading}
+      {headLink && (
+        <>
+          {' '}
+          <a className="pv-link pv-head-link" href={headLink.href} {...NEW_TAB}>
+            {headLink.label}
+          </a>
+        </>
+      )}
+      {docs &&
+        docs.map((doc) => (
+          <span key={doc.label}>
+            {' '}
+            {doc.href ? (
+              <a className="pv-link pv-head-link" href={doc.href} {...NEW_TAB}>
+                {doc.label}
+              </a>
+            ) : (
+              <span className="pv-head-link pv-pending">
+                {doc.label} ({doc.pending})
+              </span>
+            )}
+          </span>
+        ))}
     </h2>
   );
 }
@@ -281,28 +224,31 @@ function ProtoEntry({ name: entryName, text, short, href, result, detail, figure
   );
 }
 
-// Same order as the front page, with the review's changes: a two-row links
-// bar with the theme switch, a result under every row, the AI rows in their
-// own order, and an Essays list (drafts too: this is the preview path). With
-// no essays, neither the list nor the Essays link in the bar is shown. Every
-// experience and AI row starts folded to one line; the sections themselves
-// and the project grid stay open.
-export function Prototype({ essays = allEssays }) {
+// The page: a two-row links bar with the theme switch, the intro, Experience,
+// AI work, Essays, Projects. Every experience and AI row starts folded to one
+// line; the sections themselves and the project grid stay open. With no essays,
+// neither the list nor the Essays link in the bar is shown.
+//
+// `front` renders ihsan.cc/: the draft minus its documents, published essays
+// only (none yet), linked at /writing, and no noindex. Without it, this is the
+// draft at PREVIEW_PATH: documents, every essay (drafts too), noindex.
+export function Prototype({ front: isFront = false, essays = isFront ? published : allEssays }) {
   const [isDark, toggleTheme] = useTheme();
-  useNoindex();
+  useNoindex(!isFront);
   usePreviewFont();
 
-  const sections = [prototype.experience, prototype.aiWork];
-  const writing = `${PREVIEW_PATH}/writing`;
+  const block = isFront ? front : prototype;
+  const sections = [block.experience, block.aiWork];
+  const writing = isFront ? '/writing' : `${PREVIEW_PATH}/writing`;
 
   return (
     <main className="pv pv-proto">
       <nav className="pv-links pv-links--compact" aria-label="Contact and profiles">
         <span className="pv-links__row">
           <span className="pv-links__rest">
-            <a className="pv-link" href={`mailto:${prototype.email}`}>{prototype.email}</a>
-            <a className="pv-link" href={prototype.contactCard.href} download title={prototype.contactCard.title}>
-              {prototype.contactCard.label}
+            <a className="pv-link" href={`mailto:${block.email}`}>{block.email}</a>
+            <a className="pv-link" href={block.contactCard.href} download title={block.contactCard.title}>
+              {block.contactCard.label}
             </a>
           </span>
           <button
@@ -316,8 +262,8 @@ export function Prototype({ essays = allEssays }) {
           />
         </span>
         <span className="pv-links__rest">
-          {essays.length > 0 && <a className="pv-link" href={writing}>{prototype.essays.heading}</a>}
-          {prototype.links.map(({ label, href }) => (
+          {essays.length > 0 && <a className="pv-link" href={writing}>{block.essays.heading}</a>}
+          {block.links.map(({ label, href }) => (
             <a key={label} className="pv-link" href={href} {...NEW_TAB}>
               {label}
             </a>
@@ -326,9 +272,9 @@ export function Prototype({ essays = allEssays }) {
       </nav>
 
       <header className="pv-intro">
-        <h1 className="pv-name">{prototype.name}</h1>
-        <p>{prototype.subtitle}</p>
-        {prototype.about.map((para, i) => (
+        <h1 className="pv-name">{block.name}</h1>
+        <p>{block.subtitle}</p>
+        {block.about.map((para, i) => (
           <p key={i}>{para}</p>
         ))}
       </header>
@@ -345,7 +291,7 @@ export function Prototype({ essays = allEssays }) {
       {essays.length > 0 && (
         <section className="pv-block">
           <h2>
-            <a className="pv-strong" href={writing}>{prototype.essays.heading}</a>
+            <a className="pv-strong" href={writing}>{block.essays.heading}</a>
           </h2>
           {essays.map((e) => (
             <p key={e.slug}>
@@ -357,9 +303,9 @@ export function Prototype({ essays = allEssays }) {
       )}
 
       <section className="pv-block">
-        <Heading {...prototype.projects} />
+        <Heading {...block.projects} />
         <div className="pv-hw">
-          {prototype.projects.items.map(({ title, href, image, result }) => (
+          {block.projects.items.map(({ title, href, image, result }) => (
             <a className="pv-hw__item" href={href} key={title} {...NEW_TAB}>
               <img className="pv-hw__img" src={image} alt="" loading="lazy" />
               <span className="pv-hw__title">{title}</span>
@@ -372,12 +318,19 @@ export function Prototype({ essays = allEssays }) {
   );
 }
 
-function App() {
+// Off the preview path, /writing answers only once an essay is published;
+// until then it falls through to the front page like any unknown path.
+// `essays` is for tests.
+function App({ essays = allEssays }) {
   // Read at render, not at import, so a test can pushState before rendering.
-  const { pathname } = window.location;
+  // A trailing slash is the same page: /path/ must not fall through to the front page.
+  const pathname = window.location.pathname.replace(/\/+$/, '') || '/';
+  const live = essays.filter((e) => !e.draft);
   const writing = matchWriting(pathname, PREVIEW_PATH);
-  if (writing) return <Writing route={writing} previewPath={PREVIEW_PATH} />;
-  return pathname === PREVIEW_PATH ? <Prototype /> : <Page />;
+  if (writing && (writing.preview || live.length > 0)) {
+    return <Writing route={writing} previewPath={PREVIEW_PATH} essays={essays} />;
+  }
+  return pathname === PREVIEW_PATH ? <Prototype essays={essays} /> : <Prototype front essays={live} />;
 }
 
 export default App;

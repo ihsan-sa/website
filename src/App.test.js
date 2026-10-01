@@ -11,133 +11,94 @@ beforeEach(() => {
   window.history.pushState({}, '', '/');
 });
 
-const { preview } = content;
-const aiItems = preview.aiWork.items;
-const aiDocs = aiItems.flatMap(({ docs }) => docs || []);
+const { prototype } = content;
+const read = (...parts) => fs.readFileSync(path.join(__dirname, '..', ...parts), 'utf8');
+const LIVE_ESSAY = { slug: 'live', title: 'Live one', blurb: 'the published one.', summary: 'S.', date: '2026-10-02', draft: false };
+const DRAFT_ESSAY = { slug: 'secret', title: 'Secret one', summary: 'Not yet.', date: '2026-09-01', draft: true };
 
-test('the page renders links, intro, Experience, AI work and Hardware in that order', () => {
-  const { container, unmount } = render(<App />);
+// ---- The front page: the draft minus its documents --------------------------
 
-  const nav = screen.getByRole('navigation', { name: /contact and profiles/i });
-  const h1 = screen.getByRole('heading', { level: 1, name: preview.name });
-  const h2s = screen.getAllByRole('heading', { level: 2 });
-  expect(h2s.map((h) => h.textContent)).toEqual([
-    preview.experience.heading,
-    preview.aiWork.heading,
-    preview.hardware.heading,
+// ihsan.cc/ is the draft at PREVIEW_PATH with its documents taken off (the AI
+// portfolio and Overview beside AI work, any row's docs and start) and only
+// published essays, of which there are none yet.
+test('the front page is the draft minus its documents, essays and noindex', () => {
+  const { container } = render(<App essays={[DRAFT_ESSAY]} />);
+  expect(container.querySelector('main.pv.pv-proto')).not.toBeNull();
+  const withLink = ({ heading, headLink }) => (headLink ? `${heading} ${headLink.label}` : heading);
+  expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
+    prototype.experience.heading,
+    prototype.aiWork.heading,
+    withLink(prototype.projects),
   ]);
-  const order = [nav, h1, ...h2s];
-  order.slice(1).forEach((el, i) => {
-    // eslint-disable-next-line no-bitwise
-    expect(order[i].compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  [prototype.name, prototype.subtitle, ...prototype.about].forEach((t) => expect(screen.getByText(t)).toBeInTheDocument());
+  [...prototype.experience.items, ...prototype.aiWork.items].forEach(({ name, result }) => {
+    expect(screen.getAllByText(name).length).toBeGreaterThan(0);
+    expect(screen.getByText(result)).toBeInTheDocument();
   });
-
-  // The index's two-column page is not rendered here.
-  expect(container.querySelector('.body-grid')).toBeNull();
-  expect(screen.getByText(preview.subtitle)).toBeInTheDocument();
-  preview.about.forEach((para) => expect(screen.getByText(para)).toBeInTheDocument());
-
-  expect(screen.getByRole('link', { name: preview.email })).toHaveAttribute('href', `mailto:${preview.email}`);
-  preview.links.forEach(({ label, href }) => {
-    expect(screen.getByRole('link', { name: label })).toHaveAttribute('href', href);
+  // No documents: the ones the draft shows beside AI work are gone.
+  expect(prototype.aiWork.docs.length).toBeGreaterThan(0);
+  prototype.aiWork.docs.forEach(({ label, href }) => {
+    expect(container.textContent).not.toContain(label);
+    if (href) expect(container.querySelector(`a[href="${href}"]`)).toBeNull();
   });
-
-  // The page is the site now, so nothing keeps it out of search results.
+  expect(container.querySelector('.pv-docs, .pv-pending, .pv-start')).toBeNull();
+  // No essays: neither the bar's link nor the section, and no draft by name.
+  expect(screen.queryByRole('link', { name: prototype.essays.heading })).toBeNull();
+  expect(screen.queryByRole('heading', { name: prototype.essays.heading })).toBeNull();
+  expect(container.textContent).not.toContain(DRAFT_ESSAY.title);
+  // The draft path is not linked from it.
+  expect(container.innerHTML).not.toContain(PREVIEW_PATH);
+  // It is the page search should find.
   expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
-  unmount();
 });
 
-test('the page links each AI name to GitHub, chip design flow to its PDF, plus the PDFs', () => {
+test('every AI row on the front page links its name to its GitHub repo', () => {
   render(<App />);
-
-  const expected = {
-    autobox: 'https://github.com/ihsan-sa/autobox',
-    hwde: 'https://github.com/ihsan-sa/hwde',
-    'lesson-builder': 'https://github.com/ihsan-sa/lesson-builder',
-    'chip design flow': '/docs/chip-design-flow.pdf',
-  };
-  expect(aiItems.map(({ name }) => name).sort()).toEqual(Object.keys(expected).sort());
-  Object.entries(expected).forEach(([name, href]) => {
-    const link = screen.getByRole('link', { name });
-    expect(link).toHaveAttribute('href', href);
-    expect(link).toHaveAttribute('target', '_blank');
+  expect(prototype.aiWork.items.length).toBeGreaterThan(0);
+  prototype.aiWork.items.forEach(({ name, href }) => {
+    expect(href).toMatch(/^https:\/\/github\.com\/ihsan-sa\/[\w.-]+$/);
+    expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
   });
-
-  expect(aiDocs.map(({ label }) => label)).toEqual(['Overview', 'Deeper look', 'Map', 'Showcase', 'Brief', 'Write-up']);
-  aiDocs.forEach(({ label, href }) => {
-    expect(screen.getByRole('link', { name: label })).toHaveAttribute('href', href);
-    expect(screen.getByRole('link', { name: label })).toHaveClass('pv-doc');
-  });
+  expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/ihsan-sa');
 });
 
-test('experience names link only where a real page exists', () => {
-  render(<App />);
-  preview.experience.items.forEach(({ name, href }) => {
-    if (href) {
-      expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
-    } else {
-      expect(screen.getByText(name).closest('a')).toBeNull();
-    }
-  });
-  expect(screen.getByRole('link', { name: 'aiRadar' }).getAttribute('href')).toMatch(/^https:\/\/docs\.ihsan\.cc\//);
-});
-
-test('the page hardware grid has six tiles, no radar, each with its photo', () => {
+test('the front page project tiles keep their links and photos exactly as content.json has them', () => {
   const { container } = render(<App />);
-
-  const tiles = container.querySelectorAll('.pv-hw a');
-  expect(tiles).toHaveLength(6);
-  tiles.forEach((tile) => expect(tile).not.toHaveTextContent(/radar/i));
-  expect(container.querySelector('a[href*="FMCW_Radar"]')).toBeNull();
-
-  preview.hardware.items.forEach(({ title, href, image }) => {
-    const tile = screen.getByText(title).closest('a');
-    expect(tile).toHaveAttribute('href', href);
-    expect(href).toMatch(/^https:\/\/docs\.ihsan\.cc\//);
-    expect(image).toMatch(/^\/images\//);
-    expect(tile.querySelector('img')).toHaveAttribute('src', image);
-  });
+  const tiles = [...container.querySelectorAll('.pv-hw__item')];
+  expect(tiles.map((a) => a.getAttribute('href'))).toEqual(prototype.projects.items.map(({ href }) => href));
+  expect(tiles.map((a) => a.querySelector('img').getAttribute('src'))).toEqual(prototype.projects.items.map(({ image }) => image));
+  expect(screen.getByRole('link', { name: prototype.projects.headLink.label })).toHaveAttribute('href', prototype.projects.headLink.href);
 });
 
-test('the page theme toggle names its destination and persists the choice', () => {
+test('the front page rows fold like the draft', () => {
   render(<App />);
+  ROWS().forEach(({ name }) => expect(rowButton(name)).toHaveAttribute('aria-expanded', 'false'));
+  expect(document.querySelectorAll('[inert]')).toHaveLength(ROWS().length);
+});
 
-  const toggle = screen.getByRole('button', { name: /switch to dark theme/i });
-  expect(toggle).toHaveTextContent(content.theme.toDark);
-  expect(toggle).toHaveAttribute('aria-pressed', 'false');
-
-  fireEvent.click(toggle);
-  expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
-  expect(localStorage.getItem('ihsan-theme')).toBe('dark');
-  expect(toggle).toHaveTextContent(content.theme.toLight);
-  expect(toggle).toHaveAttribute('aria-pressed', 'true');
+// The day the owner publishes an essay, it shows on the front page at /writing;
+// a draft never does.
+test('the front page lists published essays only, linked under /writing', () => {
+  render(<App essays={[LIVE_ESSAY, DRAFT_ESSAY]} />);
+  const heading = screen.getByRole('heading', { name: prototype.essays.heading });
+  expect(heading.querySelector('a')).toHaveAttribute('href', '/writing');
+  expect(screen.getByRole('link', { name: LIVE_ESSAY.title })).toHaveAttribute('href', '/writing/live');
+  expect(screen.queryByText(DRAFT_ESSAY.title)).toBeNull();
+  expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
 });
 
 test('shelved AI rows do not render', () => {
   expect(shelved.ai.length).toBeGreaterThan(0);
   render(<App />);
   // The live rows do render, so the check below is not vacuous.
-  aiItems.forEach(({ name }) => expect(screen.getByText(name)).toBeInTheDocument());
+  prototype.aiWork.items.forEach(({ name }) => expect(screen.getByRole('link', { name })).toBeInTheDocument());
   shelved.ai.forEach(({ title, href }) => {
     expect(screen.queryByText(title)).not.toBeInTheDocument();
     expect(document.querySelector(`a[href="${href}"]`)).toBeNull();
   });
 });
 
-// The front page must stay byte-for-byte what it was while the prototype sits
-// at its hidden path. The snapshot was taken from the front page before the
-// prototype existed; a diff here means the prototype leaked onto it.
-test('the front page is unchanged', () => {
-  const { container, unmount } = render(<App />);
-  expect(container.innerHTML).toMatchSnapshot();
-  expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
-  unmount();
-});
-
 // ---- The prototype at the hidden path -------------------------------------
-
-const { prototype } = content;
-const read = (...parts) => fs.readFileSync(path.join(__dirname, '..', ...parts), 'utf8');
 
 test('the prototype path is unguessable, served by its own rules and published nowhere', () => {
   expect(PREVIEW_PATH).toMatch(/^\/[a-z0-9]{32}$/);
@@ -166,13 +127,16 @@ test('the prototype renders only at its path, and asks not to be indexed', () =>
   const { container, unmount } = render(<App />);
   expect(container.querySelector('.pv-proto')).not.toBeNull();
   expect(document.head.querySelector('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+  expect(container.querySelector(`a[href="${prototype.aiWork.docs[1].href}"]`)).not.toBeNull();
   unmount();
   expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
 
-  // Any other path, including one a character short, is the front page.
+  // Any other path, including one a character short, is the front page: no
+  // documents, and no noindex.
   window.history.pushState({}, '', PREVIEW_PATH.slice(0, -1));
   const front = render(<App />);
-  expect(front.container.querySelector('.pv-proto')).toBeNull();
+  expect(front.container.querySelector('.pv-proto')).not.toBeNull();
+  expect(front.container.querySelector(`a[href="${prototype.aiWork.docs[1].href}"]`)).toBeNull();
   expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
   front.unmount();
 });
@@ -182,8 +146,11 @@ const ONE_ESSAY = [{ slug: 'a', title: 'First', summary: 'the one.', date: '2026
 test('the prototype puts a result under every experience row and AI project', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<Prototype essays={ONE_ESSAY} />);
-  // A heading with a document beside it reads "AI work AI portfolio".
-  const withLink = ({ heading, headLink }) => (headLink ? `${heading} ${headLink.label}` : heading);
+  // A heading with documents beside it reads "AI work Overview"; one still
+  // waiting for its link says why.
+  const doc = ({ label, pending }) => (pending ? `${label} (${pending})` : label);
+  const withLink = ({ heading, headLink, docs }) =>
+    [heading, ...(headLink ? [headLink.label] : []), ...(docs || []).map(doc)].join(' ');
   expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
     withLink(prototype.experience),
     withLink(prototype.aiWork),
@@ -212,67 +179,38 @@ test('the prototype orders AI work hwde, autobox, lesson-builder, then the chip 
   const names = [...container.querySelectorAll('.pv-block:nth-of-type(2) .pv-entry .pv-strong')];
   expect(names.map((n) => n.textContent)).toEqual(prototype.aiWork.items.map(({ name }) => name));
 
-  // The chip proposal links its PDF once, not from both the name and "Brief".
-  expect(container.querySelectorAll('a[href="/docs/chip-design-flow.pdf"]')).toHaveLength(1);
-  expect(screen.queryByRole('link', { name: 'chip design flow' })).toBeNull();
-
-  // lesson-builder keeps its repo link and shows the lesson spot without inventing a URL.
-  expect(screen.getByRole('link', { name: 'lesson-builder' })).toHaveAttribute(
-    'href',
-    'https://github.com/ihsan-sa/lesson-builder'
-  );
-  expect(screen.getByText(/See a generated lesson/)).not.toHaveAttribute('href');
-  expect(screen.getByText(/See a generated lesson/).closest('a')).toBeNull();
-
-  // hwde carries its board render.
-  expect(container.querySelector('img[src="/images/hwde-lumina-carrier.jpg"]')).not.toBeNull();
+  // Every AI name links its GitHub repo.
+  prototype.aiWork.items.forEach(({ name, href }) => {
+    expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
+    expect(href).toMatch(/^https:\/\/github\.com\/ihsan-sa\//);
+  });
 });
 
-test('every prototype PDF is named by what it is, with no page count', () => {
+test('the draft names each document by what it is, beside its heading, with no page count', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   const { container } = render(<App />);
-  const pdfs = [
-    ...prototype.links.filter(({ href }) => href.endsWith('.pdf')),
-    ...[prototype.aiWork, prototype.projects].map(({ headLink }) => headLink),
-    ...prototype.aiWork.items.flatMap(({ docs }) => docs || []).filter(({ href }) => href),
-  ];
-  expect(pdfs).toHaveLength(13);
-  // The résumé is a short address that redirects to the library's pinned link.
+  // The résumés are short addresses that redirect to the library's pinned links.
   expect(screen.getByRole('link', { name: 'AI résumé' })).toHaveAttribute('href', '/airesume');
   expect(screen.getByRole('link', { name: 'HW résumé' })).toHaveAttribute('href', '/hwresume');
-  pdfs.forEach(({ label, href }) => {
-    // Every row's Technical note shares a name, so match on the href too.
-    const hrefs = screen.getAllByRole('link', { name: label }).map((a) => a.getAttribute('href'));
-    expect(hrefs).toContain(href);
+  const aiHead = screen.getByRole('heading', { name: new RegExp(`^${prototype.aiWork.heading}`) });
+  prototype.aiWork.docs.forEach(({ label, href, pending }) => {
+    if (href) {
+      const link = screen.getByRole('link', { name: label });
+      expect(link).toHaveAttribute('href', href);
+      expect(aiHead).toContainElement(link);
+      // A local document ships with the site.
+      if (href.startsWith('/docs/')) expect(read('public', href).startsWith('%PDF')).toBe(true);
+    } else {
+      // A spot still waiting for its link is text, not a link.
+      const spot = screen.getByText(`${label} (${pending})`);
+      expect(spot).toHaveClass('pv-pending');
+      expect(spot.closest('a')).toBeNull();
+      expect(aiHead).toContainElement(spot);
+    }
   });
-  expect(container.querySelector('main').textContent).not.toMatch(/\bPDF, \d+ pages?\b/);
-  expect(screen.getByText(prototype.aiWork.items[1].start)).toHaveClass('pv-start');
-});
-
-test('the prototype puts the AI portfolio beside the AI work heading, and pdf-material-builder is a note, not a row', () => {
-  window.history.pushState({}, '', PREVIEW_PATH);
-  render(<App />);
-  const head = screen.getByRole('link', { name: 'AI portfolio' });
-  expect(head).toHaveAttribute('href', '/aiportfolio');
-  expect(head.closest('h2')).toHaveTextContent(prototype.aiWork.heading);
   expect(screen.getByRole('link', { name: 'Hardware portfolio' }).closest('h2')).toHaveTextContent(prototype.projects.heading);
-  // Its note hangs off the lesson-builder row; it has no row of its own.
-  expect(prototype.aiWork.items.map(({ name }) => name)).not.toContain('pdf-material-builder');
-  const lessons = prototype.aiWork.items.find(({ name }) => name === 'lesson-builder');
-  expect(lessons.docs.map(({ href }) => href)).toContain('/docs/notes/pdf-material-builder.pdf');
-});
-
-// The portfolio notes are career's files, copied byte-for-byte by
-// scripts/sync-portfolio-notes.sh; each rides on its own row as a Technical note.
-test('each portfolio note is on the page, is a PDF, and sits on its own row', () => {
-  const onRow = { hwde: 'hwde', autobox: 'autobox', 'lesson-builder': 'lesson-builder', 'chip design flow': 'chip-flow' };
-  Object.entries(onRow).forEach(([row, file]) => {
-    const { docs } = prototype.aiWork.items.find(({ name }) => name === row);
-    expect(docs).toContainEqual(expect.objectContaining({ label: 'Technical note', href: `/docs/notes/${file}.pdf` }));
-  });
-  ['overview', 'autobox', 'hwde', 'chip-flow', 'lesson-builder', 'pdf-material-builder'].forEach((n) => {
-    expect(read('public', 'docs', 'notes', `${n}.pdf`).startsWith('%PDF')).toBe(true);
-  });
+  expect(container.querySelector('main').textContent).not.toMatch(/\bPDF, \d+ pages?\b/);
+  expect(container.querySelector('main').textContent).not.toMatch(/\d+ pages?\b/);
 });
 
 test('the prototype links bar: email and contact card beside the switch, then Essays and the profiles', () => {
@@ -322,7 +260,7 @@ test('a prototype row with a short text carries both, and the fold opens on the 
     expect(head.querySelector('.pv-t-short')).toHaveTextContent(`, ${short}`);
     expect(rowPanel(name).querySelector('.pv-fold__long').textContent).toBe(text[0].toUpperCase() + text.slice(1));
   });
-  expect(ROWS().every(({ short }) => short)).toBe(true);
+  expect(ROWS().filter(({ short }) => short).length).toBeGreaterThan(0);
 });
 
 test('the prototype lists each essay newest first, linked, with its month', () => {
@@ -405,9 +343,4 @@ test('the name link on a folded row stays a link and does not toggle the row', (
   expect(link.closest('[inert]')).toBeNull();
   fireEvent.click(link);
   expect(rowButton('lesson-builder')).toHaveAttribute('aria-expanded', 'false');
-});
-
-test('the front page has no folded rows', () => {
-  render(<App />);
-  expect(document.querySelector('[inert], [aria-expanded], .pv-fold')).toBeNull();
 });

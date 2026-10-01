@@ -117,8 +117,11 @@ function renderTex(content, date = new Date()) {
   );
   p.about.forEach((para, i) => L.push(cf(para, 'about', i), ''));
   L.push(`{\\small\\color{inkseventy}${toTex(p.email)} \\textbullet\\ ${cf(p.contactCard.label, 'contactCard', 'label')} \\textbullet\\ ${docList(p.links, 'links')}}`, '');
-  // A document beside a section heading, as the page shows it.
-  const headLink = (s, key) => (s.headLink ? [`{\\small ${cf(s.headLink.label, key, 'headLink', 'label')}}`, ''] : []);
+  // A document beside a section heading, or several (`docs`), as the page shows them.
+  const headLink = (s, key) => [
+    ...(s.headLink ? [`{\\small ${cf(s.headLink.label, key, 'headLink', 'label')}}`, ''] : []),
+    ...(s.docs ? [`{\\small ${docList(s.docs, key, 'docs')}}`, ''] : []),
+  ];
 
   for (const key of ['experience', 'aiWork']) {
     const s = p[key];
