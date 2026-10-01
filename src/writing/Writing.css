@@ -169,6 +169,59 @@
 }
 .wr-figure--image .wr-figure__caption { max-width: 30em; margin-inline: auto; text-align: center; }
 
+/* A click on a figure enlarges it (src/writing/zoom.js). The link is as wide as the image,
+   and its focus ring goes on the frame, which nothing clips. */
+.wr-figure__zoom { display: block; width: fit-content; max-width: 100%; margin-inline: auto; cursor: zoom-in; }
+.wr-figure__zoom:focus-visible { outline: none; }
+.wr-figure__frame:has(.wr-figure__zoom:focus-visible) { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* The overlay: the video (or image) as large as the screen allows, on a dark backdrop in
+   either theme. It sits on <body>, outside .wr, so it reads no .wr tokens. */
+.wr-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 9, 7, 0.88);
+  overscroll-behavior: contain;
+  cursor: zoom-out;
+}
+.wr-zoom__media {
+  display: block;
+  max-width: 92vw;
+  max-height: 90vh;
+  max-height: 90dvh;
+  border-radius: 3px;
+  background: #000;
+  cursor: auto;
+}
+/* Its shape known from the figure: as wide as fits 92vw by 90vh, before the video loads. */
+.wr-zoom__media--sized {
+  width: min(92vw, calc(90vh * var(--wr-zoom-ar)));
+  width: min(92vw, calc(90dvh * var(--wr-zoom-ar)));
+  height: auto;
+  aspect-ratio: var(--wr-zoom-ar);
+}
+img.wr-zoom__media { background: #faf8f3; } /* a diagram's own paper */
+.wr-zoom__close {
+  position: absolute;
+  top: max(8px, env(safe-area-inset-top));
+  right: max(8px, env(safe-area-inset-right));
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font: 400 30px/44px system-ui, sans-serif;
+  cursor: pointer;
+}
+.wr-zoom__close:hover { background: rgba(0, 0, 0, 0.8); }
+.wr-zoom__close:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
 .wr-figure__missing {
   width: min(100%, 300px);
   aspect-ratio: 9 / 16;

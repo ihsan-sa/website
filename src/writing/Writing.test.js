@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -175,6 +175,76 @@ test('an essay page has its head, figures, notes, further reading and pager', ()
   expect(container.querySelector('.wr-pager__link--prev')).toHaveAttribute('href', '/writing/oldest');
   expect(container.querySelector('.wr-pager__link--next')).toBeNull();
   expect(container.querySelector('.wr-pager__index')).toHaveAttribute('href', '/writing');
+});
+
+test('a GIF figure plays the same-named .mp4 beside it, when there is one', () => {
+  const src = essay(`${FRONT}\ndraft: true`, '![Moving.](demo.gif)\n\n![Still moving.](other.gif)\n\n![A photo.](shot.png)\n');
+  const asked = [];
+  const { essay: e } = parseEssay(src, 's', (slug, file) => {
+    asked.push(file);
+    return { exists: file !== 'other.mp4' };
+  });
+  expect(e.blocks.map((b) => b.video)).toEqual(['/writing/s/demo.mp4', undefined, undefined]);
+  // Only a GIF looks for a video.
+  expect(asked).not.toContain('shot.mp4');
+});
+
+test('a click on a figure opens it large, and Escape, the × and the backdrop close it', () => {
+  const zoomFixture = [{
+    ...FIXTURE[1],
+    blocks: [
+      { t: 'figure', kind: 'image', src: '/writing/middle/m.gif', alt: 'Moving', caption: [{ t: 'text', v: 'Moving' }], video: '/writing/middle/m.mp4' },
+      { t: 'figure', kind: 'diagram', src: '/writing/middle/a.svg', alt: 'Cap', caption: [{ t: 'text', v: 'Cap' }], width: 900, height: 300 },
+    ],
+  }];
+  const { container } = render(<Writing route={{ preview: false, slug: 'middle' }} previewPath={PREVIEW_PATH} essays={zoomFixture} />);
+  const [gif, diagram] = container.querySelectorAll('.wr-figure__zoom');
+  // Without the script the link still opens the video, or the image, on its own.
+  expect(gif).toHaveAttribute('href', '/writing/middle/m.mp4');
+  expect(diagram).toHaveAttribute('href', '/writing/middle/a.svg');
+  expect(diagram).not.toHaveAttribute('data-video');
+  // No video element on the page until someone asks for one.
+  expect(document.querySelector('video')).toBeNull();
+
+  fireEvent.click(gif.querySelector('img'));
+  let dialog = screen.getByRole('dialog');
+  expect(dialog).toHaveAttribute('aria-modal', 'true');
+  const video = dialog.querySelector('video');
+  expect(video).toHaveAttribute('src', '/writing/middle/m.mp4');
+  expect(video).toHaveAttribute('poster', 'http://localhost/writing/middle/m.gif');
+  expect(video.muted && video.autoplay && video.loop && video.controls).toBe(true);
+  expect(video).toHaveAttribute('playsinline');
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Close' }));
+  expect(document.documentElement.style.overflow).toBe('hidden');
+  // Tab stays inside: from the video it wraps back to the ×.
+  video.focus();
+  fireEvent.keyDown(video, { key: 'Tab' });
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Close' }));
+  // A click on the video itself leaves it open.
+  fireEvent.click(video);
+  expect(screen.queryByRole('dialog')).not.toBeNull();
+  fireEvent.keyDown(document.activeElement, { key: 'Escape' });
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(document.activeElement).toBe(gif);
+  expect(document.documentElement.style.overflow).toBe('');
+
+  // Space opens it from the keyboard; with no video, the image itself is shown.
+  diagram.focus();
+  fireEvent.keyDown(diagram, { key: ' ' });
+  dialog = screen.getByRole('dialog');
+  expect(dialog.querySelector('video')).toBeNull();
+  expect(dialog.querySelector('img.wr-zoom__media')).toHaveAttribute('src', 'http://localhost/writing/middle/a.svg');
+  fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(document.activeElement).toBe(diagram);
+
+  // Enter on a link is a click; a click on the backdrop closes it.
+  fireEvent.click(diagram);
+  fireEvent.click(screen.getByRole('dialog'));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  // A modified click is left to the browser: the image in a new tab.
+  fireEvent.click(diagram, { ctrlKey: true });
+  expect(screen.queryByRole('dialog')).toBeNull();
 });
 
 test('the app routes /writing to the essays and leaves the front page and prototype alone', () => {

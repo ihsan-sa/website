@@ -4,7 +4,7 @@
 // and the static front page, both drafts, /writing and essays that
 // scripts/build-static.js writes)
 // with Playwright at 360, 414, 768, 1024, 1440 and 1920 px wide, in light and
-// dark. It screenshots each page, opens every folded row, flips the theme, and
+// dark. It screenshots each page, opens every folded row and essay figure, flips the theme, and
 // checks every href on the page for a 2xx. Then it loads each static page with
 // JavaScript off and checks that all its text (from content.json, or the
 // essay's markdown) is in the raw HTML and on screen, and that no React ships.
@@ -84,6 +84,7 @@ const TYPES = {
   '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg',
   '.ico': 'image/x-icon', '.pdf': 'application/pdf', '.vcf': 'text/vcard',
   '.txt': 'text/plain', '.svg': 'image/svg+xml', '.map': 'application/json',
+  '.gif': 'image/gif', '.mp4': 'video/mp4',
 };
 
 // The design handoff's reference HTML, served at /__ref/ with the repo's own
@@ -173,7 +174,9 @@ async function main() {
         });
         page.on('pageerror', (e) => problems.push(where(`pageerror: ${e.message}`)));
         page.on('requestfailed', (r) => {
-          const bad = !THIRD_PARTY.test(r.url());
+          // Closing a figure's overlay drops its video mid-download, which aborts the load by design.
+          const dropped = r.resourceType() === 'media' && r.failure()?.errorText === 'net::ERR_ABORTED';
+          const bad = !THIRD_PARTY.test(r.url()) && !dropped;
           (bad ? problems : warnings).push(where(`request failed: ${r.url()} (${r.failure()?.errorText})`));
         });
         page.on('response', (r) => {
@@ -230,6 +233,56 @@ async function main() {
         const shot = path.join(OUT, `${tag}.png`);
         await page.screenshot({ path: shot, fullPage: true });
         shots.push(shot);
+
+        // Essay figures, at a phone and a desktop width: the first with a video
+        // and the first without open large in the overlay, focus inside and the
+        // page held still, and close (Escape, then the backdrop) with focus back
+        // on the figure. Each open overlay is shot as <tag>-zoom-<kind>.png.
+        if ((vp.width === 360 || vp.width === 1440) && (await page.locator('.wr-figure__zoom').count())) {
+          for (const kind of ['video', 'image']) {
+            const fig = page.locator(`.wr-figure__zoom${kind === 'video' ? '[data-video]' : ':not([data-video])'}`).first();
+            if (!(await fig.count())) continue;
+            if ((await fig.evaluate((a) => getComputedStyle(a).cursor)) !== 'zoom-in') problems.push(where(`${kind} figure has no zoom-in cursor`));
+            await fig.click();
+            const z = await page.evaluate(async () => {
+              const root = document.querySelector('.wr-zoom');
+              if (!root) return null;
+              const media = root.querySelector('.wr-zoom__media');
+              const v = media.tagName === 'VIDEO' ? media : null;
+              // The video has a few seconds to start; a browser without H.264 is noted, not failed.
+              const playable = v ? v.canPlayType('video/mp4; codecs="avc1.640028"') : '';
+              for (let i = 0; v && playable && i < 50 && (v.readyState < 2 || v.paused); i++) await new Promise((r) => setTimeout(r, 100));
+              const r = media.getBoundingClientRect();
+              return {
+                tag: media.tagName.toLowerCase(), w: r.width, h: r.height, vw: window.innerWidth, vh: window.innerHeight,
+                focus: root.contains(document.activeElement), locked: getComputedStyle(document.documentElement).overflow === 'hidden',
+                playable, playing: v ? v.readyState >= 2 && !v.paused : null, muted: v ? v.muted : null,
+              };
+            });
+            if (!z) { problems.push(where(`${kind} figure did not open the overlay`)); continue; }
+            const zoomShot = path.join(OUT, `${tag}-zoom-${kind}.png`);
+            await page.screenshot({ path: zoomShot });
+            shots.push(zoomShot);
+            if (z.tag !== (kind === 'video' ? 'video' : 'img')) problems.push(where(`${kind} figure opened a ${z.tag}`));
+            if (z.w > z.vw * 0.92 + 1 || z.h > z.vh * 0.9 + 1) problems.push(where(`overlay ${kind} ${Math.round(z.w)}x${Math.round(z.h)} overflows 92vw/90vh`));
+            if (z.w < z.vw * 0.5 && z.h < z.vh * 0.5) problems.push(where(`overlay ${kind} only ${Math.round(z.w)}x${Math.round(z.h)}`));
+            if (!z.focus) problems.push(where(`focus did not move into the ${kind} overlay`));
+            if (!z.locked) problems.push(where(`the page scrolls behind the ${kind} overlay`));
+            if (kind === 'video' && !z.muted) problems.push(where('overlay video is not muted'));
+            if (kind === 'video' && z.playable && !z.playing) problems.push(where('overlay video did not start playing'));
+            if (kind === 'video' && !z.playable) warnings.push(where('this browser cannot play H.264; overlay video not played'));
+            if (kind === 'video') await page.keyboard.press('Escape');
+            else await page.mouse.click(4, z.vh - 4);
+            const after = await page.evaluate(() => ({
+              open: !!document.querySelector('.wr-zoom'),
+              back: !!(document.activeElement && document.activeElement.classList.contains('wr-figure__zoom')),
+              locked: getComputedStyle(document.documentElement).overflow === 'hidden',
+            }));
+            if (after.open) problems.push(where(`${kind} overlay did not close`));
+            if (!after.back) problems.push(where(`focus did not return to the ${kind} figure`));
+            if (after.locked) problems.push(where(`the page stays locked after the ${kind} overlay closed`));
+          }
+        }
 
         // Every folded row: open it, check the panel shows and its links are
         // reachable, then close it again.

@@ -21,9 +21,11 @@
 // The body is markdown: ## and ### headings, paragraphs, *em*, **strong**, `code`, [links](url),
 // - and 1. lists, ``` fenced code, one > pull quote, footnotes ([^id] with `[^id]: text` lines),
 // and figures: an image alone in its paragraph, `![caption](file)`. A .svg figure is a diagram,
-// anything else an image. A `## Further reading` section of `- [title](href): note (N pages)`
-// items becomes the further-reading block. A draft whose figure file is missing still builds,
-// with a placeholder; a published essay with any problem fails the build.
+// anything else an image. Clicking a figure enlarges it; a .gif with a same-named .mp4 beside
+// it (hero.gif, hero.mp4) plays that video instead (src/writing/zoom.js). A `## Further reading`
+// section of `- [title](href): note (N pages)` items becomes the further-reading block. A draft
+// whose figure file is missing still builds, with a placeholder; a published essay with any
+// problem fails the build.
 
 const fs = require('fs');
 const path = require('path');
@@ -168,6 +170,9 @@ function parseEssay(source, slug, assets = () => ({ exists: true })) {
       caption: parseInline(fig[1]),
     };
     if (a.width) Object.assign(block, { width: a.width, height: a.height });
+    // A GIF with an .mp4 of the same name beside it plays that video, full size, when clicked.
+    const video = file.replace(/\.gif$/i, '.mp4');
+    if (video !== file && assets(slug, video).exists) block.video = `/writing/${slug}/${video}`;
     if (!a.exists) {
       block.missing = true;
       problems.push(`figure ${file} is not in public/writing/${slug}/`);

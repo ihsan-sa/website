@@ -2,8 +2,9 @@
 // Static build: turns src/content.json into plain HTML + CSS that reads in
 // full with JavaScript off. No React ships with it. The only script on the
 // page is the theme switch's few lines (plus the pre-paint theme script and
-// the analytics beacon copied from public/index.html); the draft's folded rows
-// are <details>, so they open without any.
+// the analytics beacon copied from public/index.html, and on an essay the
+// figures' click-to-enlarge); the draft's folded rows are <details>, so they
+// open without any.
 //
 //   node scripts/build-static.js [buildDir]     (runs after `npm run build`)
 //
@@ -106,6 +107,10 @@ const TOGGLE_SCRIPT = `<script>
 })();
 </script>`;
 
+// An essay page's click-to-enlarge for its figures: src/writing/zoom.js, the
+// same file the React essay pages import, inlined as it is.
+const ZOOM_SCRIPT = `<script>\n${fs.readFileSync(path.join(__dirname, '../src/writing/zoom.js'), 'utf8').trim()}\n</script>`;
+
 // The draft's and the essays' switch, hidden until the script above runs.
 const THEME_SWITCH = '<button type="button" id="theme-toggle" class="theme-switch" role="switch" aria-checked="false" aria-label="Dark theme" title="Dark theme" hidden></button>';
 
@@ -119,8 +124,9 @@ const cssVersion = { site: '', writing: '', v2: '' };
 const versionOf = (text) => `?v=${crypto.createHash('sha256').update(text).digest('hex').slice(0, 10)}`;
 
 // `meta` swaps in one page's own title and link-preview tags (the essays);
-// `extraCss` is one more stylesheet after site.css (the second draft's).
-function page({ head, beacon }, { mainClass, body, noindex, meta, essay = false, extraCss }) {
+// `extraCss` is one more stylesheet after site.css (the second draft's);
+// `extraScript` one more script after the theme switch's (an essay's zoom).
+function page({ head, beacon }, { mainClass, body, noindex, meta, essay = false, extraCss, extraScript }) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -132,7 +138,7 @@ ${extraCss ? `<link rel="stylesheet" href="${extraCss}" />\n` : ''}${essay ? `<l
 ${body}
 </main>
 ${TOGGLE_SCRIPT}
-${beacon}
+${extraScript ? `${extraScript}\n` : ''}${beacon}
 </body>
 </html>
 `;
@@ -342,11 +348,14 @@ function block(b, notes, seen) {
     case 'ol': return `<${b.t} class="wr-list">${b.items.map((item) => `<li>${il(item)}</li>`).join('')}</${b.t}>`;
     case 'hr': return '<hr class="wr-rule" />';
     case 'figure': {
-      const { kind, src, alt, caption, width, height, missing } = b;
+      const { kind, src, alt, caption, width, height, missing, video } = b;
       // A diagram shrinks to fit the column on a phone rather than scrolling sideways.
+      // A click on the figure enlarges it, or plays its video (ZOOM_SCRIPT).
+      const label = `${video ? 'Play full size' : 'Enlarge'}: ${alt}`;
       const img = missing
         ? `<div class="wr-figure__missing">Figure not added yet: ${esc(src.split('/').pop())}</div>`
-        : `<img class="wr-figure__img" src="${esc(src)}" alt="${esc(alt)}"${width ? ` width="${width}"` : ''}${height ? ` height="${height}"` : ''} loading="lazy" />`;
+        : `<a class="wr-figure__zoom" href="${esc(video || src)}"${video ? ` data-video="${esc(video)}"` : ''} aria-label="${esc(label)}" aria-haspopup="dialog">`
+          + `<img class="wr-figure__img" src="${esc(src)}" alt="${esc(alt)}"${width ? ` width="${width}"` : ''}${height ? ` height="${height}"` : ''} loading="lazy" /></a>`;
       return `<figure class="wr-figure wr-figure--${kind}"><div class="wr-figure__frame">${img}</div><figcaption class="wr-figure__caption">${il(caption)}</figcaption></figure>`;
     }
     default: return `<p class="wr-p">${il(b.c)}</p>`;
@@ -413,6 +422,7 @@ function renderWriting(essays, shell, { base = STATIC_PATH, preview = true } = {
       body: renderEssay(e, { newer: shown[i - 1], older: shown[i + 1], base }),
       noindex: preview || e.draft,
       essay: true,
+      extraScript: ZOOM_SCRIPT,
       meta: { title: `${e.title} · Ihsan Salari`, description: e.summary, url: `${SITE}/writing/${e.slug}`, type: 'article', image: e.image },
     }),
   }));
