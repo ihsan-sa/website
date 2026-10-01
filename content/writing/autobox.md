@@ -7,13 +7,13 @@ summary: how I built and use my agentic orchestration system.
 
 I often get asked “Are you working right now? Why are you on Slack?” The answer is that I’m talking to <mark class="wr-added">80+</mark> agents running on Autobox, my orchestration system which runs on a small server at home.
 
-<mark class="wr-added">Take one task. On 27 September I asked in Slack for a three-phase motor driver. The planning session wrote a brief and started a worker, which went through 34 iterations to a 4-layer, 78 × 78 mm BLDC driver board that passed its design checks, with its fab package built. It merged the next day, and its firmware and a bring-up procedure followed over the two days after that.</mark>
+<mark class="wr-added">Take one task. On 27 September I asked in Slack for a three-phase motor driver. The planning session wrote a brief and started a worker, which went through 34 iterations to a 4-layer, 78 × 78 mm BLDC driver board that passed its design checks, with its fab package built. A finished board with no firmware and no way to test it showed what the box was missing, so the next day I had it build two new skills, a firmware engineer and a bring-up engineer, and both were proven on that board. Their first simulated bring-up run failed because the firmware’s version reply did not match what the test bench expected. That was fixed on the bench, before any hardware, and the procedure now runs all 103 steps.</mark>
 
 ![Autobox at work](hero.gif)
 
 ## How Autobox works
 
-Everything starts with a Slack channel: every channel in Slack goes to an ephemeral Claude Code session running in a tmux on my server. When the context of that session passes 15%, it hands off seamlessly to a successor, giving the illusion that it’s just one session the whole time.
+Everything starts with a Slack channel: every channel in Slack goes to an ephemeral Claude Code session running in a tmux on my server. When the context of that session passes 15%, it hands off seamlessly to a successor, giving the illusion that it’s just one session the whole time. Handing off at low context prevents context rot, which is expensive in tokens and makes the results less sharp.
 
 Every planning session works towards short- and long-term goals for that project with an automatic “wake” which keeps sessions on track. When I give work to a planning session, it can execute it via three paths:
 
@@ -22,8 +22,6 @@ Every planning session works towards short- and long-term goals for that project
 3. Sub-orchestrator → gets its own channel and acts as a sub-planning session (e.g. advanced feature implementation which requires close collaboration with user)
 
 ![The three ways a planning session hands off work](dispatch-paths.svg)
-
-<mark class="wr-added">The choice comes down to cost and who steers. A subagent is the cheapest: a bounded analysis runs well under $1, where the same job as a worker is a $2.50–9 repair round, but it dies with the session and gets no gates, journal or PR of its own. A worker gets all three, but its channel ends with it. A project with more than one milestone that I steer myself gets a sub-orchestrator, a peer of the planning session rather than a layer under it. The motor driver went to a worker, because it was a bounded build that ends in a PR.</mark>
 
 **Sandboxing;** workers can be spawned in containerized sandboxes for dangerous work or simply for full autonomy with full permission granted.
 
@@ -37,7 +35,7 @@ Autobox relies on harnesses like Claude Code, Codex, and soon Cursor to carry ou
 
 The most powerful part of the system is the interconnectedness of its components. Notably, planning sessions, workers, and subagents can talk to one another to gain more context into various systems and past/current/future goals and work. A master permissions session handles modifying agent and system permissions → essentially a glorified auto-mode classifier for Autobox.
 
-<mark class="wr-added">The motor driver shows it. Its first routing run took 57 minutes and came back with 406 clearance errors, because the hwde tool wrote the high-voltage rules where the design check reads them but not where the router does. The boards session raised it with the hwde project, which owns the tool, and the fix landed there and was synced back into boards the same morning.</mark>
+<mark class="wr-added">The firmware and bring-up skills show it. While they were being built at the same time, the bring-up session needed commands the firmware manifest didn’t have yet, like arm, disarm and spin. It left its asks on the firmware session’s row, the firmware session added them before it landed, and the bring-up procedure was then generated from that manifest.</mark>
 
 ### Knowledge management: low context, research first
 
@@ -67,13 +65,11 @@ Knowledge and information are stored and sent in various manners which allow the
 
 **Raised problems;** when an agent loses time to the box’s own tools, it files a “raised-” row on the board saying what broke and what it cost. The planning session reads the board and decides what to fix, so the box’s problems get reported by the agents that hit them, not by me.
 
-**Self-landing;** projects merge their own PRs. Once a PR is ready, it’s queued for the lander, and the gates and reviews decide, with no approval from me. A red gate or a review finding still stops it and asks a person.
-
 **Spend tiers;** how much the box takes on by itself is one setting: stop, essential, moderate or autonomous. On autonomous it finds, fixes and explores work on its own, lower tiers take on less of what it finds, and on stop it only answers me. <mark class="wr-added">For scale, in the last week the box used about $3,500 of tokens at API prices (an estimate; the tokens are the real measure), and its own repository landed 219 PRs. The motor driver’s runs came to about $111.</mark>
 
 ### Landing PRs
 
-Agents work in separate worktrees and on separate branches. In some cases, this new work can be deployed as a prototype for immediate use before the PR lands. In order for a PR to land, it must go through the lander. This system triggers a set of agent reviews as well as hard gates which are run adaptively based on the files that have been edited. Small PRs land alongside large ones, and large test suites are offloaded to another machine.
+Agents work in separate worktrees and on separate branches. In some cases, this new work can be deployed as a prototype for immediate use before the PR lands. In order for a PR to land, it must go through the lander. This system triggers a set of agent reviews as well as hard gates which are run adaptively based on the files that have been edited. Projects merge their own PRs: the gates and reviews decide, with no approval from me, and a red gate or a review finding still stops it and asks a person. Small PRs land alongside large ones, and large test suites are offloaded to another machine.
 
 <mark class="wr-added">The motor driver’s review caught that its fab files had been exported from an earlier copper revision than the board that passed its checks. The queue sent its own repair round and a rebase, and the PR landed without me.</mark>
 
