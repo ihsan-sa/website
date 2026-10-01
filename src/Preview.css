@@ -272,43 +272,61 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pv-proto .pv-head-link:hover { color: inherit; }
 
 /* The owner's photos in the side margins, on the draft only (.pv-proto--photos;
-   App.js leaves them off the front page). Each margin holds one column, laid
-   beside the page from the links bar to the end of the text and scrolling with
-   it, and the photos are spread down that height, so a column ends where the
-   text ends. A landscape is --pv-side-w wide and a portrait 0.78 of that. The
-   width follows the margin (66% of it) until a column would outgrow the text's
-   height (100cqh: the left column is 4.84 widths tall, the right 5.01, plus five
-   48px gaps at most), and stops there. On a very wide screen the column keeps to
-   the 480px beside the text rather than drifting out to the window's edge. Below 1280px the margin is too narrow:
-   the photos are not shown, and being lazy, not loaded. */
+   App.js leaves them off the front page). Desktop only: below 1280px the margin is
+   too narrow, so they are not shown and, being lazy, not loaded.
+   Tiles: every photo in a column is the same width, portrait or landscape, at its own
+   aspect ratio, one below the other with the same thin gap, so both edges of a column
+   run straight. Each column starts level with the links bar and keeps a fixed gutter
+   from the text; the width follows the margin up to 240px.
+   The column spans the links bar to the end of the text (top/bottom match .pv's
+   padding), and a script fits the tiles to that height: it shows as many photos as
+   come closest to filling it, then trims every tile's height by the same small
+   share (object-fit: cover), so both columns end exactly where the text ends. It
+   refits whenever the page's height changes, e.g. when a row opens. */
 .pv-side { display: none; }
 
 @media (min-width: 1280px) {
   .pv-proto--photos { position: relative; }
   .pv-proto--photos .pv-side {
+    --pv-side-w: min(240px, calc(50vw - 310px - 112px));
+    --pv-side-gutter: 56px;
+    --pv-side-gap: 10px;
     position: absolute;
     top: 80px;
     bottom: 96px;
-    width: min(50vw - 310px, 480px);
-    container-type: size;
+    width: var(--pv-side-w);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    gap: 48px;
+    gap: var(--pv-side-gap);
   }
-  .pv-side--left { right: 100%; }
-  .pv-side--right { left: 100%; }
+  .pv-side--left { right: calc(100% + var(--pv-side-gutter)); }
+  .pv-side--right { left: calc(100% + var(--pv-side-gutter)); }
   .pv-side__img {
-    --pv-side-w: min(calc((50vw - 310px) * 0.66), 280px);
     display: block;
-    width: var(--pv-side-w);
+    width: 100%;
     height: auto;
+    object-fit: cover;
     border-radius: 3px;
     background: var(--thumb-bg);
   }
-  .pv-side__img--tall { width: calc(var(--pv-side-w) * 0.78); }
-  @supports (height: 1cqh) {
-    .pv-side__img { --pv-side-w: min(calc((50vw - 310px) * 0.66), calc((100cqh - 240px) / 5.05)); }
+}
+
+/* Phone only: a strip of six small photos between the links bar and the name, on the
+   draft. One row, every photo the same height at its own aspect ratio (portrait and
+   landscape mixed), sharp corners, one even gap. Each photo's flex-grow is its
+   width/height, from a 0 basis, so the row fills the column exactly with no crop.
+   Hidden (and, being lazy, not loaded) above 640px, where the side columns take over. */
+.pv-strip { display: none; }
+@media (max-width: 640px) {
+  .pv-strip { display: flex; gap: 5px; }
+  .pv-strip__img {
+    display: block;
+    flex: 1.5 1 0;
+    min-width: 0;
+    width: 0;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    background: var(--thumb-bg);
   }
+  .pv-strip__img--tall { flex-grow: 0.6667; aspect-ratio: 2 / 3; }
 }

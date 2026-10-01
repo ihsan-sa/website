@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import './Preview.css';
 import rawContent from './content.json';
 import { fillStats } from './fillStats';
@@ -96,16 +96,88 @@ function usePreviewFont() {
 
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
 
-// The owner's photos down one side margin, on the draft only (src/sidePhotos.js).
-// Preview.css places the column and hides it on screens too narrow for it.
+// The owner's photos on the draft only (src/sidePhotos.js). Preview.css places the
+// two side columns (desktop) and the strip (phone) and hides each where it does not fit.
+const imgProps = ({ src, width, height, alt }) => ({ src, width, height, alt, loading: 'lazy', decoding: 'async' });
+
 function SidePhotos({ side }) {
   return (
     <aside className={`pv-side pv-side--${side}`} aria-label="Photos">
-      {SIDE_PHOTOS[side].map(({ src, width, height, alt }) => (
-        <img key={src} className={height > width ? 'pv-side__img pv-side__img--tall' : 'pv-side__img'} src={src} width={width} height={height} alt={alt} loading="lazy" decoding="async" />
+      {SIDE_PHOTOS[side].map((p) => (
+        <img key={p.src} className={p.height > p.width ? 'pv-side__img pv-side__img--tall' : 'pv-side__img'} {...imgProps(p)} />
       ))}
     </aside>
   );
+}
+
+// Phone only: one row of six photos between the links bar and the name. Pure CSS.
+function PhotoStrip() {
+  return (
+    <div className="pv-strip" aria-label="Photos">
+      {SIDE_PHOTOS.strip.map((p) => (
+        <img key={p.src} className={p.height > p.width ? 'pv-strip__img pv-strip__img--tall' : 'pv-strip__img'} {...imgProps(p)} />
+      ))}
+    </div>
+  );
+}
+
+const MAX_STRETCH = 1.15;
+
+// Fit one column to height H: show the leading photos whose stacked height (plus
+// gaps) comes closest to H, then give each the same small stretch so it ends at H.
+function fitColumn(aside, H) {
+  const W = aside.clientWidth;
+  const imgs = [...aside.querySelectorAll('.pv-side__img')];
+  if (!W || !H || !imgs.length) return;
+  const gap = parseFloat(getComputedStyle(aside).rowGap) || 0;
+  const ratios = imgs.map((img) => Number(img.getAttribute('height')) / Number(img.getAttribute('width')));
+  let sum = 0;
+  let n = 1;
+  let bestErr = Infinity;
+  let bestSum = W * ratios[0];
+  for (let i = 0; i < imgs.length; i += 1) {
+    sum += W * ratios[i];
+    const total = sum + i * gap;
+    const err = Math.abs(total - H);
+    if (err < bestErr) { bestErr = err; n = i + 1; bestSum = sum; }
+    if (total > H) break;
+  }
+  const k = Math.min((H - (n - 1) * gap) / bestSum, MAX_STRETCH);
+  aside.style.bottom = 'auto';
+  aside.style.height = `${H}px`;
+  imgs.forEach((img, j) => {
+    img.style.display = j < n ? '' : 'none';
+    img.style.height = j < n ? `${(W * ratios[j] * k).toFixed(2)}px` : '';
+  });
+}
+
+// Fit both columns once, with every row closed, and again only when the window's
+// width changes or the fonts arrive; opening a row does not move them.
+function useFitSidePhotos(ref, on) {
+  useLayoutEffect(() => {
+    const main = ref.current;
+    if (!on || !main) return undefined;
+    const fitAll = () => {
+      const cs = getComputedStyle(main);
+      let open = 0;
+      main.querySelectorAll('.pv-fold:not([inert])').forEach((f) => { open += f.offsetHeight; });
+      const H = main.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - open;
+      main.querySelectorAll('.pv-side').forEach((a) => fitColumn(a, H));
+    };
+    fitAll();
+    let alive = true;
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => alive && fitAll());
+    let lastW = window.innerWidth;
+    let timer;
+    const onResize = () => {
+      if (window.innerWidth === lastW) return;
+      lastW = window.innerWidth;
+      clearTimeout(timer);
+      timer = setTimeout(fitAll, 120);
+    };
+    window.addEventListener('resize', onResize);
+    return () => { alive = false; clearTimeout(timer); window.removeEventListener('resize', onResize); };
+  }, [ref, on]);
 }
 
 // A PDF link on the prototype names what it is, with no page count.
@@ -251,13 +323,15 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
   const [isDark, toggleTheme] = useTheme();
   useNoindex(!isFront);
   usePreviewFont();
+  const mainRef = useRef(null);
+  useFitSidePhotos(mainRef, !isFront);
 
   const block = isFront ? front : prototype;
   const sections = [block.experience, block.aiWork];
   const writing = isFront ? '/writing' : `${PREVIEW_PATH}/writing`;
 
   return (
-    <main className={isFront ? 'pv pv-proto' : 'pv pv-proto pv-proto--photos'}>
+    <main ref={mainRef} className={isFront ? 'pv pv-proto' : 'pv pv-proto pv-proto--photos'}>
       <nav className="pv-links pv-links--compact" aria-label="Contact and profiles">
         <span className="pv-links__row">
           <span className="pv-links__rest">
@@ -285,6 +359,8 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
           ))}
         </span>
       </nav>
+
+      {!isFront && <PhotoStrip />}
 
       <header className="pv-intro">
         <h1 className="pv-name">{block.name}</h1>
