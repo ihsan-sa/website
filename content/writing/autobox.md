@@ -9,7 +9,7 @@ summary: how I built and use my agentic orchestration system.
 
 I often get asked “Are you working right now? Why are you on Slack?” The answer is that I’m talking to <mark class="wr-added">80+</mark> agents running on Autobox, my orchestration system which runs on a small server at home.
 
-<mark class="wr-added">Take the chip and board renders further down. The chip is an 8-bit counter that the chip-design skill took to a finished GF180 layout, and the board is a motor driver the hwde skill designed. A video session rendered both in Blender for a demo, a critic agent reviewed the stills, and the website session put them in this essay, so four projects touched two pictures.</mark>
+<mark class="wr-added">The chip and board renders further down went through four projects. The chip is an 8-bit counter that the chip-design skill took to a finished GF180 layout, and the board is a motor driver the hwde skill designed. A video session rendered both in Blender for a demo, a critic agent reviewed the stills, and the website session put them in this essay.</mark>
 
 ![Autobox at work](hero.gif)
 
@@ -37,7 +37,7 @@ Autobox relies on harnesses like Claude Code, Codex, and soon Cursor to carry ou
 
 The most powerful part of the system is the interconnectedness of its components. Notably, planning sessions, workers, and subagents can talk to one another to gain more context into various systems and past/current/future goals and work. A master permissions session handles modifying agent and system permissions → essentially a glorified auto-mode classifier for Autobox.
 
-<mark class="wr-added">The firmware and bring-up skills show it. While they were being built at the same time, the bring-up session needed commands the firmware manifest didn’t have yet, like arm, disarm and spin. It left its asks on the firmware session’s row, the firmware session added them before it landed, and the bring-up procedure was then generated from that manifest.</mark>
+<mark class="wr-added">This is seen in the development of the firmware and bring-up skills. They were built at the same time, and the bring-up session needed commands the firmware manifest didn’t have yet, like arm, disarm and spin. It left its asks on the firmware session’s row, the firmware session added them before it landed, and the bring-up procedure was then generated from that manifest.</mark>
 
 ### Knowledge management: low context, research first
 
@@ -67,7 +67,7 @@ Knowledge and information are stored and sent in various manners which allow the
 
 **Raised problems;** when an agent loses time to the box’s own tools, it files a “raised-” row on the board saying what broke and what it cost. The planning session reads the board and decides what to fix, so the box’s problems get reported by the agents that hit them, not by me.
 
-**Spend tiers;** how much the box takes on by itself is one setting: stop, essential, moderate or autonomous. On autonomous it finds, fixes and explores work on its own, lower tiers take on less of what it finds, and on stop it only answers me. <mark class="wr-added">For scale, in the last week the box used about $3,500 of tokens at API prices (an estimate; the tokens are the real measure), and its own repository landed 219 PRs. The motor driver’s runs came to about $111.</mark>
+**Spend tiers;** how much the box takes on by itself is one setting: stop, essential, moderate or autonomous. On autonomous it finds, fixes and explores work on its own, lower tiers take on less of what it finds, and on stop it only answers me. <mark class="wr-added">In the last week the box used about $3,500 of tokens at API prices, and its own repository landed 219 PRs. The motor driver’s runs came to about $111.</mark>
 
 ### Landing PRs
 
