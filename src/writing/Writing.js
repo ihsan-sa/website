@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import './Writing.css';
+import './zoom';
 import allEssays from './essays.generated.json';
 
 // The essays at /writing. essays.generated.json is built from content/writing/*.md
@@ -88,15 +89,18 @@ function Inline({ nodes, notes, seen }) {
 }
 
 function Figure({ block, notes, seen }) {
-  const { kind, src, alt, caption, width, height, missing } = block;
+  const { kind, src, alt, caption, width, height, missing, video } = block;
   // A diagram shrinks to fit the column on a phone rather than scrolling sideways.
+  // A click on the figure enlarges it, or plays its video (zoom.js).
   return (
     <figure className={`wr-figure wr-figure--${kind}`}>
       <div className="wr-figure__frame">
         {missing ? (
           <div className="wr-figure__missing">Figure not added yet: {src.split('/').pop()}</div>
         ) : (
-          <img className="wr-figure__img" src={src} alt={alt} width={width} height={height} loading="lazy" />
+          <a className="wr-figure__zoom" href={video || src} data-video={video} aria-label={`${video ? 'Play full size' : 'Enlarge'}: ${alt}`} aria-haspopup="dialog">
+            <img className="wr-figure__img" src={src} alt={alt} width={width} height={height} loading="lazy" />
+          </a>
         )}
       </div>
       <figcaption className="wr-figure__caption">

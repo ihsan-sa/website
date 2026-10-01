@@ -109,6 +109,21 @@ test('the review copy of /writing lists and renders drafts, all noindex', () => 
   pages.forEach((p) => expect(p.html).toContain('content="noindex"'));
 });
 
+test('a static essay enlarges its figures with the same script the app imports', () => {
+  const { parseEssay } = require('../scripts/writing');
+  const md = '---\ntitle: Z\ndate: 2026-09-03\nsummary: S.\nstandfirst: W.\ndraft: true\n---\n\n![Moving.](m.gif)\n\n![Drawn.](d.svg)\n';
+  const { essay } = parseEssay(md, 'z');
+  const [index, html] = renderWriting([essay], shell).map((p) => p.html);
+  expect(html).toContain('<a class="wr-figure__zoom" href="/writing/z/m.mp4" data-video="/writing/z/m.mp4" aria-label="Play full size: Moving." aria-haspopup="dialog"><img class="wr-figure__img" src="/writing/z/m.gif"');
+  expect(html).toContain('<a class="wr-figure__zoom" href="/writing/z/d.svg" aria-label="Enlarge: Drawn." aria-haspopup="dialog"><img');
+  const zoom = fs.readFileSync(path.join(__dirname, 'writing/zoom.js'), 'utf8').trim();
+  expect(html).toContain(`<script>\n${zoom}\n</script>`);
+  expect(zoom).not.toMatch(/^\s*(import|export)\b|<\/script/m);
+  // No video loads with the page, and the list of essays carries no script for it.
+  expect(html).not.toContain('<video');
+  expect(index).not.toContain('wrZoom');
+});
+
 test('the public /writing rule leaves drafts unlisted and without a page', () => {
   const pages = renderWriting(twoEssays(), shell, { preview: false });
   expect(pages.map((p) => p.rel)).toEqual(['writing', 'writing/first']);
