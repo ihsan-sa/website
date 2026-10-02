@@ -42,6 +42,16 @@
       "from": {
         "gif": "4be836fac216adb575df3e92224eeb798dbec12bbe8cc328145ab6b767e9c9dc"
       }
+    },
+    "board": {
+      "webp": "public/writing/autobox/board.webp",
+      "poster": "public/writing/autobox/board-poster.webp",
+      "video": "public/writing/autobox/board.mp4",
+      "from": {
+        "gif": "000b1f24b18bf5bad157128a69ef92e6d01217432666085530ae0a2b7b9ec485",
+        "video": "45681ff8d95fa04ea01abdd773c587e521e7e5b478169a63f6f3ce02a33cdeef",
+        "poster": "bb7d2962703b33a458be5722ea5444003ad676d02d590df3b752df0a543fca80"
+      }
     }
   }
 }

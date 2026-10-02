@@ -92,6 +92,8 @@ Autobox runs my AI-enabled PCB design flow called hwde. This includes both impro
 
 In addition to hwde, the box runs chip design flows for digital, analog, and mixed-signal designs, as well as firmware and new product integration/bring-up flows.
 
+![Boards hwde designed, rendered in 3D from their KiCad files](board.webp)
+
 ![The motor driver hwde designed, rendered in 3D from its KiCad board](pcb.webp)
 
 ![A small test chip from the chip flow, an 8-bit counter, its layout in 3D](chip.webp)
