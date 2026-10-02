@@ -4,12 +4,17 @@ import rawContent from './content.json';
 import { ESSAY_BANNER } from './essayBanner';
 import { fillStats } from './fillStats';
 import { frontPage } from './frontPage';
+import { OUT_ARROW_SVG } from './outArrow';
 import { PROJECT_THUMBS } from './projectThumbs';
 import { SIDE_PHOTOS } from './sidePhotos';
 import stats from './stats.json';
 import { useTheme } from './theme';
 import Writing, { Portfolio, matchWriting } from './writing/Writing';
 import allEssays from './writing/essays.generated.json';
+
+function OutArrow() {
+  return <span className="pv-name-link__out" aria-hidden="true" dangerouslySetInnerHTML={{ __html: OUT_ARROW_SVG }} />;
+}
 
 // All copy lives in content.json — edit there, not here. Its {autobox.prs}-style
 // placeholders are filled from stats.json, which the box refreshes (docs/stats.md).
@@ -252,7 +257,7 @@ function Heading({ heading, headLink, docs }) {
           {' '}
           <a className="pv-link pv-head-link" href={headLink.href} {...NEW_TAB}>
             {headLink.label}
-            {headLink.arrow && <span className="pv-name-link__out" aria-hidden="true">{'\u2197\uFE0E'}</span>}
+            {headLink.arrow && <OutArrow />}
           </a>
         </>
       )}
@@ -336,7 +341,7 @@ export function ProtoEntry({ name: entryName, text, where, short, sub, href, res
       <p className="pv-entry__head">
         {href ? (
           <a className="pv-strong pv-name-link pv-name-link--out" href={href} {...NEW_TAB}>
-            {entryName}<span className="pv-name-link__out" aria-hidden="true">{'\u2197\uFE0E'}</span>
+            {entryName}<OutArrow />
           </a>
         ) : (
           <strong className="pv-strong">{entryName}</strong>
