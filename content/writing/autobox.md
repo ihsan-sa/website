@@ -14,7 +14,7 @@ standfirst: "How I built Autobox, the AI agents on a small home server that run 
 
 I often get asked “Are you working right now? Why are you on Slack?” The answer is that I’m talking to 80+ agents running on Autobox, my orchestration system which runs on a small server at home.
 
-For example, the chip and board renders further down, which I asked for in Slack, went through four projects. The chip is an 8-bit counter that the chip-design skill took to a finished GF180 layout, and the board is a motor driver the hwde skill designed. A video session rendered both in Blender for a demo, a critic agent reviewed the stills, and the website session put them in this essay.
+For example, the chip and board renders further down, which I asked for in Slack, went through four projects. The chip is an 8-bit counter that the chip-design skill took to a finished GF180 layout, and the boards are ones the hwde skill designed. A video session rendered both in Blender for a demo, a critic agent reviewed the stills, and the website session put them in this essay.
 
 ![Autobox at work](hero.webp)
 
@@ -93,8 +93,6 @@ Autobox runs my AI-enabled PCB design flow called hwde. This includes both impro
 In addition to hwde, the box runs chip design flows for digital, analog, and mixed-signal designs, as well as firmware and new product integration/bring-up flows.
 
 ![Boards hwde designed, rendered in 3D from their KiCad files](board.webp)
-
-![The motor driver hwde designed, rendered in 3D from its KiCad board](pcb.webp)
 
 ![A small test chip from the chip flow, an 8-bit counter, its layout in 3D](chip.webp)
 

@@ -120,13 +120,13 @@
           "href": "https://github.com/ihsan-sa/hwde",
           "result": "A multi‑stage agentic pipeline in the form of a Claude Code skill takes in a simple brief and produces a PCB design and fab package. Soft orchestration layered with deterministic evals and scripts ensures a pipeline which produces consistent, verifiable, and iteratively improvable outputs, while maintaining a flexible pipeline which evolves as models and harnesses do.",
           "visual": {
-            "src": "/writing/autobox/pcb.webp",
-            "poster": "/writing/autobox/pcb-poster.webp",
-            "video": "/writing/autobox/pcb.mp4",
+            "src": "/writing/autobox/board.webp",
+            "poster": "/writing/autobox/board-poster.webp",
+            "video": "/writing/autobox/board.mp4",
             "width": 640,
             "height": 360,
-            "alt": "A green motor driver board, PCB-001B Rev A, rendered in 3D: it stands on a black base, tips back and settles flat as the camera circles it.",
-            "caption": "A motor driver hwde designed, rendered in Blender."
+            "alt": "Boards hwde designed, rendered in 3D from their KiCad files.",
+            "caption": "Boards hwde designed, rendered in Blender."
           }
         },
         {
