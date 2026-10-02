@@ -5,6 +5,8 @@ import App, { PREVIEW_PATH, Prototype, ProtoEntry, RowVisual } from './App';
 import content from './content.json';
 import shelved from './content.shelved.json';
 import { ESSAY_BANNER } from './essayBanner';
+import { fillStats } from './fillStats';
+import stats from './stats.json';
 import { PROJECT_THUMBS } from './projectThumbs';
 import { SIDE_PHOTOS } from './sidePhotos';
 
@@ -131,6 +133,7 @@ test('the prototype path is unguessable, served by its own rules and published n
   expect(read('public', '_redirects').trim().split('\n')).toEqual([
     '/airesume    https://library.ihsan.cc/p/HJ_OcIicMe1DrL_-tcArV8pt31HHd_oz    302',
     '/hwresume    https://library.ihsan.cc/p/LbEFG8VoyJBO8bhkpaexDsIKFWM_Oa_d    302',
+    '/resume    /airesume    302',
     '/hwportfolio    /images/Ihsan_Salari_Portfolio.pdf    302',
     '/portfolio    /hwportfolio    302',
     `${PREVIEW_PATH}    /index.html    200`,
@@ -280,7 +283,7 @@ test('each AI row has a subtitle under its head line, outside the fold; essays a
   const { container } = render(<App essays={ONE_ESSAY} />);
   prototype.aiWork.items.forEach(({ name, sub }) => {
     expect(sub).toBeTruthy();
-    const p = screen.getByText(sub);
+    const p = screen.getByText(fillStats(sub, stats));
     expect(p).toHaveClass('pv-entry__sub');
     expect(p.tagName).toBe('P');
     expect(p.previousElementSibling).toHaveClass('pv-entry__head');

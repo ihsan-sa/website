@@ -132,7 +132,7 @@
         {
           "name": "autobox",
           "text": "autonomous agent orchestration on a remote server.",
-          "sub": "1,250+ PRs merged in a month across 15+ projects, in 1,300+ agent hours.",
+          "sub": "Agents coordinate to develop projects in parallel and autonomously with little human oversight. {autobox.prs}+ PRs merged across {autobox.repos} repos, in 1,300+ agent hours.",
           "href": "https://github.com/ihsan-sa/autobox",
           "result": "Agent orchestration system which runs on a server and autonomously develops projects and improves its own systems. Communication takes place via Slack, and agents follow thorough work patterns which abstract the user away, enabling autonomous development. Agents share a central library and exchange information via sockets and Slack in order to coordinate development. A PR lander runs reviews and adaptive tests based on edited files before merging. A self‑improvement flow catches failures and evaluates project status against goals to both improve current work and re‑evaluate said goals.",
           "figure": {
@@ -171,7 +171,7 @@
           "sub": "Designs tiles for Tiny Tapeout GF180 with soft orchestration over deterministic checks and iterative, script-based optimization. 13 circuits so far: digital, analog and mixed-signal.",
           "short": "AI chip design.",
           "href": "https://github.com/ihsan-sa/chip-flow",
-          "result": "Three pipelines in the form of Claude Code skills aimed at digital, analog, and mixed‑signal design. These function similarly to hwde’s PCB pipeline, and leverage a combination of deterministic checks and evals, iterative improvement flows based on Karpathy’s autoresearch, and a soft orchestration layer which leverages agent judgement. These skills are being developed and used to design tiles for the Tiny Tapeout GF180 chip.",
+          "result": "Three pipelines in the form of Claude Code skills aimed at digital, analog, and mixed‑signal design leverage a combination of deterministic checks and evals, iterative improvement flows based on Karpathy’s autoresearch, and a soft orchestration layer. These skills are being developed and used to design tiles for the Tiny Tapeout GF180 chip.",
           "visual": {
             "src": "/writing/autobox/chip-480.webp",
             "poster": "/writing/autobox/chip-poster.webp",
@@ -180,13 +180,6 @@
             "height": 270,
             "alt": "The layout of a small test chip, an 8-bit counter, in 3D: the camera sweeps low over rows of blue standard cells with gold wiring and grey power rails across them.",
             "caption": "An 8-bit counter from the chip flow, its layout in 3D."
-          },
-          "figure": {
-            "image": "/images/ai/chip-flow.svg",
-            "width": 553,
-            "height": 164,
-            "alt": "Diagram: a task goes to a router, then to agents who do the design, then to scripted gates that send failures back to the agents; once all pass, a person checks it before release.",
-            "caption": "A design reaches release only through scripted gates and a person."
           }
         }
       ]
