@@ -1,0 +1,47 @@
+{
+  "drop": "~/.cc/state/website/clips-gif",
+  "maxBytes": 2500000,
+  "posterMaxBytes": 60000,
+  "videoMaxBytes": 25000000,
+  "ignore": [
+    "hero-full"
+  ],
+  "clips": {
+    "hero": {
+      "webp": "public/writing/autobox/hero.webp",
+      "poster": "public/writing/autobox/hero-poster.webp",
+      "video": "public/writing/autobox/hero.mp4",
+      "from": {
+        "gif": "225a6f1eee8d78fb5c9174b39a4097d6ecd19d5bcc678207588489c47761bfef"
+      }
+    },
+    "library": {
+      "webp": "public/writing/autobox/library.webp",
+      "poster": "public/writing/autobox/library-poster.webp",
+      "video": "public/writing/autobox/library.mp4",
+      "from": {
+        "gif": "130567246a0442753d0ce8e65305f21695b8509ce01b5b64c8c2e888e9670248"
+      }
+    },
+    "library-6fps": {
+      "webp": "public/writing/autobox/library-6fps.webp",
+      "from": {
+        "gif": "40e33f59c490e0c82c890929284959e84ba3a57355d1eb19d2546f0874145063"
+      }
+    },
+    "lessons": {
+      "webp": "public/writing/autobox/lessons.webp",
+      "poster": "public/writing/autobox/lessons-poster.webp",
+      "video": "public/writing/autobox/lessons.mp4",
+      "from": {
+        "gif": "f35b5823d5c32d3622b96de53a568cdcfed945b0784cdf6e05628611fb614d84"
+      }
+    },
+    "lessons-6fps": {
+      "webp": "public/writing/autobox/lessons-6fps.webp",
+      "from": {
+        "gif": "4be836fac216adb575df3e92224eeb798dbec12bbe8cc328145ab6b767e9c9dc"
+      }
+    }
+  }
+}

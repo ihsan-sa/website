@@ -49,8 +49,9 @@ nothing.
 ### The nightly run
 
 A systemd user timer, `website-stats.timer`, runs `node scripts/stats.js update` in
-`~/dev/website` every night at 04:15 UTC. The owner approved it on 2026-09-30. Its two
-units are:
+`~/dev/website` every night at 04:15 UTC. The owner approved it on 2026-09-30. The same
+service then runs `node scripts/clips.js update`, which brings in new clips from the video
+agent (docs/clips.md). Its two units are:
 
 `~/.config/systemd/user/website-stats.service`
 
@@ -63,7 +64,8 @@ Type=oneshot
 WorkingDirectory=%h/dev/website
 Environment=PATH=%h/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
 ExecStart=/usr/bin/env node scripts/stats.js update
-TimeoutStartSec=600
+ExecStart=/usr/bin/env node scripts/clips.js update
+TimeoutStartSec=1200
 ```
 
 `~/.config/systemd/user/website-stats.timer`
