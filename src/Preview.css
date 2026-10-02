@@ -120,15 +120,21 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .pv-proto a.pv-name-link:hover { text-decoration-color: currentColor; }
 
-/* A row name that leaves the site ends in a small, lighter arrow, left out of the underline. */
+/* A row name that leaves the site ends in a small, lighter arrow (an inline SVG, so phones match), left out of the underline. */
 .pv-proto .pv-name-link__out {
   display: inline-block;
-  font-variant-emoji: text; /* iOS draws a bare ↗ as an emoji; U+FE0E asks for text too */
   margin-left: 0.15em;
   font-size: 0.8em;
   font-weight: 400;
   opacity: 0.55;
   text-decoration: none;
+  line-height: 1;
+}
+.pv-proto .pv-name-link__out svg {
+  display: inline-block;
+  width: 0.75em; /* 0.6em of the text after the 0.8em span */
+  height: 0.75em;
+  vertical-align: -0.05em;
 }
 .pv-proto a:hover .pv-name-link__out { opacity: 1; }
 
