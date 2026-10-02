@@ -20,13 +20,14 @@
       "poster": "public/writing/autobox/library-poster.webp",
       "video": "public/writing/autobox/library.mp4",
       "from": {
-        "gif": "130567246a0442753d0ce8e65305f21695b8509ce01b5b64c8c2e888e9670248"
+        "gif": "f483dd9a77d79c9e44579de2f1de589847be7353bbd42f5a98d888cc69a14d36",
+        "video": "ea95bc97e863f0615f37e864da613395557afc09ac3f931d707333af51c293a7"
       }
     },
     "library-6fps": {
       "webp": "public/writing/autobox/library-6fps.webp",
       "from": {
-        "gif": "40e33f59c490e0c82c890929284959e84ba3a57355d1eb19d2546f0874145063"
+        "gif": "a21da725d7cab7071bdbeb6e38f7f8facaa334c4c64ab9d5e48498b2f7b1ee78"
       }
     },
     "lessons": {
@@ -34,13 +35,14 @@
       "poster": "public/writing/autobox/lessons-poster.webp",
       "video": "public/writing/autobox/lessons.mp4",
       "from": {
-        "gif": "f35b5823d5c32d3622b96de53a568cdcfed945b0784cdf6e05628611fb614d84"
+        "gif": "a76617b15b5ea564471ffff5d9bf1a28ada814c9fd099f37d1a6f116f9dee22d",
+        "video": "d7278b4842a90819912ba3d7321af49a631cedbae3310b051213b6e3ec9a70b2"
       }
     },
     "lessons-6fps": {
       "webp": "public/writing/autobox/lessons-6fps.webp",
       "from": {
-        "gif": "4be836fac216adb575df3e92224eeb798dbec12bbe8cc328145ab6b767e9c9dc"
+        "gif": "d1405d4d5a238a4159c12f3838b865128717648e54fb326527c4d6459b1b3912"
       }
     },
     "board": {
