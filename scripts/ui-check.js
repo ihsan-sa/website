@@ -628,10 +628,19 @@ async function main() {
   for (const w of warnings) console.log(`warn  ${w.replace(base, '')}`);
   for (const p of problems) console.log(`FAIL  ${p.replace(base, '')}`);
   console.log(`${shots.length} screenshots, ${links.length} links, ${problems.length} problems, ${warnings.length} warnings -> ${OUT}`);
-  process.exit(problems.length ? 1 : 0);
+  // process.exit() here once cut a piped stdout short in CI, so the FAIL lines and this
+  // summary never showed. Set the code and let Node drain stdout before it exits.
+  finish(problems.length ? 1 : 0);
+}
+
+// Exit with <code> once stdout has drained. A socket left open (a link check's keep-alive)
+// may hold the process, so a timer that does not itself keep it alive ends it after 30s.
+function finish(code) {
+  process.exitCode = code;
+  setTimeout(() => process.exit(code), 30000).unref();
 }
 
 main().catch((e) => {
   console.error(e);
-  process.exit(2);
+  finish(2);
 });

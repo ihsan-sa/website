@@ -25,6 +25,12 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      # src/clips.test.js runs scripts/clips.js for real: it converts with ffmpeg (libwebp)
+      # and reads frame counts with Pillow, and the runner image has neither.
+      - name: Install ffmpeg and Pillow for the clip tests
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends ffmpeg python3-pil
       - run: CI=true npm test -- --watchAll=false
       - run: npm run build
       - name: Cache Playwright browsers
