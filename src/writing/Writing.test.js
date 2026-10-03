@@ -315,7 +315,7 @@ test('a raster figure reports its pixel size from its header', () => {
   // test is about reading headers, so it pins no file src/clips.json maps.
   expect(rasterSize(pub('images', 'thumbs', 'dcdc3500KHz.webp'))).toEqual({ width: 394, height: 186 });
   expect(rasterSize(pub('writing', 'autobox', 'pcb.webp'))).toEqual({ width: 640, height: 360 });
-  expect(rasterSize(pub('writing', 'autobox', 'chip.webp'))).toEqual({ width: 560, height: 315 });
+  expect(rasterSize(pub('writing', 'autobox', 'pcb-poster.webp'))).toEqual({ width: 1280, height: 720 });
   expect(rasterSize(pub('images', 'dcdc3500KHz.png'))).toEqual({ width: 394, height: 186 });
   expect(rasterSize(pub('images', 'ionic.jpg'))).toEqual({ width: 2345, height: 1977 });
   expect(rasterSize(pub('favicon.svg'))).toEqual({});

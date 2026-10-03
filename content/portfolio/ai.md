@@ -74,7 +74,7 @@ A digital block's testbench is written before its RTL, by an agent that has read
 
 There's no analog autorouter, so an analog layout is a Python script that draws it. Magic, KLayout and netgen only judge the result, with DRC, LVS and a simulation of the extracted layout. A DRC finding becomes a work order for the script, so the fix goes into the code and the layout can be rebuilt from it.
 
-<!-- GIF: the 8-bit counter's GF180 layout in 3D (/writing/autobox/chip.webp) -->
+<!-- GIF: the SPI FIFO tile's GF180 layout in 3D (/writing/autobox/chip.webp) -->
 
 An 8-bit counter and a UART have gone from spec to a hardened, timed netlist with every check green, and the UART's testbench kills every mutant. A current mirror and a comparator have gone to a checked layout, though those two runs were told to take the default at both checkpoints, so no person signed them. A mixed-signal example went green on every check, but I don't count it, because two of its mutant rulings were edited by hand. The SPI FIFO is stuck at its formal proof, which times out before it can close. Nothing has been sent to a fab yet.
 
