@@ -15,7 +15,7 @@ Put finished clips in `~/.cc/state/website/clips-gif/`, named after the slot the
 | `<name>.mp4` (optional) | the video the clip opens to, copied as it is (H.264, faststart, up to 25 MB) |
 | `<name>-poster.webp` (optional) | the still shown when motion is turned off; without one, the GIF's first frame is used |
 
-The names in use are `hero` (the 14 s loop, 720 px), `board` (the hwde boards film, 640 px), `library`, `lessons` (640 px) and
+The names in use are `hero` (the 14 s loop, 720 px), `board` (the hwde boards film, 640 px), `chip` (the spi_fifo chip render, 640 px), `library`, `lessons` (640 px) and
 `library-6fps`, `lessons-6fps` (the front page's lighter cuts). Keep a GIF to the size and frame
 rate in `~/.cc/state/iiks1/video-max-quality/web/GIF-SETTINGS.txt`; the WebP comes out at about
 half the GIF's size and should stay under about 2.5 MB. Overwrite a file to replace a clip, and

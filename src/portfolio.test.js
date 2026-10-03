@@ -46,7 +46,7 @@ Text.
 
 test('a media comment splits into its files and its caption', () => {
   expect(splitMedia('/writing/autobox/hero.webp, autobox at work')).toEqual({ files: ['/writing/autobox/hero.webp'], caption: 'autobox at work' });
-  expect(splitMedia("the counter's layout in 3D (/writing/autobox/chip.webp)")).toEqual({ files: ['/writing/autobox/chip.webp'], caption: "the counter's layout in 3D" });
+  expect(splitMedia("the SPI FIFO's layout in 3D (/writing/autobox/chip.webp)")).toEqual({ files: ['/writing/autobox/chip.webp'], caption: "the SPI FIFO's layout in 3D" });
   expect(splitMedia('portfolio/figures/x.svg')).toEqual({ files: ['portfolio/figures/x.svg'], caption: '' });
   expect(splitMedia('one post before and after')).toEqual({ files: [], caption: 'one post before and after' });
 });

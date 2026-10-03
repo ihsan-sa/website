@@ -173,13 +173,13 @@
           "href": "https://github.com/ihsan-sa/chip-flow",
           "result": "Three pipelines in the form of Claude Code skills aimed at digital, analog, and mixed‑signal design leverage a combination of deterministic checks and evals, iterative improvement flows based on Karpathy’s autoresearch, and a soft orchestration layer. These skills are being developed and used to design tiles for the Tiny Tapeout GF180 chip.",
           "visual": {
-            "src": "/writing/autobox/chip-480.webp",
+            "src": "/writing/autobox/chip.webp",
             "poster": "/writing/autobox/chip-poster.webp",
             "video": "/writing/autobox/chip.mp4",
-            "width": 480,
-            "height": 270,
-            "alt": "The layout of a small test chip, an 8-bit counter, in 3D: the camera sweeps low over rows of blue standard cells with gold wiring and grey power rails across them.",
-            "caption": "An 8-bit counter from the chip flow, its layout in 3D."
+            "width": 640,
+            "height": 360,
+            "alt": "The layout of a small SPI FIFO chip tile, in 3D: it floats and turns over a dark grey background, showing rows of blue standard cells with gold routing packed into the middle and pale power rails running across.",
+            "caption": "A small SPI FIFO tile from the chip flow, its layout in 3D."
           }
         }
       ]

@@ -55,6 +55,16 @@
         "video": "fdcf3f2cae1b84cb2b42a4ae7e0269c9ff71007628b2edbc862558581768237b",
         "poster": "7d4b9f1c6649472d66f8f75886b3f3050c141abcc51556da1bd9ea2c2ab35127"
       }
+    },
+    "chip": {
+      "webp": "public/writing/autobox/chip.webp",
+      "poster": "public/writing/autobox/chip-poster.webp",
+      "video": "public/writing/autobox/chip.mp4",
+      "from": {
+        "gif": "a6be31692ab421eb294fda31f9dd0bed2c0cc0f88f81fb9bb0f59f813ad8cc00",
+        "video": "3b09c35682846c569e1579c8b34dab8e46461ae1bc6d98e143039c2535310a04",
+        "poster": "99033110ee590e318f150424203e7534be1cc2cc00adbfe6db6987382010d861"
+      }
     }
   }
 }
