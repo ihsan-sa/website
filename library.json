@@ -1,0 +1,1 @@
+{"documents": [{"project": "Website", "title": "Website content", "content": "content/site-text.md", "rebuild": ["node", "scripts/content-md.js", "pull"]}]}

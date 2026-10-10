@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 // The site's body text as a PDF you can read and edit in the document library,
-// and the way back into src/content.json. See docs/content-pdf.md.
+// and the way back into src/content.json. See docs/content-pdf.md. The library now files and
+// carries back the site text through its Markdown form (scripts/content-md.js, library.json);
+// this LaTeX route stays for revisions filed before it.
 //
 //   node scripts/content-pdf.js tex    write content-pdf/site-content.tex from the `prototype`
 //                                      block of src/content.json, in the page's order
@@ -276,4 +278,4 @@ function main([cmd, arg]) {
 
 if (require.main === module) process.exit(main(process.argv.slice(2)));
 
-module.exports = { toTex, fromTex, renderTex, applyEdits, sourcePath };
+module.exports = { toTex, fromTex, renderTex, applyEdits, sourcePath, stringSpans };
