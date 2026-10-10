@@ -24,6 +24,7 @@
     "eject": "react-scripts eject",
     "ui-check": "node scripts/ui-check.js",
     "content-pdf": "node scripts/content-pdf.js",
+    "content-md": "node scripts/content-md.js",
     "portfolio": "node scripts/portfolio.js"
   },
   "eslintConfig": {

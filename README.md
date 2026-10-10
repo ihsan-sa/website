@@ -24,7 +24,8 @@ Images go in `public/images/`. A path of `/images/foo.jpg` in the JSON means
 them around 480×360.
 PDFs go in `public/docs/`: `/docs/foo.pdf` in the JSON means `public/docs/foo.pdf`.
 
-To read and edit the text as a PDF in the document library instead, see
+To read and edit the text in the document library instead (it keeps
+[`content/site-text.md`](content/site-text.md) and carries an edit back as a PR), see
 [`docs/content-pdf.md`](docs/content-pdf.md).
 
 A string can carry a number the box counts, written `{autobox.prs}` or `{autobox.repos}`;
@@ -121,7 +122,9 @@ needed. `/` stays the React page.
 | `src/content.json` | all copy and links |
 | `src/stats.json` | the counted numbers the `{autobox.prs}`-style placeholders show ([docs](docs/stats.md)) |
 | `scripts/stats.js` | counts the box's merged PRs and opens a PR when the rounded text changes ([docs](docs/stats.md)) |
-| `scripts/content-pdf.js` | the text as a library PDF, and an edited revision back into `content.json` ([docs](docs/content-pdf.md)) |
+| `scripts/content-md.js` | the text as the library's Markdown, `content/site-text.md`, and an edited revision back into `content.json` ([docs](docs/content-pdf.md)) |
+| `scripts/content-pdf.js` | the text as a LaTeX PDF, the earlier library route ([docs](docs/content-pdf.md)) |
+| `library.json` | declares the site text to the document library: the `.md` it keeps and the command that carries an edit back |
 | `src/content.shelved.json` | AI work rows taken off the site; nothing imports it, so none of it ships |
 | `src/App.js` | page structure and the theme toggle — rarely needs changing |
 | `src/Preview.css` | the page's styling, every rule scoped under `.pv` |

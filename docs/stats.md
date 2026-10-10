@@ -14,7 +14,9 @@ the box.
 
 So the line is written `over {autobox.prs} PRs across {autobox.repos} repos`.
 
-- **In the content PDF**, type `\{autobox.prs\}`, which the PDF prints as
+- **In the library's Markdown** (`content/site-text.md`), write `{autobox.prs}` as it is;
+  a pull writes it back unchanged.
+- **In the LaTeX content PDF**, type `\{autobox.prs\}`, which the PDF prints as
   `{autobox.prs}`. A pull (`npm run content-pdf -- pull <number>`) writes it into
   `src/content.json` unchanged.
 - **In `src/content.json`**, write `{autobox.prs}` as it is.
