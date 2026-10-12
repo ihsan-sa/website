@@ -17,6 +17,7 @@ permissions:
 
 jobs:
   check:
+    # main's branch protection requires this context by name, so renaming the job blocks every merge.
     name: check
     runs-on: ubuntu-latest
     steps:
