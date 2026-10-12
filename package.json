@@ -20,7 +20,7 @@
     "build": "react-scripts build",
     "postbuild": "node scripts/writing.js pages && node scripts/build-static.js",
     "pretest": "node scripts/writing.js build && node scripts/portfolio.js build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --watchAll=false",
     "eject": "react-scripts eject",
     "ui-check": "node scripts/ui-check.js",
     "content-pdf": "node scripts/content-pdf.js",
