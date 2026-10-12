@@ -32,7 +32,7 @@ jobs:
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends ffmpeg python3-pil
-      - run: CI=true npm test -- --watchAll=false
+      - run: CI=true npm test
       - run: npm run build
       - name: Cache Playwright browsers
         id: playwright-cache
