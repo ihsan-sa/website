@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 553 296" width="553" height="296" font-family="'Source Serif 4', 'Source Serif Pro', Georgia, serif" role="img">
+<title>Agents work in projects, which build on modules, over one small core</title>
+<defs></defs>
+<rect fill="#FAF8F3" width="553" height="296"/>
+<g transform="translate(8.5,8)">
+<rect class="dg-n work" stroke-width="1.1" fill="#ECEFEB" stroke="#5E7A5A" x="0" y="0" width="375.77" height="58" rx="3"/><text class="dg-t" font-size="14" font-weight="600" fill="#15140F" x="187.88" y="25.5" text-anchor="middle">Agents</text><text class="dg-s" font-size="11.33" fill="#4A4740" x="187.88" y="41.5" text-anchor="middle">a harness and a GOALS.md: leads, workers, wardens, tribunals</text>
+<rect class="dg-n io" stroke-width="1.1" fill="#EAEDF1" stroke="#4F6D8A" x="0" y="74" width="375.77" height="58" rx="3"/><text class="dg-t" font-size="14" font-weight="600" fill="#15140F" x="187.88" y="99.5" text-anchor="middle">Projects</text><text class="dg-s" font-size="11.33" fill="#4A4740" x="187.88" y="115.5" text-anchor="middle">git repos where work gets done; own the large modules</text>
+<rect class="dg-n neutral" stroke-width="1.1" fill="#F0EADE" stroke="#77716A" x="0" y="148" width="375.77" height="58" rx="3"/><text class="dg-t" font-size="14" font-weight="600" fill="#15140F" x="187.88" y="173.5" text-anchor="middle">Modules</text><text class="dg-s" font-size="11.33" fill="#4A4740" x="187.88" y="189.5" text-anchor="middle">shared tools, services, scripts and knowledge bases</text>
+<rect class="dg-n gate hot" stroke-width="2" fill="#F3E8E4" stroke="#9C4221" x="0" y="222" width="375.77" height="58" rx="3"/><text class="dg-t" font-size="14" font-weight="600" fill="#15140F" x="187.88" y="247.5" text-anchor="middle">Core</text><text class="dg-s" font-size="11.33" fill="#4A4740" x="187.88" y="263.5" text-anchor="middle">worktrees and unix users, messaging, spawning, permissions</text>
+<text class="dg-note hot" font-size="11.33" fill="#9C4221" x="391.77" y="255" text-anchor="start">one hard safety boundary</text>
+</g>
+</svg>
