@@ -39,16 +39,20 @@
 \newcommand{\essaystandfirst}[1]{\def\essay@standfirst{#1}}
 \essayblurb{}\essaydraft{true}\def\essay@false{false}
 
-% The title block, then what the site reads beside the text.
+% The title block, then, while a draft, what the site reads beside the text.
+% A published essay (\essaydraft{false}) is the public copy, so it shows a
+% link to its page instead.
 \newcommand{\essayhead}{%
   \hstitleblock{Essay \textperiodcentered\ \essay@date}{\essay@title}{\essay@standfirst}%
+  \ifx\essay@draft\essay@false
+  \noindent Read it on the website: \href{https://ihsan.cc/writing/\essay@slug}{ihsan.cc/writing/\essay@slug}\par
+  \else
   \begin{hscallout}{For the site}
   \texttt{ihsan.cc/writing/\essay@slug}\par
   \essay@summary\par
   {\color{inkfiftyfive}In the list: \ifx\essay@blurb\@empty the summary.\else\essay@blurb\fi\ 
-  \ifx\essay@draft\essay@false On /writing once published.\else
-  A draft: on the preview page only.\fi}
-  \end{hscallout}}
+  A draft: on the preview page only.}
+  \end{hscallout}\fi}
 
 % A figure's number, then its caption under the picture. \includesvg is the
 % diagram macro here (no svg package is loaded): its name is what makes the
