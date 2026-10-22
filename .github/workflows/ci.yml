@@ -22,6 +22,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # A PR checks out its merge commit; the first parent is the base it merges into.
+          fetch-depth: 2
+      # A PR that changes only essays (content/writing/, public/writing/) gets a short check:
+      # no ffmpeg or clip tests, and ui-check covers just those essays and the pages that
+      # list them. Every other PR, and every push to main, runs everything.
+      - name: Find the essays a text-only PR changes
+        id: scope
+        if: github.event_name == 'pull_request'
+        run: |
+          files=$(git diff --name-only --no-renames HEAD^1 HEAD)
+          if ! grep -qvE '^(content|public)/writing/' <<<"$files"; then
+            echo "essays=$(sed -E 's#^(content|public)/writing/([^/.]+).*#\2#' <<<"$files" | sort -u | paste -sd, -)" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -30,10 +44,11 @@ jobs:
       # src/clips.test.js runs scripts/clips.js for real: it converts with ffmpeg (libwebp)
       # and reads frame counts with Pillow, and the runner image has neither.
       - name: Install ffmpeg and Pillow for the clip tests
+        if: steps.scope.outputs.essays == ''
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends ffmpeg python3-pil
-      - run: CI=true npm test
+      - run: CI=true npm test ${{ steps.scope.outputs.essays && '-- --testPathIgnorePatterns=clips' || '' }}
       - run: npm run build
       - name: Cache Playwright browsers
         id: playwright-cache
@@ -48,3 +63,5 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright-core install-deps chromium
       - run: node scripts/ui-check.js
+        env:
+          UI_CHECK_ESSAYS: ${{ steps.scope.outputs.essays }}
