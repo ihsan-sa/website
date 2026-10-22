@@ -5,13 +5,13 @@ summary: How my AI PCB design flow works, and the working amplifier board it des
 standfirst: On AI PCB design: from brief to working board
 blurb: On AI PCB design: from brief to working board
 library: 003-0004
-revision: C
-pdf: https://library.ihsan.cc/files/003-0004-C.pdf
+revision: D
+pdf: https://library.ihsan.cc/files/003-0004-D.pdf
 approved_by: Ihsan
 approved_at: 2026-10-22
 ---
 
-*This essay is also a [5-page PDF](https://library.ihsan.cc/p/WuC-Bt12Tsmxa4RT9Hkad7K0CwoU3YtQ).*
+*This essay is also a [6-page PDF](https://library.ihsan.cc/p/KaIgYn5Ma5l8Ea-1xM7hKvCuO8H41tmC).*
 
 ## Introduction
 
@@ -54,6 +54,16 @@ The flow produced a bring-up document with measurement and test instructions, an
 ![The board as JLCPCB assembled it, still in its panel.](hwde-amplifier.webp)
 
 On the bench, on a 12 V supply with both channels driving 6 Ω speakers, its clean output was 10.9 W per channel at 0.37% THD (500 Hz), and its efficiency about 90% at 1 kHz. It clipped at its own 12 V rail, not at the source.
+
+### How it did against the design
+
+The brief set no performance numbers, since it only asked for a copy of the reference board, so most of the targets were ones the flow worked out for itself. Two of them were met. The design said the board would clip at its own 12 V rail on a full line-level input, and the flat tops start at about 11.8 V. It expected 90 to 93% efficiency, and the bench measured 90% at 4.1 W per channel at 1 kHz, so that one was met, just. Power per channel came up short: the design expected 15.6 W into 4 Ω and 8.4 W into 8 Ω at 1% THD, while the bench gave 10.9 W clean at 500 Hz but was clipping by 10.1 W at 100 Hz and by 8.6 W at 1 kHz. The chip's temperature was meant to stay under 125 °C, with about 85 °C estimated, and it hasn't been measured. The brief's own target was a board of 44 × 34 mm or smaller, and the board missed it at 53.6 × 36.8 mm, because heat came first.
+
+Power is the one real miss on the bench. At 100 Hz the board clipped at 10.1 W, where the design expected about 15.6 W clean into 4 Ω, and at 1 kHz it was already clipping at 8.6 W. My bench supply was capped at 2.1 A, below the 2.9 A the design says both channels draw at full power into 4 Ω, and the flat tops sagged about a volt as the supply drooped, so the supply may have given out before the board did. A run on a bigger supply would settle it.
+
+![Distortion against power for each tone I captured, 100 Hz to 1 kHz. Open circles are the design's estimates at 1% THD. The speaker was under 5 Ω in the bass and 7.5 Ω at 1 kHz.](amp-thd-vs-power.png)
+
+The design's own checks weren't all clean either. Its verification gate never passed: the flow proposed eight findings as waivers, and I ordered the board without signing them. The one that matters is thermal, and nobody has measured the chip's temperature yet.
 
 ### The board and what it cost
 
