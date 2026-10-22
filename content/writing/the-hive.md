@@ -12,6 +12,8 @@ approved_at: 2026-10-21
 
 *This essay is also a [7-page PDF](https://library.ihsan.cc/p/UMJh95rrN6cPhyvzoZsvZsFHBOb_hXog).*
 
+*Read about [how I used Autobox](/writing/autobox), my previous orchestration system.*
+
 ## Design philosophy
 
 ### Core
@@ -32,14 +34,14 @@ In short:
 
 The *core* gains functionality through *modules*: shared tools, services, scripts, or knowledge bases which agents can engage with at will to complete work. Examples of modules include but are not limited to:
 
-- *Slack* module which enables agents to communicate in the Slack workspace.
-- *Phone* module which makes it possible for agents to communicate with the user via phone call.
-- *Knowledge base* module which agents write to and read from. Search and filing engines manage and consolidate the knowledge generated, to enable the system's ephemeral hive mind and inter-/intra-project context.
-- *Self-improvement* module which runs scheduled sweeps over the entire hive, logs, Slack comms, etc., to identify failures, deficiencies, and potential upgrades.
-- *System management* modules manage server resources, dispatch jobs to the GPU, etc.
-- *Library* module files and updates documents in the web library.
-- *Agent/harness* module contains the agents deployed to *The Hive*, and the adapters which enable different models and harnesses to be used.
-- *Scripts/helpers/tools* which agents write for themselves, for use by the collective, or for the user.
+- **Slack** module which enables agents to communicate in the Slack workspace.
+- **Phone** module which makes it possible for agents to communicate with the user via phone call.
+- **Knowledge base** module which agents write to and read from. Search and filing engines manage and consolidate the knowledge generated, to enable the system's ephemeral hive mind and inter-/intra-project context.
+- **Self-improvement** module which runs scheduled sweeps over the entire hive, logs, Slack comms, etc., to identify failures, deficiencies, and potential upgrades.
+- **System management** modules manage server resources, dispatch jobs to the GPU, etc.
+- **Library** module files and updates documents in the web library.
+- **Agent/harness** module contains the agents deployed to *The Hive*, and the adapters which enable different models and harnesses to be used.
+- **Scripts/helpers/tools** which agents write for themselves, for use by the collective, or for the user.
 
 Agents are encouraged to develop and file such modules, as well as identify weaknesses in released modules and improve them. Large modules are owned by *projects* which live on *The Hive*, while small modules may not have an owner or were made by a since-deactivated agent. When an agent identifies a weakness or upgrade for a module, it either updates it itself for small edits/fixes, or raises it to the module's project for major changes. Fixes to the hive's *core* go to the hive admin project.
 
@@ -66,9 +68,9 @@ Hence, nearly all agents are the same, differing only in the specific instructio
 
 Key agent types include:
 
-- *Lead* agents, which own a project's goals and asks.
-- *Worker* agents, which represent the bulk of the agents in the hive and perform generic tasks, from writing code to reviewing it or completing research. Workers, like any other agents, may access specialized modules which offer additional procedures and tools to better complete a task, similar to how skills are implemented in Claude Code. For example, a worker tasked with researching a certain topic may access a module or entries in the knowledge base which provide guidance on how to execute such tasks. These are chosen *at will* by the agent, ensuring obsolete procedures and frameworks are not forced upon agents.
-- *Warden* agents, which hold elevated privileges over workers and are spawned by workers to execute tasks which reach outside the hive. Wardens follow a thorough safety evaluation framework which acts similarly to a Claude Code auto-mode classifier, except scoped to the hive.
+- **Lead** agents, which own a project's goals and asks.
+- **Worker** agents, which represent the bulk of the agents in the hive and perform generic tasks, from writing code to reviewing it or completing research. Workers, like any other agents, may access specialized modules which offer additional procedures and tools to better complete a task, similar to how skills are implemented in Claude Code. For example, a worker tasked with researching a certain topic may access a module or entries in the knowledge base which provide guidance on how to execute such tasks. These are chosen *at will* by the agent, ensuring obsolete procedures and frameworks are not forced upon agents.
+- **Warden** agents, which hold elevated privileges over workers and are spawned by workers to execute tasks which reach outside the hive. Wardens follow a thorough safety evaluation framework which acts similarly to a Claude Code auto-mode classifier, except scoped to the hive.
 - A *Tribunal* of agents, which is spawned by a warden when it cannot determine the safety of an operation. The warden generates a script to run the required command and submits it to the tribunal. The tribunal, a panel of different models and agents which each run their own independent investigation, holds the final say. Agents on the panel discuss, and then each casts a vote. If a majority is achieved, the script is run. Tribunals do not complete any work.
 
 All these different agents are stored in a module, which enables their continuous improvement and the deployment of new releases, as with any other process on the hive.
@@ -77,9 +79,9 @@ All these different agents are stored in a module, which enables their continuou
 
 Risks are classified into separate classes:
 
-- *T1:* Risks scoped to the hive (e.g. a module edit).
-- *T2:* Risks external to the hive but scoped to non-mission-critical systems (e.g. updating a line on my website), or risks internal to the hive but part of mission-critical systems (e.g. editing the hive core).
-- *T3:* Risks external to the hive and part of mission-critical systems (e.g. changes to the process which issues live links to documents in my library).
+- **T1:** Risks scoped to the hive (e.g. a module edit).
+- **T2:** Risks external to the hive but scoped to non-mission-critical systems (e.g. updating a line on my website), or risks internal to the hive but part of mission-critical systems (e.g. editing the hive core).
+- **T3:** Risks external to the hive and part of mission-critical systems (e.g. changes to the process which issues live links to documents in my library).
 
 *T1:* The core is built such that state is preserved, and risks scoped to the hive can be recovered from or rebuilt with scoped work. This falls primarily under the responsibility of worker agents, who are instructed to weigh risks and permissions against high-level goals. Risks at this level are often acceptable and enable accelerated development and higher-quality work. An example would be editing the Slack module: if it breaks, it would not be ideal, but it is recoverable and fixable. Reviews on PRs and adaptive test suites, which run based on the changed files/systems, are designed to catch most errors.
 

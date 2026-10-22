@@ -47,7 +47,6 @@ const LABELS = {
   label: 'Link',
   pending: 'Waiting for its link',
   banner: 'Banner',
-  bannerEarlier: 'Second banner',
   start: 'Start here',
   detail: 'Detail',
   title: 'Title',
