@@ -1,7 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import './Preview.css';
 import rawContent from './content.json';
-import { ESSAY_BANNER } from './essayBanner';
+import { ESSAY_BANNERS } from './essayBanner';
 import { fillStats } from './fillStats';
 import { frontPage } from './frontPage';
 import { OUT_ARROW_SVG } from './outArrow';
@@ -66,7 +66,7 @@ function usePreviewFont() {
 
 const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
 
-// The draft's banner under the intro: the essay's clip (src/essayBanner.js) as a
+// A banner under the intro (src/essayBanner.js lists them): the essay's clip as a
 // looping animated WebP over its title and standfirst, the whole of it one link to the
 // essay. An animated WebP, not a <video>, because it is an image and plays everywhere,
 // Safari's Low Power Mode included (Safari has played it since 14), which refuses muted
@@ -74,28 +74,29 @@ const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
 // 16:9 box so nothing shifts, and the still poster is the <img>'s own background, so it
 // shows at once and the clip paints over it once loaded. With reduced motion asked for,
 // <picture> swaps in the poster and the clip never loads. It is decorative (alt=""): the
-// link's own text names the essay.
+// link's own text names the essay. A banner with no clip is its text alone.
 // A clip's still as its <img>'s CSS background: it shows the moment the box is laid
 // out, and the loaded clip covers it. No script, and the static build writes the same.
 const stillStyle = (poster) => (poster ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover' } : undefined);
 
-function EssayBanner({ essay, href, label }) {
-  const { gif, poster, width, height } = ESSAY_BANNER;
+function EssayBanner({ essay, href, label, gif, poster, width, height }) {
   return (
-    <a className="pv-banner pv-banner--apart" href={href}>
-      <picture className="pv-banner__media">
-        <source media="(prefers-reduced-motion: reduce)" srcSet={poster} />
-        <img
-          className="pv-banner__video"
-          src={gif}
-          alt=""
-          width={width}
-          height={height}
-          loading="lazy"
-          decoding="async"
-          style={stillStyle(poster)}
-        />
-      </picture>
+    <a className={`pv-banner pv-banner--apart${gif ? '' : ' pv-banner--text'}`} href={href}>
+      {gif && (
+        <picture className="pv-banner__media">
+          <source media="(prefers-reduced-motion: reduce)" srcSet={poster} />
+          <img
+            className="pv-banner__video"
+            src={gif}
+            alt=""
+            width={width}
+            height={height}
+            loading="lazy"
+            decoding="async"
+            style={stillStyle(poster)}
+          />
+        </picture>
+      )}
       <span className="pv-banner__text">
         <span className="pv-banner__label">{label}</span>
         <span className="pv-banner__title">{essay.title}</span>
@@ -414,7 +415,7 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
   const block = isFront ? front : prototype;
   const sections = [block.aiWork, block.experience];
   const writing = isFront ? '/writing' : `${PREVIEW_PATH}/writing`;
-  const bannerEssay = essays.find((e) => e.slug === ESSAY_BANNER.slug);
+  const banners = ESSAY_BANNERS.map((b) => ({ ...b, essay: essays.find((e) => e.slug === b.slug) })).filter((b) => b.essay);
 
   return (
     <main ref={mainRef} className="pv pv-proto pv-proto--photos">
@@ -450,9 +451,9 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
 
       <Intro block={block} />
 
-      {bannerEssay && (
-        <EssayBanner essay={bannerEssay} href={`${writing}/${bannerEssay.slug}`} label={block.essays.banner} />
-      )}
+      {banners.map((b) => (
+        <EssayBanner key={b.slug} {...b} href={`${writing}/${b.slug}`} label={block.essays[b.label]} />
+      ))}
 
       {sections.map((section) => (
         <section className="pv-block" key={section.heading}>

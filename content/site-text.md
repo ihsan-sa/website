@@ -133,6 +133,8 @@ Three pipelines in the form of Claude Code skills aimed at digital, analog, and 
 
 *Banner:* New essay <!-- prototype.essays.banner -->
 
+*Second banner:* Essay <!-- prototype.essays.bannerEarlier -->
+
 ## Projects <!-- prototype.projects.heading -->
 
 *Heading link:* Hardware portfolio <!-- prototype.projects.headLink.label -->

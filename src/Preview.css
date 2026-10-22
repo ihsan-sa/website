@@ -497,6 +497,12 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
   border-bottom: 1px solid var(--rule);
 }
 .pv-proto .pv-banner--apart .pv-banner__text { gap: 4px; margin-top: -3px; }
+/* A banner with no clip (.pv-banner--text) is its text alone, the column's full width.
+   Banners in a row read as one block: on desktop one hairline parts them (the negative
+   margin takes back the column's 36px gap); on a phone each label's rule opens its
+   banner, so only the last one closes with a hairline. */
+.pv-proto .pv-banner--text { grid-template-columns: minmax(0, 1fr); }
+.pv-proto .pv-banner--apart + .pv-banner--apart { border-top: 0; margin-top: -36px; }
 @media (max-width: 640px) {
   .pv-proto .pv-banner--apart { display: flex; flex-direction: column; align-items: stretch; gap: 12px; padding-top: 0; border-top: 0; }
   .pv-proto .pv-banner--apart .pv-banner__text { display: contents; }
@@ -505,4 +511,6 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
   .pv-proto .pv-banner--apart .pv-banner__title { margin-top: 2px; }
   .pv-proto .pv-banner--apart .pv-banner__stand { margin-top: -10px; }
   .pv-proto .pv-banner--apart { padding-bottom: 24px; }
+  .pv-proto .pv-banner--apart + .pv-banner--apart { margin-top: 0; }
+  .pv-proto .pv-banner--apart:has(+ .pv-banner--apart) { padding-bottom: 0; border-bottom: 0; }
 }

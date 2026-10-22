@@ -4,7 +4,7 @@ import path from 'path';
 import App, { PREVIEW_PATH, Prototype, ProtoEntry, RowVisual } from './App';
 import content from './content.json';
 import shelved from './content.shelved.json';
-import { ESSAY_BANNER } from './essayBanner';
+import { ESSAY_BANNERS } from './essayBanner';
 import { fillStats } from './fillStats';
 import stats from './stats.json';
 import { PROJECT_THUMBS } from './projectThumbs';
@@ -18,6 +18,7 @@ beforeEach(() => {
 
 const { prototype } = content;
 const { rasterSize } = require('../scripts/writing');
+const { renderFront } = require('../scripts/build-static');
 const read = (...parts) => fs.readFileSync(path.join(__dirname, '..', ...parts), 'utf8');
 const LIVE_ESSAY = { slug: 'live', title: 'Live one', blurb: 'the published one.', summary: 'S.', date: '2026-10-02', draft: false };
 const DRAFT_ESSAY = { slug: 'secret', title: 'Secret one', summary: 'Not yet.', date: '2026-09-01', draft: true };
@@ -457,6 +458,11 @@ test('the name link on a folded row stays a link and does not toggle the row', (
 const AUTOBOX_ESSAY = {
   slug: 'autobox', title: 'Autobox', summary: 'how I built it.', standfirst: 'How I built Autobox.', date: '2026-09-30', draft: true,
 };
+const HIVE_ESSAY = {
+  slug: 'the-hive', title: 'The Hive', summary: 'the design.', standfirst: 'On long-horizon agentic architecture.', date: '2026-10-21', draft: false,
+};
+// The banner with the clip.
+const ESSAY_BANNER = ESSAY_BANNERS.find((b) => b.slug === 'autobox');
 const h2s = () => screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
 
 test('the draft puts AI work above Experience', () => {
@@ -501,7 +507,7 @@ test('the draft banner shows the essay clip as a lazy, sized GIF, and links the 
   expect(banner).toHaveAttribute('href', `${PREVIEW_PATH}/writing/autobox`);
   expect(banner.previousElementSibling).toHaveClass('pv-intro');
   expect(banner.nextElementSibling.tagName).toBe('SECTION');
-  expect(banner).toHaveTextContent(prototype.essays.banner);
+  expect(banner).toHaveTextContent(prototype.essays[ESSAY_BANNER.label]);
   expect(banner).toHaveTextContent(AUTOBOX_ESSAY.title);
   expect(banner).toHaveTextContent(AUTOBOX_ESSAY.standfirst);
   // A GIF, never a <video>: a GIF autoplays where Low Power Mode refuses muted video.
@@ -534,7 +540,53 @@ test('the draft banner shows the essay clip as a lazy, sized GIF, and links the 
   expect(fs.statSync(path.join(__dirname, '..', 'public', ESSAY_BANNER.gif)).size).toBeLessThanOrEqual(4 * 1024 * 1024);
 });
 
-test('with no Autobox essay the draft shows no banner', () => {
+test('the front page features The Hive as the new essay, text only, then Autobox with its clip', () => {
+  const { container } = render(<Prototype front essays={[HIVE_ESSAY, { ...AUTOBOX_ESSAY, draft: false }]} />);
+  const [hive, autobox, more] = container.querySelectorAll('a.pv-banner');
+  expect(more).toBeUndefined();
+  expect(hive).toHaveAttribute('href', '/writing/the-hive');
+  expect(autobox).toHaveAttribute('href', '/writing/autobox');
+  expect(hive.previousElementSibling).toHaveClass('pv-intro');
+  expect(hive.nextElementSibling).toBe(autobox);
+  expect(autobox.nextElementSibling.tagName).toBe('SECTION');
+  // The Hive has no clip: no picture and no img, so no empty media box.
+  expect(hive).toHaveClass('pv-banner--text');
+  expect(hive.querySelector('picture, img')).toBeNull();
+  expect(hive.querySelector('.pv-banner__label')).toHaveTextContent(prototype.essays.banner);
+  expect(hive).toHaveTextContent(HIVE_ESSAY.title);
+  expect(hive).toHaveTextContent(HIVE_ESSAY.standfirst);
+  expect(autobox).not.toHaveClass('pv-banner--text');
+  expect(autobox.querySelector('img.pv-banner__video')).toHaveAttribute('src', ESSAY_BANNER.gif);
+  // Two labels, each a site-text key, and only The Hive's says new.
+  expect(prototype.essays.banner).toBe('New essay');
+  expect(autobox.querySelector('.pv-banner__label')).toHaveTextContent(prototype.essays.bannerEarlier);
+  expect(prototype.essays.bannerEarlier).not.toBe(prototype.essays.banner);
+});
+
+test('the static front page writes the same banners as the app, and skips a missing essay the same way', () => {
+  const shape = (root) => [...root.querySelectorAll('a.pv-banner')].map((a) => {
+    const img = a.querySelector('img');
+    return {
+      cls: a.className,
+      slug: a.getAttribute('href').split('/').filter(Boolean).pop(),
+      text: [...a.querySelectorAll('.pv-banner__text > span')].map((s) => `${s.className}: ${s.textContent}`),
+      source: a.querySelector('source')?.getAttribute('srcset') ?? null,
+      img: img && { ...Object.fromEntries(['class', 'src', 'alt', 'width', 'height', 'loading', 'decoding'].map((k) => [k, img.getAttribute(k)])), still: img.style.backgroundImage },
+    };
+  });
+  [[HIVE_ESSAY, AUTOBOX_ESSAY], [AUTOBOX_ESSAY]].forEach((list) => {
+    const essays = list.map((e) => ({ ...e, draft: false }));
+    const { container, unmount } = render(<Prototype front essays={essays} />);
+    const app = shape(container);
+    unmount();
+    const html = document.createElement('div');
+    html.innerHTML = renderFront(content, essays);
+    expect(app.map((b) => b.slug)).toEqual(list.map((e) => e.slug));
+    expect(shape(html)).toEqual(app);
+  });
+});
+
+test('with neither listed essay the draft shows no banner', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   const { container } = render(<Prototype essays={ONE_ESSAY} />);
   expect(container.querySelector('.pv-banner')).toBeNull();
