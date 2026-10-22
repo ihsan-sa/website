@@ -586,7 +586,7 @@ test('the static front page writes the same banners as the app, and skips a miss
     return {
       cls: a.className,
       slug: a.getAttribute('href').split('/').filter(Boolean).pop(),
-      text: [...a.querySelectorAll('.pv-banner__text > span')].map((s) => `${s.className}: ${s.textContent}`),
+      text: [...a.querySelectorAll('.pv-banner__text > *')].map((s) => `${s.className}: ${s.textContent}`),
       source: a.querySelector('source')?.getAttribute('srcset') ?? null,
       img: img && { ...Object.fromEntries(['class', 'src', 'alt', 'width', 'height', 'loading', 'decoding'].map((k) => [k, img.getAttribute(k)])), still: img.style.backgroundImage },
     };
