@@ -1,5 +1,5 @@
 ---
-title: AI PCB Design Tool
+title: AI PCB Design
 date: 2026-10-22
 summary: How my AI PCB design flow works, and the working amplifier board it designed.
 standfirst: On AI PCB design: from brief to working board
