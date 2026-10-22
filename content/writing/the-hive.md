@@ -4,17 +4,15 @@ date: 2026-10-21
 summary: The design of my autonomous, self-improving agentic system.
 standfirst: On long-horizon agentic architecture: towards dynamic RSI
 library: 016-0006
-revision: F
-pdf: https://library.ihsan.cc/files/016-0006-F.pdf
+revision: G
+pdf: https://library.ihsan.cc/files/016-0006-G.pdf
 approved_by: Ihsan
 approved_at: 2026-10-21
 ---
 
-*This essay is also an [8-page PDF](https://library.ihsan.cc/p/KuQiri0SfXijkp6NHq8fmBk_0syRjLBk).*
+*This essay is also a [7-page PDF](https://library.ihsan.cc/p/w95TjzTBBpOrsoK5zpEBrb-sFl2Pa8wC).*
 
 ## Design philosophy
-
-![The hive in four layers. Each layer rests on the one below it. Sage is the agents doing the work, slate the projects they work in, grey the shared modules, and rust the core, which holds the one hard safety boundary.](hive-layers.svg)
 
 ### Core
 
