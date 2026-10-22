@@ -1,8 +1,25 @@
 {
   "autobox": {
-    "prs": "2,200",
-    "repos": "30",
-    "merged": 2222,
-    "asOf": "2026-10-14"
+    "prs": "3,400",
+    "repos": "35",
+    "merged": 3447,
+    "asOf": "2026-10-22"
+  },
+  "hive": {
+    "prs": "700",
+    "repos": "17",
+    "merged": 732,
+    "asOf": "2026-10-22",
+    "day": "22 October 2026"
+  },
+  "hwde": {
+    "boards": 28
+  },
+  "lessons": {
+    "count": 57,
+    "topics": 14
+  },
+  "chip": {
+    "circuits": 13
   }
 }

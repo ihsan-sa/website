@@ -1,18 +1,40 @@
-// The autobox line's numbers: counting (scripts/stats.js) and filling them into the page
+// The AI rows' numbers: counting (scripts/stats.js) and filling them into the page
 // (src/fillStats.js, used by both builds).
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { tally, roundOver, statsFor, shownChanged } = require('../scripts/stats');
+const { tally, fromTrees, roundOver, statsFor, shownChanged } = require('../scripts/stats');
 const { fillStats } = require('./fillStats');
 const { build } = require('../scripts/build-static');
 const { toTex, applyEdits, renderTex } = require('../scripts/content-pdf');
 
-const repo = (name, n) => ({ name, pullRequests: { totalCount: n } });
+const repo = (name, n, hive = 0) => ({ nameWithOwner: name, pullRequests: { totalCount: n }, hive });
+const none = { merged: 0, repos: 0 };
 
 test('the count adds merged PRs and counts only repos that have one', () => {
-  expect(tally([repo('a', 794), repo('b', 0), repo('c', 306), repo('d', 1)])).toEqual({ merged: 1101, repos: 3 });
-  expect(tally([])).toEqual({ merged: 0, repos: 0 });
+  expect(tally([repo('a', 794), repo('b', 0), repo('c', 306), repo('d', 1)])).toEqual({ autobox: { merged: 1101, repos: 3 }, hive: none });
+  expect(tally([])).toEqual({ autobox: none, hive: none });
+});
+
+test('the Hive\'s dispatch/ PRs are its own count and leave autobox\'s', () => {
+  // A repo only the Hive merged in counts for it alone.
+  expect(tally([repo('a', 800, 6), repo('h', 5, 5)])).toEqual({ autobox: { merged: 794, repos: 1 }, hive: { merged: 11, repos: 2 } });
+});
+
+test('the projects\' counts come from their repos\' files', () => {
+  const tree = (entries) => ({ entries });
+  const lessons = (n) => ({ type: 'tree', object: tree([{ name: 'claude_lessons', object: tree([...Array(n)].map(() => ({ type: 'tree' }))) }]) });
+  expect(fromTrees({
+    boards: { object: { text: 'products:\n  PCB-0001:\n    revs:\n      A: {dir: a}\n      B: {dir: b}\n  PCB-0002:\n    revs:\n' } },
+    // Two courses with lessons; a course with none, a folder with no claude_lessons and a file are no topic.
+    lessons: { object: tree([lessons(2), lessons(3), lessons(0), { type: 'tree', object: tree([{ name: 'x.sh', object: {} }]) }, { type: 'blob', object: {} }]) },
+    // Each skill's designs are its folders; a file beside them is not one.
+    chip: { object: tree([{ object: tree([{ type: 'tree' }, { type: 'tree' }]) }, { object: tree([{ type: 'tree' }, { type: 'blob' }]) }, { object: {} }]) },
+  })).toEqual({ boards: 2, lessons: 5, topics: 2, circuits: 3 });
+});
+
+const counts = (merged, repos, more = {}) => ({
+  autobox: { merged, repos }, hive: { merged: 731, repos: 17 }, boards: 28, lessons: 57, topics: 14, circuits: 13, ...more,
 });
 
 test('it rounds to the hundred the count is over, as the line reads', () => {
@@ -21,15 +43,23 @@ test('it rounds to the hundred the count is over, as the line reads', () => {
   expect(roundOver(1100)).toBe(1000); // "over 1,100" would be false
   expect(roundOver(1394)).toBe(1300);
   expect(roundOver(0)).toBe(0);
-  expect(statsFor({ merged: 1394, repos: 24 }, new Date('2026-09-30T23:00:00Z')))
-    .toEqual({ autobox: { prs: '1,300', repos: '24', merged: 1394, asOf: '2026-09-30' } });
+  expect(statsFor(counts(1394, 24), new Date('2026-09-30T23:00:00Z'))).toEqual({
+    autobox: { prs: '1,300', repos: '24', merged: 1394, asOf: '2026-09-30' },
+    hive: { prs: '700', repos: '17', merged: 731, asOf: '2026-09-30', day: '30 September 2026' },
+    hwde: { boards: 28 },
+    lessons: { count: 57, topics: 14 },
+    chip: { circuits: 13 },
+  });
 });
 
 test('only a change in the shown text makes a new file', () => {
-  const was = statsFor({ merged: 1310, repos: 24 }, new Date('2026-09-01'));
-  expect(shownChanged(was, statsFor({ merged: 1394, repos: 24 }))).toBe(false);
-  expect(shownChanged(was, statsFor({ merged: 1401, repos: 24 }))).toBe(true);
-  expect(shownChanged(was, statsFor({ merged: 1394, repos: 25 }))).toBe(true);
+  const was = statsFor(counts(1310, 24), new Date('2026-09-01'));
+  // A later day with the same shown counts: the dates and exact counts alone make no file.
+  expect(shownChanged(was, statsFor(counts(1394, 24)))).toBe(false);
+  expect(shownChanged(was, statsFor(counts(1401, 24)))).toBe(true);
+  expect(shownChanged(was, statsFor(counts(1394, 25)))).toBe(true);
+  expect(shownChanged(was, statsFor(counts(1394, 24, { hive: { merged: 801, repos: 17 } })))).toBe(true);
+  expect(shownChanged(was, statsFor(counts(1394, 24, { lessons: 58 })))).toBe(true);
   expect(shownChanged({}, was)).toBe(true);
 });
 

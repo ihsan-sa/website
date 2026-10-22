@@ -1,7 +1,8 @@
 # Counted numbers on the site
 
-The autobox line ("over 1,100 PRs across 18 repos") can show numbers the box counts
-instead of ones typed by hand. The text keeps a placeholder, and the build fills it from
+The AI rows' lines (autobox's "over 1,100 PRs across 18 repos", the Hive's PRs, hwde's
+boards, lesson-builder's lessons and the chip flow's circuits) can show numbers the box
+counts instead of ones typed by hand. The text keeps a placeholder, and the build fills it from
 `src/stats.json`. The page stays plain HTML with no script, and nothing on it connects to
 the box.
 
@@ -9,8 +10,15 @@ the box.
 
 | Placeholder | Shows | Example |
 |---|---|---|
-| `{autobox.prs}` | merged PRs, rounded down to the hundred below | `1,300` |
-| `{autobox.repos}` | repos with at least one merged PR, exact | `24` |
+| `{autobox.prs}` | merged PRs not made by the Hive, rounded down to the hundred below | `1,300` |
+| `{autobox.repos}` | repos with at least one of those, exact | `24` |
+| `{hive.prs}` | merged PRs the Hive made (a `dispatch/` branch), rounded the same way | `700` |
+| `{hive.repos}` | repos with at least one of those, exact | `17` |
+| `{hive.day}` | the day the shown numbers were last counted, as the page writes dates | `22 October 2026` |
+| `{hwde.boards}` | products in `ihsan-sa/boards`' `register.yaml` | `28` |
+| `{lessons.count}` | lessons in `ihsan-sa/lessons`, the folders under `lessons/<course>/claude_lessons/` | `57` |
+| `{lessons.topics}` | courses with at least one lesson | `14` |
+| `{chip.circuits}` | designs in `ihsan-sa/chip-flow`, the folders under `corpus/<skill>/` | `13` |
 
 So the line is written `over {autobox.prs} PRs across {autobox.repos} repos`.
 
@@ -27,8 +35,12 @@ such as a typo, fails the build instead of showing braces on the site.
 
 ## Where the numbers come from
 
-`node scripts/stats.js count` prints the count and writes nothing. It asks GitHub for
-every repo the box's account owns and adds up each one's merged pull requests.
+`node scripts/stats.js count` prints the counts and writes nothing. It asks GitHub for
+every repo the box's account owns and adds up each one's merged pull requests. In the same
+pass it searches each repo for the merged PRs from a `dispatch/` branch, which every Hive run
+pushes: those are the Hive's, and autobox's count leaves them out, so the two rows never count
+one PR twice. One more query reads the three projects' files the table names, at their
+default branch.
 
 The lander's `queue.log` would be the box's own record, but it only starts on 2026-09-01,
 so it misses everything merged before the lander ran: on 2026-09-30 it had 787 PRs across
@@ -37,12 +49,13 @@ so it misses everything merged before the lander ran: on 2026-09-30 it had 787 P
 
 `prs` is rounded down to the hundred strictly below the count, because the line says
 "over". So 1,101 to 1,199 read `1,100`, and exactly 1,100 reads `1,000`. `merged` holds
-the exact count and `asOf` the day the rounded text last changed.
+the exact count and `asOf` the day the shown text last changed; `hive.day` is that day
+written out. The other counts are exact.
 
 ## Refreshing it
 
-`node scripts/stats.js update` counts, then compares the rounded text with
-`src/stats.json` on `origin/main`. When they match it prints `unchanged` and stops, so a
+`node scripts/stats.js update` counts, then compares the shown numbers (every one but
+`merged`, `asOf` and `hive.day`) with `src/stats.json` on `origin/main`. When they match it prints `unchanged` and stops, so a
 quiet night makes no commit. When they differ it pushes a branch `stats/<date>` that
 changes only `src/stats.json`, opens a PR and queues it with `cc-land queue website <n>`,
 so the usual gates and review land it. While an earlier `stats/` PR is still open it does

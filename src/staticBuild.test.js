@@ -19,8 +19,9 @@ test('the front page is the draft minus its documents, with all its copy in the 
     ...pt.experience.items.flatMap((i) => [i.name, i.text, i.result]),
     ...pt.aiWork.items.flatMap((i) => [i.name, i.text, i.result]),
     ...pt.projects.items.map((i) => i.title)].forEach((t) => expect(html).toContain(t));
-  // Every AI row keeps its GitHub link; every project tile its own link.
-  pt.aiWork.items.forEach(({ href }) => expect(html).toContain(`href="${href}"`));
+  // Every AI row with a public repo keeps its GitHub link (the Hive's is private); every
+  // project tile its own link.
+  pt.aiWork.items.filter(({ href }) => href).forEach(({ href }) => expect(html).toContain(`href="${href}"`));
   pt.projects.items.forEach(({ href }) => expect(html).toContain(`href="${href}"`));
   // The draft's documents beside AI work, and its essays, are not on it.
   expect(content.prototype.aiWork.docs).toBeUndefined();
@@ -136,6 +137,13 @@ test('the draft lists the essays it is given, and leaves the link and section ou
   const none = decode(renderDraft(content, []));
   expect(none).not.toContain('<h2><a class="pv-strong"');
   expect(none).not.toContain(`href="${STATIC_PATH}writing/"`);
+});
+
+test('the banner\'s label line carries the essay\'s date in a <time>, as the React page does', () => {
+  const { parseEssay } = require('../scripts/writing');
+  const { essay } = parseEssay('---\ntitle: The Hive\ndate: 2026-10-21\nsummary: The design.\nstandfirst: On agents.\n---\n\nText.\n', 'the-hive');
+  const html = decode(renderFront(content, [essay]));
+  expect(html).toContain(`<span class="pv-banner__label"><span>${content.prototype.essays.banner}<span class="pv-banner__sep"> · </span><time datetime="2026-10-21">21 October 2026</time></span></span>`);
 });
 
 test('the second draft is hidden, and opens each row on its whole line', () => {
