@@ -49,7 +49,7 @@ The final products of a fully autonomous flow are the manufacturing files and a 
 
 I instructed the flow to design a simple class D audio amp. Specifically, I told it to design the same board GPT Astra 6 designed. It found a write-up from JLCPCB where they tested Astra 6 by designing an audio amplifier, and designed one itself. About 9 hours and $126[^cost] later, it produced manufacturing files, BOM, and CPL, as well as documentation, which I uploaded to JLCPCB and ordered as is.
 
-The flow produced a bring-up document with measurement and test instructions, and processed data captured on the oscilloscope and subsequently produced a report. The audio amplifier worked as designed, and drove hi-fi tower speakers at up to 20 W with nice qualitative sound quality, and quantitative test results in line with the intended design figures.
+The flow produced a bring-up document with measurement and test instructions, and processed data captured on the oscilloscope and subsequently produced a report. The audio amplifier worked as designed, and drove hi-fi tower speakers at up to 20 W with nice qualitative sound quality, and quantitative test results generally in line with the intended design figures.
 
 ![The board as JLCPCB assembled it, still in its panel.](hwde-amplifier.webp)
 
