@@ -71,67 +71,81 @@ Class academic rep and WEEF engineering fund rep. GPA 87%. <!-- prototype.experi
 
 ## AI work <!-- prototype.aiWork.heading -->
 
-### hwde <!-- prototype.aiWork.items.0.name -->
+### The Hive <!-- prototype.aiWork.items.0.name -->
 
-an AI PCB engineer, from brief to fabricated board. <!-- prototype.aiWork.items.0.text -->
+an autonomous, self‑improving agentic system. <!-- prototype.aiWork.items.0.text -->
 
-*Under the name:* Designed 21 boards so far, and the latest, an amplifier, has been made. <!-- prototype.aiWork.items.0.sub -->
+*Under the name:* Agents take an ask from Slack to a merged PR, in each project’s own repo. {hive.prs}+ PRs merged across {hive.repos} repos from 12 October to {hive.day}. <!-- prototype.aiWork.items.0.sub -->
 
-*On a phone:* an AI PCB engineer. <!-- prototype.aiWork.items.0.short -->
+*On a phone:* self‑improving agents. <!-- prototype.aiWork.items.0.short -->
 
-A multi‑stage agentic pipeline in the form of a Claude Code skill takes in a simple brief and produces a PCB design and fab package. Soft orchestration layered with deterministic evals and scripts ensures a pipeline which produces consistent, verifiable, and iteratively improvable outputs, while maintaining a flexible pipeline which evolves as models and harnesses do. <!-- prototype.aiWork.items.0.result -->
+The successor to autobox, built around a small core that stays simple so the system can keep improving itself as models do. Agents work in their own worktrees and Unix users, and an effects process holds every credential and acts on their behalf. They spawn one another, message agents on other projects and share modules such as Slack, the knowledge base and the library. Risks are weighed by tier: workers take the ones scoped to the hive, wardens the ones that reach outside it, and a tribunal of models votes when a warden can’t decide. Sweeps over the whole hive catch failures and file the fixes. <!-- prototype.aiWork.items.0.result -->
 
-*Image description:* Boards hwde designed, rendered in 3D from their KiCad files. <!-- prototype.aiWork.items.0.visual.alt -->
+*Note:* For more details, read&#32; <!-- prototype.aiWork.items.0.note.text -->
 
-*Caption:* Boards hwde designed, rendered in Blender. <!-- prototype.aiWork.items.0.visual.caption -->
+*Note link:* the essay <!-- prototype.aiWork.items.0.note.label -->
 
-*Image description:* The amplifier board as made: a green PCB marked PCB-0017 REV A, with an amplifier chip, four inductors and two capacitors. <!-- prototype.aiWork.items.0.figure.alt -->
+### hwde <!-- prototype.aiWork.items.1.name -->
 
-*Caption:* The latest board, a stereo amplifier, as made. <!-- prototype.aiWork.items.0.figure.caption -->
+an AI PCB engineer, from brief to fabricated board. <!-- prototype.aiWork.items.1.text -->
 
-### autobox <!-- prototype.aiWork.items.1.name -->
+*Under the name:* Designed {hwde.boards} boards so far, and the latest, an amplifier, has been made. <!-- prototype.aiWork.items.1.sub -->
 
-autonomous agent orchestration on a remote server. <!-- prototype.aiWork.items.1.text -->
+*On a phone:* an AI PCB engineer. <!-- prototype.aiWork.items.1.short -->
 
-*Under the name:* Agents coordinate to develop projects in parallel and autonomously with little human oversight. {autobox.prs}+ PRs merged across {autobox.repos} repos, in 1,300+ agent hours. <!-- prototype.aiWork.items.1.sub -->
+A multi‑stage agentic pipeline in the form of a Claude Code skill takes in a simple brief and produces a PCB design and fab package. Soft orchestration layered with deterministic evals and scripts ensures a pipeline which produces consistent, verifiable, and iteratively improvable outputs, while maintaining a flexible pipeline which evolves as models and harnesses do. <!-- prototype.aiWork.items.1.result -->
 
-Agent orchestration system which runs on a server and autonomously develops projects and improves its own systems. Communication takes place via Slack, and agents follow thorough work patterns which abstract the user away, enabling autonomous development. Agents share a central library and exchange information via sockets and Slack in order to coordinate development. A PR lander runs reviews and adaptive tests based on edited files before merging. A self‑improvement flow catches failures and evaluates project status against goals to both improve current work and re‑evaluate said goals. <!-- prototype.aiWork.items.1.result -->
+*Image description:* Boards hwde designed, rendered in 3D from their KiCad files. <!-- prototype.aiWork.items.1.visual.alt -->
 
-*Image description:* Diagram: a planning session, one per Slack channel, hands work down one of three paths: a subagent, a worker, or a sub-orchestrator. <!-- prototype.aiWork.items.1.figure.alt -->
+*Caption:* Boards hwde designed, rendered in Blender. <!-- prototype.aiWork.items.1.visual.caption -->
 
-*Caption:* How a planning session hands out work. <!-- prototype.aiWork.items.1.figure.caption -->
+*Image description:* The amplifier board as made: a green PCB marked PCB-0017 REV A, with an amplifier chip, four inductors and two capacitors. <!-- prototype.aiWork.items.1.figure.alt -->
 
-*Note:* For more details, read&#32; <!-- prototype.aiWork.items.1.note.text -->
+*Caption:* The latest board, a stereo amplifier, as made. <!-- prototype.aiWork.items.1.figure.caption -->
 
-*Note link:* the essay <!-- prototype.aiWork.items.1.note.label -->
+### autobox <!-- prototype.aiWork.items.2.name -->
 
-### lesson-builder <!-- prototype.aiWork.items.2.name -->
+autonomous agent orchestration on a remote server. <!-- prototype.aiWork.items.2.text -->
 
-course material into interactive lessons. <!-- prototype.aiWork.items.2.text -->
+*Under the name:* Agents coordinate to develop projects in parallel and autonomously with little human oversight. {autobox.prs}+ PRs merged across {autobox.repos} repos, in 1,300+ agent hours. <!-- prototype.aiWork.items.2.sub -->
 
-*Under the name:* 47 lessons across 14 topics, each with its own tutor, videos, interactive demos, graphs and more. <!-- prototype.aiWork.items.2.sub -->
+Agent orchestration system which runs on a server and autonomously develops projects and improves its own systems. Communication takes place via Slack, and agents follow thorough work patterns which abstract the user away, enabling autonomous development. Agents share a central library and exchange information via sockets and Slack in order to coordinate development. A PR lander runs reviews and adaptive tests based on edited files before merging. A self‑improvement flow catches failures and evaluates project status against goals to both improve current work and re‑evaluate said goals. <!-- prototype.aiWork.items.2.result -->
 
-*On a phone:* courses into lessons. <!-- prototype.aiWork.items.2.short -->
+*Image description:* Diagram: a planning session, one per Slack channel, hands work down one of three paths: a subagent, a worker, or a sub-orchestrator. <!-- prototype.aiWork.items.2.figure.alt -->
 
-Builds interactive lessons with a chatbot tutor via custom content ingestion, supplemental research, and a thorough review pipeline. Lessons feature multimedia content, from videos to interactive demos, Desmos graphs, and SVGs. The chatbot is built on pedagogical theory and can generate content to better explain concepts. I’ve made 47 lessons spanning 14 topics. <!-- prototype.aiWork.items.2.result -->
+*Caption:* How a planning session hands out work. <!-- prototype.aiWork.items.2.figure.caption -->
 
-*Image description:* A Slack post announces a lesson on Fourier series; the lesson opens and builds a square wave from sines as harmonics are added, the tutor answers a question beside it, and the lesson ends on quick-check questions. <!-- prototype.aiWork.items.2.visual.alt -->
+*Note:* For more details, read&#32; <!-- prototype.aiWork.items.2.note.text -->
 
-*Caption:* A lesson, with its tutor docked beside it. <!-- prototype.aiWork.items.2.visual.caption -->
+*Note link:* the essay <!-- prototype.aiWork.items.2.note.label -->
 
-### chip design flow <!-- prototype.aiWork.items.3.name -->
+### lesson-builder <!-- prototype.aiWork.items.3.name -->
 
-AI chip design for digital, analog, and mixed‑signal. <!-- prototype.aiWork.items.3.text -->
+course material into interactive lessons. <!-- prototype.aiWork.items.3.text -->
 
-*Under the name:* Designs tiles for Tiny Tapeout GF180 with soft orchestration over deterministic checks and iterative, script-based optimization. 13 circuits so far: digital, analog and mixed-signal. <!-- prototype.aiWork.items.3.sub -->
+*Under the name:* {lessons.count} lessons across {lessons.topics} topics, each with its own tutor, videos, interactive demos, graphs and more. <!-- prototype.aiWork.items.3.sub -->
 
-*On a phone:* AI chip design. <!-- prototype.aiWork.items.3.short -->
+*On a phone:* courses into lessons. <!-- prototype.aiWork.items.3.short -->
 
-Three pipelines in the form of Claude Code skills aimed at digital, analog, and mixed‑signal design leverage a combination of deterministic checks and evals, iterative improvement flows based on Karpathy’s autoresearch, and a soft orchestration layer. These skills are being developed and used to design tiles for the Tiny Tapeout GF180 chip. <!-- prototype.aiWork.items.3.result -->
+Builds interactive lessons with a chatbot tutor via custom content ingestion, supplemental research, and a thorough review pipeline. Lessons feature multimedia content, from videos to interactive demos, Desmos graphs, and SVGs. The chatbot is built on pedagogical theory and can generate content to better explain concepts. I’ve made {lessons.count} lessons spanning {lessons.topics} topics. <!-- prototype.aiWork.items.3.result -->
 
-*Image description:* The layout of a small SPI FIFO chip tile, in 3D: it floats and turns over a dark grey background, showing rows of blue standard cells with gold routing packed into the middle and pale power rails running across. <!-- prototype.aiWork.items.3.visual.alt -->
+*Image description:* A Slack post announces a lesson on Fourier series; the lesson opens and builds a square wave from sines as harmonics are added, the tutor answers a question beside it, and the lesson ends on quick-check questions. <!-- prototype.aiWork.items.3.visual.alt -->
 
-*Caption:* A small SPI FIFO tile from the chip flow, its layout in 3D. <!-- prototype.aiWork.items.3.visual.caption -->
+*Caption:* A lesson, with its tutor docked beside it. <!-- prototype.aiWork.items.3.visual.caption -->
+
+### chip design flow <!-- prototype.aiWork.items.4.name -->
+
+AI chip design for digital, analog, and mixed‑signal. <!-- prototype.aiWork.items.4.text -->
+
+*Under the name:* Designs tiles for Tiny Tapeout GF180 with soft orchestration over deterministic checks and iterative, script-based optimization. {chip.circuits} circuits so far: digital, analog and mixed-signal. <!-- prototype.aiWork.items.4.sub -->
+
+*On a phone:* AI chip design. <!-- prototype.aiWork.items.4.short -->
+
+Three pipelines in the form of Claude Code skills aimed at digital, analog, and mixed‑signal design leverage a combination of deterministic checks and evals, iterative improvement flows based on Karpathy’s autoresearch, and a soft orchestration layer. These skills are being developed and used to design tiles for the Tiny Tapeout GF180 chip. <!-- prototype.aiWork.items.4.result -->
+
+*Image description:* The layout of a small SPI FIFO chip tile, in 3D: it floats and turns over a dark grey background, showing rows of blue standard cells with gold routing packed into the middle and pale power rails running across. <!-- prototype.aiWork.items.4.visual.alt -->
+
+*Caption:* A small SPI FIFO tile from the chip flow, its layout in 3D. <!-- prototype.aiWork.items.4.visual.caption -->
 
 ## Essays <!-- prototype.essays.heading -->
 

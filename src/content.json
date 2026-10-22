@@ -113,9 +113,21 @@
       "heading": "AI work",
       "items": [
         {
+          "name": "The Hive",
+          "text": "an autonomous, self‑improving agentic system.",
+          "sub": "Agents take an ask from Slack to a merged PR, in each project’s own repo. {hive.prs}+ PRs merged across {hive.repos} repos from 12 October to {hive.day}.",
+          "short": "self‑improving agents.",
+          "result": "The successor to autobox, built around a small core that stays simple so the system can keep improving itself as models do. Agents work in their own worktrees and Unix users, and an effects process holds every credential and acts on their behalf. They spawn one another, message agents on other projects and share modules such as Slack, the knowledge base and the library. Risks are weighed by tier: workers take the ones scoped to the hive, wardens the ones that reach outside it, and a tribunal of models votes when a warden can’t decide. Sweeps over the whole hive catch failures and file the fixes.",
+          "note": {
+            "text": "For more details, read ",
+            "label": "the essay",
+            "slug": "the-hive"
+          }
+        },
+        {
           "name": "hwde",
           "text": "an AI PCB engineer, from brief to fabricated board.",
-          "sub": "Designed 21 boards so far, and the latest, an amplifier, has been made.",
+          "sub": "Designed {hwde.boards} boards so far, and the latest, an amplifier, has been made.",
           "short": "an AI PCB engineer.",
           "href": "https://github.com/ihsan-sa/hwde",
           "result": "A multi‑stage agentic pipeline in the form of a Claude Code skill takes in a simple brief and produces a PCB design and fab package. Soft orchestration layered with deterministic evals and scripts ensures a pipeline which produces consistent, verifiable, and iteratively improvable outputs, while maintaining a flexible pipeline which evolves as models and harnesses do.",
@@ -158,10 +170,10 @@
         {
           "name": "lesson-builder",
           "text": "course material into interactive lessons.",
-          "sub": "47 lessons across 14 topics, each with its own tutor, videos, interactive demos, graphs and more.",
+          "sub": "{lessons.count} lessons across {lessons.topics} topics, each with its own tutor, videos, interactive demos, graphs and more.",
           "short": "courses into lessons.",
           "href": "https://github.com/ihsan-sa/lesson-builder",
-          "result": "Builds interactive lessons with a chatbot tutor via custom content ingestion, supplemental research, and a thorough review pipeline. Lessons feature multimedia content, from videos to interactive demos, Desmos graphs, and SVGs. The chatbot is built on pedagogical theory and can generate content to better explain concepts. I’ve made 47 lessons spanning 14 topics.",
+          "result": "Builds interactive lessons with a chatbot tutor via custom content ingestion, supplemental research, and a thorough review pipeline. Lessons feature multimedia content, from videos to interactive demos, Desmos graphs, and SVGs. The chatbot is built on pedagogical theory and can generate content to better explain concepts. I’ve made {lessons.count} lessons spanning {lessons.topics} topics.",
           "visual": {
             "src": "/writing/autobox/lessons-6fps.webp",
             "poster": "/writing/autobox/lessons-poster.webp",
@@ -175,7 +187,7 @@
         {
           "name": "chip design flow",
           "text": "AI chip design for digital, analog, and mixed‑signal.",
-          "sub": "Designs tiles for Tiny Tapeout GF180 with soft orchestration over deterministic checks and iterative, script-based optimization. 13 circuits so far: digital, analog and mixed-signal.",
+          "sub": "Designs tiles for Tiny Tapeout GF180 with soft orchestration over deterministic checks and iterative, script-based optimization. {chip.circuits} circuits so far: digital, analog and mixed-signal.",
           "short": "AI chip design.",
           "href": "https://github.com/ihsan-sa/chip-flow",
           "result": "Three pipelines in the form of Claude Code skills aimed at digital, analog, and mixed‑signal design leverage a combination of deterministic checks and evals, iterative improvement flows based on Karpathy’s autoresearch, and a soft orchestration layer. These skills are being developed and used to design tiles for the Tiny Tapeout GF180 chip.",

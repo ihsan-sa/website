@@ -16,7 +16,7 @@ beforeEach(() => {
   window.history.pushState({}, '', '/');
 });
 
-const { prototype } = content;
+const { prototype } = fillStats(content, stats);
 const { rasterSize } = require('../scripts/writing');
 const { renderFront } = require('../scripts/build-static');
 const read = (...parts) => fs.readFileSync(path.join(__dirname, '..', ...parts), 'utf8');
@@ -56,10 +56,12 @@ test('the front page is the draft minus its documents, essays and noindex', () =
   expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
 });
 
-test('every AI row on the front page links its name to its GitHub repo', () => {
+test('every AI row on the front page links its name to its GitHub repo, but the Hive, whose repo is private', () => {
   render(<App />);
   expect(prototype.aiWork.items.length).toBeGreaterThan(0);
-  prototype.aiWork.items.forEach(({ name, href }) => {
+  expect(prototype.aiWork.items.filter(({ href }) => !href).map(({ name }) => name)).toEqual(['The Hive']);
+  expect(rowButton('The Hive').closest('.pv-entry__head').querySelector('a')).toBeNull();
+  prototype.aiWork.items.filter(({ href }) => href).forEach(({ name, href }) => {
     expect(href).toMatch(/^https:\/\/github\.com\/ihsan-sa\/[\w.-]+$/);
     expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
   });
@@ -256,10 +258,11 @@ test('the prototype puts a result under every experience row and AI project', ()
   });
 });
 
-test('the prototype orders AI work hwde, autobox, lesson-builder, then the chip proposal', () => {
+test('the prototype orders AI work the Hive, hwde, autobox, lesson-builder, then the chip proposal', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   const { container } = render(<App />);
   expect(prototype.aiWork.items.map(({ name }) => name)).toEqual([
+    'The Hive',
     'hwde',
     'autobox',
     'lesson-builder',
@@ -270,8 +273,8 @@ test('the prototype orders AI work hwde, autobox, lesson-builder, then the chip 
   const names = [...aiBlock.querySelectorAll('.pv-entry .pv-strong')];
   expect(names.map((n) => n.firstChild.textContent)).toEqual(prototype.aiWork.items.map(({ name }) => name));
 
-  // Every AI name links its GitHub repo.
-  prototype.aiWork.items.forEach(({ name, href }) => {
+  // Every AI name with a public repo links it.
+  prototype.aiWork.items.filter(({ href }) => href).forEach(({ name, href }) => {
     expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
     expect(href).toMatch(/^https:\/\/github\.com\/ihsan-sa\//);
   });
@@ -473,7 +476,7 @@ const AUTOBOX_ESSAY = {
   slug: 'autobox', title: 'Autobox', summary: 'how I built it.', standfirst: 'How I built Autobox.', date: '2026-09-30', draft: true,
 };
 const HIVE_ESSAY = {
-  slug: 'the-hive', title: 'The Hive', summary: 'the design.', standfirst: 'On long-horizon agentic architecture.', date: '2026-10-21', draft: false,
+  slug: 'the-hive', title: 'The Hive', summary: 'the design.', standfirst: 'On long-horizon agentic architecture.', date: '2026-10-21', dateLabel: '21 October 2026', draft: false,
 };
 // The one banner, The Hive's, with its clip.
 const [ESSAY_BANNER] = ESSAY_BANNERS;
@@ -523,6 +526,9 @@ test('the draft banner shows the essay clip as a lazy, sized GIF, and links the 
   expect(banner.previousElementSibling).toHaveClass('pv-intro');
   expect(banner.nextElementSibling.tagName).toBe('SECTION');
   expect(banner).toHaveTextContent(prototype.essays[ESSAY_BANNER.label]);
+  // The label line carries the essay's date, as its page writes it.
+  expect(banner.querySelector('.pv-banner__label')).toHaveTextContent(`${prototype.essays[ESSAY_BANNER.label]} · 21 October 2026`);
+  expect(banner.querySelector('.pv-banner__label time')).toHaveAttribute('dateTime', '2026-10-21');
   expect(banner).toHaveTextContent(HIVE_ESSAY.title);
   expect(banner).toHaveTextContent(HIVE_ESSAY.standfirst);
   // A GIF, never a <video>: a GIF autoplays where Low Power Mode refuses muted video.
@@ -748,12 +754,14 @@ test('a row name that links out ends in a hidden arrow, and an essay title does 
   expect(essay.querySelector('span')).toBeNull();
 });
 
-test('the autobox fold ends with a note that links to the essay', () => {
+test('the Hive and autobox folds each end with a note that links to its essay', () => {
   const { container } = render(<App essays={[]} />);
-  const note = rowPanel('autobox').querySelector('.pv-fold__inner > .pv-note:last-child');
-  expect(note.textContent).toBe('For more details, read the essay');
-  expect(note.querySelector('a')).toHaveAttribute('href', '/writing/autobox');
-  expect(container.querySelectorAll('.pv-note').length).toBe(1);
+  [['The Hive', '/writing/the-hive'], ['autobox', '/writing/autobox']].forEach(([name, href]) => {
+    const note = rowPanel(name).querySelector('.pv-fold__inner > .pv-note:last-child');
+    expect(note.textContent).toBe('For more details, read the essay');
+    expect(note.querySelector('a')).toHaveAttribute('href', href);
+  });
+  expect(container.querySelectorAll('.pv-note').length).toBe(2);
 });
 
 test('a visual with no poster or video is a plain sized image, no link', () => {
@@ -769,7 +777,7 @@ test('a visual with no poster or video is a plain sized image, no link', () => {
 test('a click on a row clip plays its video full size', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   render(<App />);
-  const { name, visual } = prototype.aiWork.items[0];
+  const { name, visual } = prototype.aiWork.items.find((i) => i.visual);
   fireEvent.click(rowButton(name));
   fireEvent.click(rowPanel(name).querySelector('.pv-visual__zoom'));
   const dialog = screen.getByRole('dialog');

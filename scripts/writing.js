@@ -430,7 +430,7 @@ function pages(buildDir = path.join(ROOT, 'build'), essays = loadEssays()) {
 }
 
 module.exports = {
-  SHOW_ADDED, parseEssay, parseReading, parseInline, plainText, loadEssays, pages, withMeta, rasterSize, svgSize, EXAMPLES,
+  SHOW_ADDED, formatDate, parseEssay, parseReading, parseInline, plainText, loadEssays, pages, withMeta, rasterSize, svgSize, EXAMPLES,
 };
 
 if (require.main === module) {

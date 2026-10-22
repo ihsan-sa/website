@@ -386,6 +386,14 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 }
 .pv-proto .pv-banner:hover .pv-banner__title { text-decoration-color: currentColor; }
 .pv-proto .pv-banner__stand { font-size: 15px; line-height: 1.5; opacity: 0.85; }
+/* The essay's date follows its label. Beside a clip the text column is too narrow for
+   "New essay · 21 October 2026" on one line, so there the date takes a line of its own; a
+   phone's label line, and a banner with no clip, keep both on one. */
+.pv-proto .pv-banner__label time { white-space: nowrap; }
+@media (min-width: 641px) {
+  .pv-proto .pv-banner--apart:not(.pv-banner--text) .pv-banner__sep { display: none; }
+  .pv-proto .pv-banner--apart:not(.pv-banner--text) .pv-banner__label time { display: block; }
+}
 
 /* A visual in an AI row's fold, under its result: a GIF clip (a <picture> with its
    poster for reduced motion) or an image, lazy, with its width and height set so

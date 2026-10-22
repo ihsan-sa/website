@@ -40,7 +40,8 @@ const ESSAYS = fs.readdirSync(path.join(ROOT, 'content/writing'))
   .map((f) => f.slice(0, -3));
 
 const { STATIC_PATH, DRAFT_PATH, DRAFT_V2_PATH } = require('./build-static');
-const content = JSON.parse(fs.readFileSync(path.join(ROOT, 'src/content.json'), 'utf8'));
+// With its counted numbers filled in, as both builds show it (docs/stats.md).
+const content = require('../src/fillStats').fillStats(JSON.parse(fs.readFileSync(path.join(ROOT, 'src/content.json'), 'utf8')), require('../src/stats.json'));
 const { frontPage } = require('../src/frontPage');
 
 const PAGES = [

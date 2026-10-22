@@ -47,7 +47,7 @@ test('an edit changes that one string, rewrapped and with its label, and keeps t
 test('a trailing space is kept: the note runs straight into its link', () => {
   expect(md).toContain('*Note:* For more details, read&#32; <!--');
   expect(JSON.parse(applyEdits(text, md.replace('details, read', 'detail, read')).out)
-    .prototype.aiWork.items[1].note.text).toBe('For more detail, read ');
+    .prototype.aiWork.items[0].note.text).toBe('For more detail, read ');
 });
 
 test('what it cannot map is listed, and the mapped edits are not written either', () => {
