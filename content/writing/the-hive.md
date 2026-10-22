@@ -4,13 +4,13 @@ date: 2026-10-21
 summary: The design of my autonomous, self-improving agentic system.
 standfirst: On long-horizon agentic architecture: towards dynamic RSI
 library: 016-0006
-revision: G
-pdf: https://library.ihsan.cc/files/016-0006-G.pdf
+revision: H
+pdf: https://library.ihsan.cc/files/016-0006-H.pdf
 approved_by: Ihsan
 approved_at: 2026-10-21
 ---
 
-*This essay is also a [7-page PDF](https://library.ihsan.cc/p/w95TjzTBBpOrsoK5zpEBrb-sFl2Pa8wC).*
+*This essay is also a [7-page PDF](https://library.ihsan.cc/p/UMJh95rrN6cPhyvzoZsvZsFHBOb_hXog).*
 
 ## Design philosophy
 
@@ -87,7 +87,7 @@ Risks are classified into separate classes:
 
 *T3:* At this level, tribunals are typically involved. If the tribunal rejects a change and it is deemed to provide a significant improvement over other allowed routes, the user is briefed on the situation and then decides.
 
-![Who weighs an action, by risk tier. Diamonds are decisions. Sage shapes are agents at work, the ochre box is the user, and the slate end is the warden's script running. The rust arrow is the one path that reaches the user.](risk-path.svg)
+![Who weighs an action, by risk tier. Only one path reaches the user.](risk-path.svg)
 
 ### Landing PRs, credentials, and workflow
 
