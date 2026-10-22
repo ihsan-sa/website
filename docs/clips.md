@@ -1,9 +1,10 @@
 # Clips from the video agent
 
-The site's animated clips (the essay's figures, the front page's essay banner and the AI-work
-rows) come from the video agent. It puts each finished clip in one drop folder, and every night
-`scripts/clips.js` turns whatever is new there into the site's files and opens a PR for it. No
-website session has to convert anything by hand.
+The site's animated clips (the Autobox essay's figures and the AI-work rows) come from the video
+agent. It puts each finished clip in one drop folder, and every night `scripts/clips.js` turns
+whatever is new there into the site's files and opens a PR for it. No website session has to
+convert anything by hand. The front page's banner clip, The Hive's, was made by hand and is not
+in the drop.
 
 ## The drop (for the video agent)
 
