@@ -394,8 +394,8 @@ export function ProtoEntry({ name: entryName, text, where, short, sub, href, res
   );
 }
 
-// The page: a two-row links bar with the theme switch, the intro, Experience,
-// AI work, Essays, Projects. Every experience and AI row starts folded to one
+// The page: a two-row links bar with the theme switch, the intro, Essays,
+// AI work, Experience, Projects. Every experience and AI row starts folded to one
 // line; the sections themselves and the project grid stay open. With no essays,
 // neither the list nor the Essays link in the bar is shown.
 //
@@ -455,15 +455,6 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
         <EssayBanner key={b.slug} {...b} href={`${writing}/${b.slug}`} label={block.essays[b.label]} />
       ))}
 
-      {sections.map((section) => (
-        <section className="pv-block" key={section.heading}>
-          <Heading {...section} />
-          {section.items.map((item) => (
-            <ProtoEntry key={item.name} {...item} writing={writing} />
-          ))}
-        </section>
-      ))}
-
       {essays.length > 0 && (
         <section className="pv-block">
           <h2>
@@ -477,6 +468,15 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
           ))}
         </section>
       )}
+
+      {sections.map((section) => (
+        <section className="pv-block" key={section.heading}>
+          <Heading {...section} />
+          {section.items.map((item) => (
+            <ProtoEntry key={item.name} {...item} writing={writing} />
+          ))}
+        </section>
+      ))}
 
       <section className="pv-block">
         <Heading {...block.projects} />
