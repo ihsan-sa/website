@@ -368,7 +368,7 @@ test('a prototype row shows its place and date in italics after the full text, n
   });
 });
 
-test('the prototype lists each essay newest first, linked, with its month', () => {
+test('the prototype lists each essay newest first, linked, with no date', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   const essays = [
     { slug: 'b', title: 'Second', blurb: 'the newer one.', summary: 'S.', date: '2026-10-02' },
@@ -378,7 +378,7 @@ test('the prototype lists each essay newest first, linked, with its month', () =
   const heading = screen.getByRole('heading', { name: prototype.essays.heading });
   expect(heading.querySelector('a')).toHaveAttribute('href', `${PREVIEW_PATH}/writing`);
   const rows = [...heading.closest('section').querySelectorAll('p')].map((p) => p.textContent);
-  expect(rows).toEqual(['Second, the newer one. October ’26.', 'First, the older one. September ’26.']);
+  expect(rows).toEqual(['Second, the newer one.', 'First, the older one.']);
   expect(screen.getByRole('link', { name: 'Second' })).toHaveAttribute('href', `${PREVIEW_PATH}/writing/b`);
 });
 

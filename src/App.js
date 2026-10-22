@@ -280,14 +280,6 @@ function Heading({ heading, headLink, docs }) {
   );
 }
 
-// "September ’26", from an essay's YYYY-MM-DD date.
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
-  'August', 'September', 'October', 'November', 'December'];
-function monthYear(iso) {
-  const [y, m] = iso.split('-');
-  return `${MONTHS[Number(m) - 1]} ’${y.slice(2)}`;
-}
-
 // An AI row's visual: an image, or an animated WebP clip as the essay shows its clips (see
 // EssayBanner): a lazy, sized <img> in a <picture> whose reduced-motion source is
 // the still poster, so the clip never loads then; the same poster is the <img>'s
@@ -479,7 +471,7 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
           {essays.map((e) => (
             <p key={e.slug}>
               <a className="pv-strong pv-name-link" href={`${writing}/${e.slug}`}>{e.title}</a>
-              , {e.blurb || e.summary} {monthYear(e.date)}.
+              , {e.blurb || e.summary}
             </p>
           ))}
         </section>
