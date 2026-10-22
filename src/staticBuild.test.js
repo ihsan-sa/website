@@ -139,11 +139,12 @@ test('the draft lists the essays it is given, and leaves the link and section ou
   expect(none).not.toContain(`href="${STATIC_PATH}writing/"`);
 });
 
-test('the banner\'s label line carries the essay\'s date in a <time>, as the React page does', () => {
+test('the banner\'s date closes its text, after the standfirst, in a <time>, as the React page does', () => {
   const { parseEssay } = require('../scripts/writing');
   const { essay } = parseEssay('---\ntitle: The Hive\ndate: 2026-10-21\nsummary: The design.\nstandfirst: On agents.\n---\n\nText.\n', 'the-hive');
   const html = decode(renderFront(content, [essay]));
-  expect(html).toContain(`<span class="pv-banner__label"><span>${content.prototype.essays.banner}<span class="pv-banner__sep"> · </span><time datetime="2026-10-21">21 October 2026</time></span></span>`);
+  expect(html).toContain(`<span class="pv-banner__label">${content.prototype.essays.banner}</span>`);
+  expect(html).toMatch(/<span class="pv-banner__stand">On agents\.<\/span><time class="pv-banner__date" datetime="2026-10-21">21 October 2026<\/time><\/span><\/a>/);
 });
 
 test('the second draft is hidden, and opens each row on its whole line', () => {

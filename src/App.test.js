@@ -526,9 +526,13 @@ test('the draft banner shows the essay clip as a lazy, sized GIF, and links the 
   expect(banner.previousElementSibling).toHaveClass('pv-intro');
   expect(banner.nextElementSibling.tagName).toBe('SECTION');
   expect(banner).toHaveTextContent(prototype.essays[ESSAY_BANNER.label]);
-  // The label line carries the essay's date, as its page writes it.
-  expect(banner.querySelector('.pv-banner__label')).toHaveTextContent(`${prototype.essays[ESSAY_BANNER.label]} · 21 October 2026`);
-  expect(banner.querySelector('.pv-banner__label time')).toHaveAttribute('dateTime', '2026-10-21');
+  // The label stays "New essay"; the essay's date, as its page writes it, closes the text, after the standfirst.
+  expect(banner.querySelector('.pv-banner__label')).toHaveTextContent(new RegExp(`^${prototype.essays[ESSAY_BANNER.label]}$`));
+  const date = banner.querySelector('time.pv-banner__date');
+  expect(date).toHaveAttribute('dateTime', '2026-10-21');
+  expect(date).toHaveTextContent('21 October 2026');
+  expect(banner.querySelector('.pv-banner__stand').compareDocumentPosition(date) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(date.nextElementSibling).toBeNull();
   expect(banner).toHaveTextContent(HIVE_ESSAY.title);
   expect(banner).toHaveTextContent(HIVE_ESSAY.standfirst);
   // A GIF, never a <video>: a GIF autoplays where Low Power Mode refuses muted video.
