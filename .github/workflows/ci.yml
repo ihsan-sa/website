@@ -25,16 +25,16 @@ jobs:
         with:
           # A PR checks out its merge commit; the first parent is the base it merges into.
           fetch-depth: 2
-      # A PR that changes only essays (content/writing/, public/writing/) gets a short check:
-      # no ffmpeg or clip tests, and ui-check covers just those essays and the pages that
-      # list them. Every other PR, and every push to main, runs everything.
+      # A PR that changes only essays (content/writing/<slug>.md, public/writing/<slug>/) gets a
+      # short check: no ffmpeg or clip conversions, and ui-check covers just those essays and
+      # the pages that list them. Every other PR, and every push to main, runs everything.
       - name: Find the essays a text-only PR changes
         id: scope
         if: github.event_name == 'pull_request'
         run: |
           files=$(git diff --name-only --no-renames HEAD^1 HEAD)
-          if ! grep -qvE '^(content|public)/writing/' <<<"$files"; then
-            echo "essays=$(sed -E 's#^(content|public)/writing/([^/.]+).*#\2#' <<<"$files" | sort -u | paste -sd, -)" >> "$GITHUB_OUTPUT"
+          if ! grep -qvE '^(content/writing/[a-z0-9-]+\.md|public/writing/[a-z0-9-]+/.+)$' <<<"$files"; then
+            echo "essays=$(sed -E 's#^(content|public)/writing/([a-z0-9-]+).*#\2#' <<<"$files" | sort -u | paste -sd, -)" >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/setup-node@v4
         with:
@@ -49,6 +49,10 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq --no-install-recommends ffmpeg python3-pil
       - run: CI=true npm test ${{ steps.scope.outputs.essays && '-- --testPathIgnorePatterns=clips' || '' }}
+      # The clip manifest names files under public/writing/, and this test needs no ffmpeg.
+      - name: Check the clip manifest still points at files the site has
+        if: steps.scope.outputs.essays != ''
+        run: CI=true npm test -- clips -t "real manifest"
       - run: npm run build
       - name: Cache Playwright browsers
         id: playwright-cache

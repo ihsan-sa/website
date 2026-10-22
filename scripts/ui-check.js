@@ -35,7 +35,8 @@ const { PREVIEW_PATH } = (() => {
 })();
 
 // UI_CHECK_ESSAYS=a,b narrows the run to those essays and the pages that list them (the
-// front page and both writing indexes). CI sets it on a PR that changes only essays.
+// front page, the preview, which lists drafts too, and both writing indexes). CI sets it on
+// a PR that changes only essays.
 const ONLY = (process.env.UI_CHECK_ESSAYS || '').split(',').filter(Boolean);
 
 // Every essay, drafts included, is checked at the preview path.
@@ -61,7 +62,7 @@ const PAGES = [
   { name: 'static-draft-v2', path: DRAFT_V2_PATH, block: content.prototype, v2: true },
   { name: 'static-writing', path: `${STATIC_PATH}writing/`, index: true },
   ...ESSAYS.map((slug) => ({ name: `static-essay-${slug}`, path: `${STATIC_PATH}writing/${slug}/`, essay: slug })),
-].filter((p) => !ONLY.length || p.name.includes('essay-') || ['front', 'writing', 'static-writing'].includes(p.name));
+].filter((p) => !ONLY.length || p.name.includes('essay-') || ['front', 'preview', 'writing', 'static-writing'].includes(p.name));
 
 // Every piece of copy a page shows, from its content.json block.
 const TEXT_KEYS = new Set(['name', 'subtitle', 'about', 'email', 'heading', 'text', 'short', 'label', 'title',
