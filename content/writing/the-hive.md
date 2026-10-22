@@ -12,6 +12,8 @@ approved_at: 2026-10-21
 
 *This essay is also a [7-page PDF](https://library.ihsan.cc/p/UMJh95rrN6cPhyvzoZsvZsFHBOb_hXog).*
 
+*Read about [how I used Autobox](/writing/autobox), my previous orchestration system.*
+
 ## Design philosophy
 
 ### Core
