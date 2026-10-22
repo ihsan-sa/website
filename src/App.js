@@ -98,14 +98,10 @@ function EssayBanner({ essay, href, label, gif, poster, width, height }) {
         </picture>
       )}
       <span className="pv-banner__text">
-        {/* One inner span, so the phone's flex label keeps "New essay · date" as one item. */}
-        <span className="pv-banner__label">
-          <span>
-            {label}<span className="pv-banner__sep"> · </span><time dateTime={essay.date}>{essay.dateLabel}</time>
-          </span>
-        </span>
+        <span className="pv-banner__label">{label}</span>
         <span className="pv-banner__title">{essay.title}</span>
         <span className="pv-banner__stand">{essay.standfirst || essay.summary}</span>
+        <time className="pv-banner__date" dateTime={essay.date}>{essay.dateLabel}</time>
       </span>
     </a>
   );

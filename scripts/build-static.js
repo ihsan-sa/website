@@ -194,7 +194,7 @@ function rowVisual({ src, poster, video, width, height, alt, caption }) {
 
 // The banners under the intro, as App.js's EssayBanner writes them: one link per listed
 // essay the page has, its clip (lazy, sized, the poster under reduced motion and until it
-// loads) beside its label and the essay's date, title and standfirst, or the text alone with no clip.
+// loads) beside its label, title, standfirst and the essay's date, or the text alone with no clip.
 function banners(pt, essays, writing) {
   return ESSAY_BANNERS.map((b) => {
     const e = essays.find((x) => x.slug === b.slug);
@@ -202,7 +202,7 @@ function banners(pt, essays, writing) {
     const media = b.gif
       ? `<picture class="pv-banner__media"><source media="(prefers-reduced-motion: reduce)" srcset="${esc(b.poster)}" /><img class="pv-banner__video" src="${esc(b.gif)}" alt="" width="${b.width}" height="${b.height}" loading="lazy" decoding="async"${stillAttr(b.poster)} /></picture>`
       : '';
-    return `<a class="pv-banner pv-banner--apart${b.gif ? '' : ' pv-banner--text'}" href="${writing}${e.slug}/">${media}<span class="pv-banner__text"><span class="pv-banner__label"><span>${esc(pt.essays[b.label])}<span class="pv-banner__sep"> · </span><time datetime="${esc(e.date)}">${esc(e.dateLabel)}</time></span></span><span class="pv-banner__title">${esc(e.title)}</span><span class="pv-banner__stand">${esc(e.standfirst || e.summary)}</span></span></a>\n`;
+    return `<a class="pv-banner pv-banner--apart${b.gif ? '' : ' pv-banner--text'}" href="${writing}${e.slug}/">${media}<span class="pv-banner__text"><span class="pv-banner__label">${esc(pt.essays[b.label])}</span><span class="pv-banner__title">${esc(e.title)}</span><span class="pv-banner__stand">${esc(e.standfirst || e.summary)}</span><time class="pv-banner__date" datetime="${esc(e.date)}">${esc(e.dateLabel)}</time></span></a>\n`;
   }).join('');
 }
 
