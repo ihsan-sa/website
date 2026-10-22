@@ -107,7 +107,7 @@ A multi‑stage agentic pipeline in the form of a Claude Code skill takes in a s
 
 autonomous agent orchestration on a remote server. <!-- prototype.aiWork.items.2.text -->
 
-*Under the name:* Agents coordinate to develop projects in parallel and autonomously with little human oversight. {autobox.prs}+ PRs merged across {autobox.repos} repos, in 1,300+ agent hours. <!-- prototype.aiWork.items.2.sub -->
+*Under the name:* Agents coordinate to develop projects in parallel and autonomously with little human oversight. {autobox.prs}+ PRs merged across {autobox.repos} repos, in 3,600+ agent hours. <!-- prototype.aiWork.items.2.sub -->
 
 Agent orchestration system which runs on a server and autonomously develops projects and improves its own systems. Communication takes place via Slack, and agents follow thorough work patterns which abstract the user away, enabling autonomous development. Agents share a central library and exchange information via sockets and Slack in order to coordinate development. A PR lander runs reviews and adaptive tests based on edited files before merging. A self‑improvement flow catches failures and evaluates project status against goals to both improve current work and re‑evaluate said goals. <!-- prototype.aiWork.items.2.result -->
 
