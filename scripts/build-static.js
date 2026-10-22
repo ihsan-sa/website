@@ -287,7 +287,7 @@ ${sec.items.map((item) => protoEntry(item, writing, v2)).join('\n')}
 </section>`)
     .join('\n');
   const essayRows = essays
-    .map((e) => `<p><a class="pv-strong pv-name-link" href="${writing}${e.slug}/">${esc(e.title)}</a>, ${esc(e.blurb || e.summary)} ${esc(monthYear(e.date))}.</p>`)
+    .map((e) => `<p><a class="pv-strong pv-name-link" href="${writing}${e.slug}/">${esc(e.title)}</a> — ${esc(e.blurb || e.summary)} ${esc(monthYear(e.date))}.</p>`)
     .join('\n');
   const projects = pt.projects.items
     .map(({ title, href, image, result }) => `<a class="pv-hw__item" href="${esc(href)}"${NEW_TAB}><img class="pv-hw__img" src="${esc(image)}" alt="" loading="lazy" /><span class="pv-hw__title">${esc(title)}</span>${result ? `<span class="pv-hw__result">${esc(result)}</span>` : ''}</a>`)

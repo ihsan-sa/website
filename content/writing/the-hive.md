@@ -3,6 +3,7 @@ title: The Hive
 date: 2026-10-21
 summary: The design of my autonomous, self-improving agentic system.
 standfirst: On long-horizon agentic architecture: towards dynamic RSI
+blurb: On long-horizon agentic architecture: towards dynamic RSI
 library: 016-0006
 revision: H
 pdf: https://library.ihsan.cc/files/016-0006-H.pdf

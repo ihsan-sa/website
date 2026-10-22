@@ -472,7 +472,7 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
           {essays.map((e) => (
             <p key={e.slug}>
               <a className="pv-strong pv-name-link" href={`${writing}/${e.slug}`}>{e.title}</a>
-              , {e.blurb || e.summary}
+              {' — '}{e.blurb || e.summary}
             </p>
           ))}
         </section>
