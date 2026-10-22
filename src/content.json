@@ -115,7 +115,7 @@
         {
           "name": "hwde",
           "text": "an AI PCB engineer, from brief to fabricated board.",
-          "sub": "Designed 21 boards so far, with the latest, an amplifier, on order for testing.",
+          "sub": "Designed 21 boards so far, and the latest, an amplifier, has been made.",
           "short": "an AI PCB engineer.",
           "href": "https://github.com/ihsan-sa/hwde",
           "result": "A multi‑stage agentic pipeline in the form of a Claude Code skill takes in a simple brief and produces a PCB design and fab package. Soft orchestration layered with deterministic evals and scripts ensures a pipeline which produces consistent, verifiable, and iteratively improvable outputs, while maintaining a flexible pipeline which evolves as models and harnesses do.",
@@ -127,6 +127,13 @@
             "height": 360,
             "alt": "Boards hwde designed, rendered in 3D from their KiCad files.",
             "caption": "Boards hwde designed, rendered in Blender."
+          },
+          "figure": {
+            "image": "/images/ai/hwde-amplifier.webp",
+            "width": 900,
+            "height": 600,
+            "alt": "The amplifier board as made: a green PCB marked PCB-0017 REV A, with an amplifier chip, four inductors and two capacitors.",
+            "caption": "The latest board, a stereo amplifier, as made."
           }
         },
         {

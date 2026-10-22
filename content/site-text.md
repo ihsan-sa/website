@@ -75,7 +75,7 @@ Class academic rep and WEEF engineering fund rep. GPA 87%. <!-- prototype.experi
 
 an AI PCB engineer, from brief to fabricated board. <!-- prototype.aiWork.items.0.text -->
 
-*Under the name:* Designed 21 boards so far, with the latest, an amplifier, on order for testing. <!-- prototype.aiWork.items.0.sub -->
+*Under the name:* Designed 21 boards so far, and the latest, an amplifier, has been made. <!-- prototype.aiWork.items.0.sub -->
 
 *On a phone:* an AI PCB engineer. <!-- prototype.aiWork.items.0.short -->
 
@@ -84,6 +84,10 @@ A multi‑stage agentic pipeline in the form of a Claude Code skill takes in a s
 *Image description:* Boards hwde designed, rendered in 3D from their KiCad files. <!-- prototype.aiWork.items.0.visual.alt -->
 
 *Caption:* Boards hwde designed, rendered in Blender. <!-- prototype.aiWork.items.0.visual.caption -->
+
+*Image description:* The amplifier board as made: a green PCB marked PCB-0017 REV A, with an amplifier chip, four inductors and two capacitors. <!-- prototype.aiWork.items.0.figure.alt -->
+
+*Caption:* The latest board, a stereo amplifier, as made. <!-- prototype.aiWork.items.0.figure.caption -->
 
 ### autobox <!-- prototype.aiWork.items.1.name -->
 

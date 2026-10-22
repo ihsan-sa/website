@@ -701,6 +701,22 @@ test('the autobox row has no clip, but keeps its diagram', () => {
   expect(rowPanel('autobox').querySelector('.pv-figure img')).toHaveAttribute('src', item.figure.image);
 });
 
+test('the hwde row keeps its 3D clip and shows a photo of the made board below it, with no metadata', () => {
+  window.history.pushState({}, '', PREVIEW_PATH);
+  render(<App />);
+  const { figure } = prototype.aiWork.items.find((i) => i.name === 'hwde');
+  const panel = rowPanel('hwde');
+  const photo = panel.querySelector('.pv-visual ~ .pv-figure img');
+  expect(photo).toHaveAttribute('src', figure.image);
+  const file = path.join(__dirname, '..', 'public', figure.image);
+  expect(rasterSize(file)).toEqual({ width: figure.width, height: figure.height });
+  // A camera file can carry where it was taken, so the WebP holds only its image data.
+  const buf = fs.readFileSync(file);
+  const chunks = [];
+  for (let i = 12; i + 8 <= buf.length; i += 8 + buf.readUInt32LE(i + 4) + (buf.readUInt32LE(i + 4) & 1)) chunks.push(buf.toString('ascii', i, i + 4));
+  expect(chunks).toEqual(['VP8 ']);
+});
+
 test('a row name that links out ends in a hidden arrow, and an essay title does not', () => {
   const { container } = render(<App essays={[{ slug: 'x', title: 'An essay', blurb: 'B.', date: '2026-09-01' }]} />);
   const names = [...container.querySelectorAll('.pv-entry__head a.pv-name-link')];
