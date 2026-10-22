@@ -57,11 +57,11 @@ On the bench, on a 12 V supply with both channels driving 6 Ω speakers, its cle
 
 ### How it performed
 
-The brief only asked for a copy of the reference board, so the flow set its own performance targets, and the bench met the ones I could test. The board clips at its own 12 V rail, as the design said it would, and its 90% efficiency is within the 90 to 93% the design expected.
+The flow set its own targets, since the brief only asked for a copy of the reference board. On the bench the board clipped at its own 12 V rail and ran at 90% efficiency, both as the design expected.
 
 ![Distortion against power for each tone I captured, 100 Hz to 1 kHz. Open circles are the design's estimates at 1% THD. The speaker was under 5 Ω in the bass and 7.5 Ω at 1 kHz.](amp-thd-vs-power.png)
 
-The figure still open is full power. The design expects up to 15.6 W per channel into 4 Ω, which needs about 2.9 A, and my bench supply tops out at 2.1 A. In the bass, where the speaker drops under 5 Ω, the supply sagged and the board clipped at 10.1 W. A run on a bigger supply will settle it, along with a measurement of the chip's temperature.
+Full power is still to be tested. The design expects up to 15.6 W per channel into 4 Ω, which needs more current than my 2.1 A bench supply gives.
 
 ### The board and what it cost
 
