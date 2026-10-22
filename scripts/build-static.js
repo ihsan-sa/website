@@ -44,6 +44,7 @@ const { loadEssays, withMeta } = require('./writing');
 const { fillStats } = require('../src/fillStats');
 const { frontPage } = require('../src/frontPage');
 const { OUT_ARROW_SVG } = require('../src/outArrow');
+const { ESSAY_BANNERS } = require('../src/essayBanner');
 
 const ROOT = path.resolve(__dirname, '..');
 const STATIC_PATH = '/fbl6b84nx8v09rotjh22t1jm6jpinmmk/';
@@ -191,6 +192,20 @@ function rowVisual({ src, poster, video, width, height, alt, caption }) {
   return `<figure class="pv-visual">${linked}${caption ? `<figcaption>${esc(caption)}</figcaption>` : ''}</figure>`;
 }
 
+// The banners under the intro, as App.js's EssayBanner writes them: one link per listed
+// essay the page has, its clip (lazy, sized, the poster under reduced motion and until it
+// loads) beside its label, title and standfirst, or the text alone with no clip.
+function banners(pt, essays, writing) {
+  return ESSAY_BANNERS.map((b) => {
+    const e = essays.find((x) => x.slug === b.slug);
+    if (!e) return '';
+    const media = b.gif
+      ? `<picture class="pv-banner__media"><source media="(prefers-reduced-motion: reduce)" srcset="${esc(b.poster)}" /><img class="pv-banner__video" src="${esc(b.gif)}" alt="" width="${b.width}" height="${b.height}" loading="lazy" decoding="async"${stillAttr(b.poster)} /></picture>`
+      : '';
+    return `<a class="pv-banner pv-banner--apart${b.gif ? '' : ' pv-banner--text'}" href="${writing}${e.slug}/">${media}<span class="pv-banner__text"><span class="pv-banner__label">${esc(pt.essays[b.label])}</span><span class="pv-banner__title">${esc(e.title)}</span><span class="pv-banner__stand">${esc(e.standfirst || e.summary)}</span></span></a>\n`;
+  }).join('');
+}
+
 // A row's diagram; its width and height, when given, hold its place.
 function rowFigure({ image, width, height, alt, caption }) {
   const size = width && height ? ` width="${width}" height="${height}"` : '';
@@ -291,7 +306,7 @@ ${essays.length ? `<a class="pv-link" href="${writing}">${esc(pt.essays.heading)
 </span>
 </nav>
 ${intro(pt)}
-${sections}
+${banners(pt, essays, writing)}${sections}
 ${essays.length ? `<section class="pv-block">
 <h2><a class="pv-strong" href="${writing}">${esc(pt.essays.heading)}</a></h2>
 ${essayRows}
