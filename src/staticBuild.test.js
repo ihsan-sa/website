@@ -131,6 +131,8 @@ test('the draft lists the essays it is given, and leaves the link and section ou
   expect(html).toContain(`<a class="pv-link" href="${STATIC_PATH}writing/">Essays</a>`);
   expect(html).toContain(`<h2><a class="pv-strong" href="${STATIC_PATH}writing/">Essays</a></h2>`);
   expect(html).toContain(`<a class="pv-strong pv-name-link" href="${STATIC_PATH}writing/second/">Second</a> — About Second. September ’26.`);
+  const bare = decode(renderDraft(content, [{ ...twoEssays()[1], blurb: 'On a subtitle: no stop' }]));
+  expect(bare).toContain(`First</a> — On a subtitle: no stop. September ’26.`);
   const none = decode(renderDraft(content, []));
   expect(none).not.toContain('<h2><a class="pv-strong"');
   expect(none).not.toContain(`href="${STATIC_PATH}writing/"`);
