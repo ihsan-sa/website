@@ -114,6 +114,18 @@ test('the front page lists published essays only, linked under /writing', () => 
   expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
 });
 
+// The owner asked for Essays above AI work (2026-10-22), on both front pages.
+test('the front page lists Essays above AI work, in the app and the static copy', () => {
+  const heads = (root) => [...root.querySelectorAll('.pv-block h2')].map((h) => h.textContent);
+  const { container } = render(<App essays={[LIVE_ESSAY]} />);
+  const html = document.createElement('div');
+  html.innerHTML = renderFront(content, [LIVE_ESSAY]);
+  [heads(container), heads(html)].forEach((h) => {
+    expect(h.indexOf(prototype.essays.heading)).toBeGreaterThanOrEqual(0);
+    expect(h.indexOf(prototype.essays.heading)).toBeLessThan(h.findIndex((t) => t.startsWith(prototype.aiWork.heading)));
+  });
+});
+
 test('shelved AI rows do not render', () => {
   expect(shelved.ai.length).toBeGreaterThan(0);
   render(<App />);
@@ -229,9 +241,9 @@ test('the prototype puts a result under every experience row and AI project', ()
   const withLink = ({ heading, headLink, docs }) =>
     [heading, ...(headLink ? [headLink.label] : []), ...(docs || []).map(doc)].join(' ');
   expect(screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent)).toEqual([
+    prototype.essays.heading,
     withLink(prototype.aiWork),
     withLink(prototype.experience),
-    prototype.essays.heading,
     withLink(prototype.projects),
   ]);
   prototype.experience.items.forEach(({ result }) => {
@@ -253,7 +265,9 @@ test('the prototype orders AI work hwde, autobox, lesson-builder, then the chip 
     'lesson-builder',
     'chip design flow',
   ]);
-  const names = [...container.querySelectorAll('.pv-block:nth-of-type(1) .pv-entry .pv-strong')];
+  const aiBlock = [...container.querySelectorAll('.pv-block')]
+    .find((b) => b.querySelector('h2')?.textContent.startsWith(prototype.aiWork.heading));
+  const names = [...aiBlock.querySelectorAll('.pv-entry .pv-strong')];
   expect(names.map((n) => n.firstChild.textContent)).toEqual(prototype.aiWork.items.map(({ name }) => name));
 
   // Every AI name links its GitHub repo.
@@ -471,18 +485,19 @@ test('the draft puts AI work above Experience', () => {
   const headings = h2s();
   const ai = headings.findIndex((h) => h.startsWith(prototype.aiWork.heading));
   const exp = headings.findIndex((h) => h.startsWith(prototype.experience.heading));
-  expect(ai).toBe(0);
-  expect(exp).toBe(1);
+  // Essays come first when there are any, then AI work straight above Experience.
+  expect(ai).toBeGreaterThanOrEqual(0);
+  expect(exp).toBe(ai + 1);
   // Experience keeps its folded one-line rows.
   prototype.experience.items.forEach(({ name }) => expect(rowButton(name)).toHaveAttribute('aria-expanded', 'false'));
 });
 
-test('the front page is the draft: AI work first, the banner to the published essay, Show more and the row visuals, but no documents', () => {
+test('the front page is the draft: Essays then AI work, the banner to the published essay, Show more and the row visuals, but no documents', () => {
   const { container } = render(<App essays={[HIVE_ESSAY]} />);
   expect(h2s()).toEqual([
+    prototype.essays.heading,
     prototype.aiWork.heading,
     prototype.experience.heading,
-    prototype.essays.heading,
     `${prototype.projects.heading} ${prototype.projects.headLink.label}`,
   ]);
   const banner = container.querySelector('a.pv-banner');

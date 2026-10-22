@@ -279,7 +279,7 @@ function renderDraft(content, essays = [], { v2 = false, front = false } = {}) {
   const pt = front ? frontPage(content.prototype) : content.prototype;
   const writing = `${STATIC_PATH}writing/`;
   const link = ({ label, href }) => `<a class="pv-link" href="${esc(href)}"${NEW_TAB}>${esc(label)}</a>`;
-  // The front page puts AI work first, as the React one does.
+  // The front page puts AI work first, as the React one does; Essays sit above both.
   const sections = (front ? [pt.aiWork, pt.experience] : [pt.experience, pt.aiWork])
     .map((sec) => `<section class="pv-block">
 ${heading(sec)}
@@ -311,12 +311,12 @@ ${essays.length ? `<a class="pv-link" href="${writing}">${esc(pt.essays.heading)
 </span>
 </nav>
 ${intro(pt)}
-${banners(pt, essays, writing)}${sections}
-${essays.length ? `<section class="pv-block">
+${banners(pt, essays, writing)}${essays.length ? `<section class="pv-block">
 <h2><a class="pv-strong" href="${writing}">${esc(pt.essays.heading)}</a></h2>
 ${essayRows}
 </section>
-` : ''}<section class="pv-block">
+` : ''}${sections}
+<section class="pv-block">
 ${heading(pt.projects)}
 <div class="pv-hw">
 ${projects}
