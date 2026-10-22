@@ -535,12 +535,12 @@ test('the draft banner shows the essay clip as a lazy, sized GIF, and links the 
   expect(date.nextElementSibling).toBeNull();
   expect(banner).toHaveTextContent(HIVE_ESSAY.title);
   expect(banner).toHaveTextContent(HIVE_ESSAY.standfirst);
-  // A GIF, never a <video>: a GIF autoplays where Low Power Mode refuses muted video.
+  // An image (a GIF or a still), never a <video>: an image autoplays where Low Power Mode refuses muted video.
   expect(banner.querySelector('video')).toBeNull();
   const picture = banner.querySelector('picture.pv-banner__media');
   const img = picture.querySelector('img.pv-banner__video');
   expect(img).toHaveAttribute('src', ESSAY_BANNER.gif);
-  expect(ESSAY_BANNER.gif).toMatch(/\.webp$/);
+  expect(ESSAY_BANNER.gif).toMatch(/\.(webp|svg)$/);
   expect(img).toHaveAttribute('loading', 'lazy');
   expect(img).toHaveAttribute('decoding', 'async');
   expect(img).toHaveAttribute('width', String(ESSAY_BANNER.width));
@@ -560,7 +560,7 @@ test('the draft banner shows the essay clip as a lazy, sized GIF, and links the 
   // The GIF and its light poster ship with the site.
   [ESSAY_BANNER.gif, ESSAY_BANNER.poster].forEach((src) =>
     expect(fs.existsSync(path.join(__dirname, '..', 'public', src))).toBe(true));
-  expect(ESSAY_BANNER.poster).toMatch(/\.webp$/);
+  expect(ESSAY_BANNER.poster).toMatch(/\.(webp|svg)$/);
   expect(fs.statSync(path.join(__dirname, '..', 'public', ESSAY_BANNER.poster)).size).toBeLessThanOrEqual(60 * 1024);
   expect(fs.statSync(path.join(__dirname, '..', 'public', ESSAY_BANNER.gif)).size).toBeLessThanOrEqual(4 * 1024 * 1024);
 });

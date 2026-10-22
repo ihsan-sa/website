@@ -31,6 +31,8 @@ In short:
 
 > Maintaining a lightweight and simple core is critical to ensuring tight self-improvement loops and continued evolution as models progress.
 
+![The hive as a matrix: each project a lead over its workers, building the modules every agent shares, with wardens and tribunals on call to all of them.](hive.svg)
+
 ### Modules
 
 The *core* gains functionality through *modules*: shared tools, services, scripts, or knowledge bases which agents can engage with at will to complete work. Examples of modules include but are not limited to:
