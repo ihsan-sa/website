@@ -18,4 +18,10 @@ const ESSAY_BANNERS = [
   },
 ];
 
-module.exports = { ESSAY_BANNERS };
+// The essays that send the reader on to use what they describe (src/writing/Writing.js and
+// scripts/build-static.js): a banner under the title, by slug, linking the address. It is
+// here, not in the essay's front matter, because publishing an essay from the library
+// rewrites that.
+const ESSAY_TRY = { 'the-hive': 'https://hive.ihsan.cc' };
+
+module.exports = { ESSAY_BANNERS, ESSAY_TRY };
