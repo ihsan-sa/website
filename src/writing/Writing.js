@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { useTheme } from '../theme';
+import { ESSAY_TRY } from '../essayBanner';
+import { OUT_ARROW_SVG } from '../outArrow';
 import './Writing.css';
 import './zoom';
 import allEssays from './essays.generated.json';
@@ -248,6 +250,13 @@ function Essay({ essay, older, newer, base, preview }) {
           <Meta essay={essay} />
           <p className="wr-standfirst">{essay.standfirst}</p>
         </header>
+        {ESSAY_TRY[essay.slug] && (
+          <a className="wr-try" href={ESSAY_TRY[essay.slug]} {...NEW_TAB}>
+            <span className="wr-try__label">Try it</span>
+            <span className="wr-try__title">Use {essay.title} at {ESSAY_TRY[essay.slug].replace(/^https?:\/\//, '')}</span>
+            <span className="wr-try__go" aria-hidden="true" dangerouslySetInnerHTML={{ __html: OUT_ARROW_SVG }} />
+          </a>
+        )}
         <div className="wr-body">
           {essay.blocks.map((b, i) => (
             <Block key={i} block={b} notes={notes} seen={seen} />

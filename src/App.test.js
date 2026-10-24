@@ -56,14 +56,16 @@ test('the front page is the draft minus its documents, essays and noindex', () =
   expect(document.head.querySelector('meta[name="robots"]')).toBeNull();
 });
 
-test('every AI row on the front page links its name to its GitHub repo, but the Hive, whose repo is private', () => {
+test('every AI row on the front page links its name out: the Hive to its site, the rest to their GitHub repos', () => {
   render(<App />);
   expect(prototype.aiWork.items.length).toBeGreaterThan(0);
-  expect(prototype.aiWork.items.filter(({ href }) => !href).map(({ name }) => name)).toEqual(['The Hive']);
-  expect(rowButton('The Hive').closest('.pv-entry__head').querySelector('a')).toBeNull();
-  prototype.aiWork.items.filter(({ href }) => href).forEach(({ name, href }) => {
+  expect(prototype.aiWork.items.filter(({ href }) => !href)).toEqual([]);
+  const hive = prototype.aiWork.items.find(({ name }) => name === 'The Hive');
+  expect(hive.href).toBe('https://hive.ihsan.cc');
+  expect(rowButton('The Hive').closest('.pv-entry__head').querySelector('a')).toHaveAttribute('href', 'https://hive.ihsan.cc');
+  prototype.aiWork.items.filter(({ name }) => name !== 'The Hive').forEach(({ name, href }) => {
     expect(href).toMatch(/^https:\/\/github\.com\/ihsan-sa\/[\w.-]+$/);
-    expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
+    expect(screen.getAllByRole('link', { name }).map((a) => a.getAttribute('href'))).toContain(href);
   });
   expect(screen.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/ihsan-sa');
 });
@@ -132,7 +134,7 @@ test('shelved AI rows do not render', () => {
   expect(shelved.ai.length).toBeGreaterThan(0);
   render(<App />);
   // The live rows do render, so the check below is not vacuous.
-  prototype.aiWork.items.forEach(({ name }) => expect(screen.getByRole('link', { name })).toBeInTheDocument());
+  prototype.aiWork.items.forEach(({ name, href }) => expect(document.querySelector(`a[href="${href}"]`)).toHaveTextContent(name));
   shelved.ai.forEach(({ title, href }) => {
     expect(screen.queryByText(title)).not.toBeInTheDocument();
     expect(document.querySelector(`a[href="${href}"]`)).toBeNull();
@@ -273,10 +275,10 @@ test('the prototype orders AI work the Hive, hwde, autobox, lesson-builder, then
   const names = [...aiBlock.querySelectorAll('.pv-entry .pv-strong')];
   expect(names.map((n) => n.firstChild.textContent)).toEqual(prototype.aiWork.items.map(({ name }) => name));
 
-  // Every AI name with a public repo links it.
-  prototype.aiWork.items.filter(({ href }) => href).forEach(({ name, href }) => {
-    expect(screen.getByRole('link', { name })).toHaveAttribute('href', href);
-    expect(href).toMatch(/^https:\/\/github\.com\/ihsan-sa\//);
+  // Every AI name links out: the Hive to its site, the rest to their public repos.
+  prototype.aiWork.items.forEach(({ name, href }) => {
+    expect(screen.getAllByRole('link', { name }).map((a) => a.getAttribute('href'))).toContain(href);
+    expect(href).toMatch(name === 'The Hive' ? /^https:\/\/hive\.ihsan\.cc$/ : /^https:\/\/github\.com\/ihsan-sa\//);
   });
 });
 
@@ -756,6 +758,24 @@ test('a row name that links out ends in a hidden arrow, and an essay title does 
   expect(essay).toHaveClass('pv-name-link');
   expect(essay).not.toHaveClass('pv-name-link--out');
   expect(essay.querySelector('span')).toBeNull();
+});
+
+test('the Hive essay carries a banner that sends the reader to hive.ihsan.cc, under its title', () => {
+  window.history.pushState({}, '', '/writing/the-hive');
+  const { container } = render(<App />);
+  const banner = container.querySelector('a.wr-try');
+  expect(banner).toHaveAttribute('href', 'https://hive.ihsan.cc');
+  expect(banner).toHaveAttribute('target', '_blank');
+  expect(banner).toHaveTextContent('Use The Hive at hive.ihsan.cc');
+  expect(banner.previousElementSibling).toBe(container.querySelector('header.wr-head'));
+  expect(banner.nextElementSibling).toHaveClass('wr-body');
+});
+
+test('an essay with no address to try has no banner', () => {
+  window.history.pushState({}, '', '/writing/autobox');
+  const { container } = render(<App />);
+  expect(container.querySelector('h1')).toHaveTextContent('Autobox');
+  expect(container.querySelector('.wr-try')).toBeNull();
 });
 
 test('the Hive and autobox folds each end with a note that links to its essay', () => {

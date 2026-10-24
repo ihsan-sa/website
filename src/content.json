@@ -117,6 +117,7 @@
           "text": "an autonomous, self‑improving agentic system.",
           "sub": "Agents take an ask from Slack to a merged PR, in each project’s own repo. {hive.prs}+ PRs merged across {hive.repos} repos from 12 October to {hive.day}.",
           "short": "self‑improving agents.",
+          "href": "https://hive.ihsan.cc",
           "result": "The successor to autobox, built around a small core that stays simple so the system can keep improving itself as models do. Agents work in their own worktrees and Unix users, and an effects process holds every credential and acts on their behalf. They spawn one another, message agents on other projects and share modules such as Slack, the knowledge base and the library. Risks are weighed by tier: workers take the ones scoped to the hive, wardens the ones that reach outside it, and a tribunal of models votes when a warden can’t decide. Sweeps over the whole hive catch failures and file the fixes.",
           "note": {
             "text": "For more details, read ",

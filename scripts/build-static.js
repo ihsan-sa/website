@@ -44,7 +44,7 @@ const { loadEssays, withMeta } = require('./writing');
 const { fillStats } = require('../src/fillStats');
 const { frontPage } = require('../src/frontPage');
 const { OUT_ARROW_SVG } = require('../src/outArrow');
-const { ESSAY_BANNERS } = require('../src/essayBanner');
+const { ESSAY_BANNERS, ESSAY_TRY } = require('../src/essayBanner');
 
 const ROOT = path.resolve(__dirname, '..');
 const STATIC_PATH = '/fbl6b84nx8v09rotjh22t1jm6jpinmmk/';
@@ -391,6 +391,14 @@ function essayMeta(e) {
   return `<p class="wr-meta"><time datetime="${esc(e.date)}">${esc(e.dateLabel)}</time><span class="wr-meta__sep"> · </span>${e.readingMinutes} min read${e.draft ? '<span class="wr-meta__draft"> · Draft</span>' : ''}</p>`;
 }
 
+// The banner under an essay's title that sends the reader on (ESSAY_TRY), as Writing.js draws it.
+function tryBanner(e) {
+  const href = ESSAY_TRY[e.slug];
+  return href
+    ? `<a class="wr-try" href="${esc(href)}"${NEW_TAB}><span class="wr-try__label">Try it</span><span class="wr-try__title">Use ${esc(e.title)} at ${esc(href.replace(/^https?:\/\//, ''))}</span><span class="wr-try__go" aria-hidden="true">${OUT_ARROW_SVG}</span></a>\n`
+    : '';
+}
+
 function renderEssay(e, { older, newer, base }) {
   const notes = e.footnotes;
   const seen = new Set();
@@ -406,7 +414,7 @@ function renderEssay(e, { older, newer, base }) {
   return `${topBar(base, { title: e.title })}
 <article>
 <header class="wr-head"><h1 class="wr-title">${esc(e.title)}</h1>${essayMeta(e)}<p class="wr-standfirst">${esc(e.standfirst)}</p></header>
-<div class="wr-body">
+${tryBanner(e)}<div class="wr-body">
 ${e.blocks.map((b) => block(b, notes, seen)).join('\n')}
 </div>
 ${foot}${reading}

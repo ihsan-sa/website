@@ -19,9 +19,10 @@ test('the front page is the draft minus its documents, with all its copy in the 
     ...pt.experience.items.flatMap((i) => [i.name, i.text, i.result]),
     ...pt.aiWork.items.flatMap((i) => [i.name, i.text, i.result]),
     ...pt.projects.items.map((i) => i.title)].forEach((t) => expect(html).toContain(t));
-  // Every AI row with a public repo keeps its GitHub link (the Hive's is private); every
+  // Every AI row keeps its link (the Hive's goes to its site, the rest to GitHub); every
   // project tile its own link.
-  pt.aiWork.items.filter(({ href }) => href).forEach(({ href }) => expect(html).toContain(`href="${href}"`));
+  pt.aiWork.items.forEach(({ href }) => expect(html).toContain(`href="${href}"`));
+  expect(html).toContain('href="https://hive.ihsan.cc" target="_blank"');
   pt.projects.items.forEach(({ href }) => expect(html).toContain(`href="${href}"`));
   // The draft's documents beside AI work, and its essays, are not on it.
   expect(content.prototype.aiWork.docs).toBeUndefined();
@@ -145,6 +146,14 @@ test('the banner\'s date closes its text, after the standfirst, in a <time>, as 
   const html = decode(renderFront(content, [essay]));
   expect(html).toContain(`<span class="pv-banner__label">${content.prototype.essays.banner}</span>`);
   expect(html).toMatch(/<span class="pv-banner__stand">On agents\.<\/span><time class="pv-banner__date" datetime="2026-10-21">21 October 2026<\/time><\/span><\/a>/);
+});
+
+test('the Hive essay page carries the banner to hive.ihsan.cc, under its title, and no other essay does', () => {
+  const { loadEssays } = require('../scripts/writing');
+  const pages = renderWriting(loadEssays().filter((e) => !e.draft), shell, { preview: false });
+  const hive = decode(pages.find((p) => p.rel === 'writing/the-hive').html);
+  expect(hive).toMatch(/<\/header>\n<a class="wr-try" href="https:\/\/hive\.ihsan\.cc" target="_blank" rel="noopener noreferrer">[^]*Use The Hive at hive\.ihsan\.cc[^]*<\/a>\n<div class="wr-body">/);
+  pages.filter((p) => p.rel.startsWith('writing/') && p.rel !== 'writing/the-hive').forEach((p) => expect(p.html).not.toContain('wr-try"'));
 });
 
 test('the second draft is hidden, and opens each row on its whole line', () => {
