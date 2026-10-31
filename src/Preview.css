@@ -92,7 +92,7 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 640px) {
   .pv { padding: 32px 22px 48px; gap: 30px; }
   .pv-name { font-size: 34px; }
-  .pv-links .pv-link { min-height: 32px; display: inline-flex; align-items: center; }
+  .pv-links .pv-link { min-height: 32px; min-width: 24px; justify-content: center; display: inline-flex; align-items: center; }
   .pv-proto .pv-head-docs .pv-link,
   .pv-proto .pv-foot .pv-link { min-height: 32px; display: inline-flex; align-items: center; }
 }
