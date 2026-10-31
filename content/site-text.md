@@ -21,9 +21,11 @@ Six months ago I decided to work on AI projects, because I realized that was lik
 
 *Link:* LinkedIn <!-- prototype.links.1.label -->
 
-*Link:* AI résumé <!-- prototype.links.2.label -->
+*Link:* X <!-- prototype.links.2.label -->
 
-*Link:* HW résumé <!-- prototype.links.3.label -->
+*Link:* AI résumé <!-- prototype.links.3.label -->
+
+*Link:* HW résumé <!-- prototype.links.4.label -->
 
 *Contact button:* Save contact <!-- prototype.contactCard.label -->
 
