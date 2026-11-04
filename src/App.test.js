@@ -61,8 +61,8 @@ test('every AI row on the front page links its name out: the Hive to its site, t
   expect(prototype.aiWork.items.length).toBeGreaterThan(0);
   expect(prototype.aiWork.items.filter(({ href }) => !href)).toEqual([]);
   const hive = prototype.aiWork.items.find(({ name }) => name === 'The Hive');
-  expect(hive.href).toBe('https://hive.ihsan.cc');
-  expect(rowButton('The Hive').closest('.pv-entry__head').querySelector('a')).toHaveAttribute('href', 'https://hive.ihsan.cc');
+  expect(hive.href).toBe('https://hivelab.ca');
+  expect(rowButton('The Hive').closest('.pv-entry__head').querySelector('a')).toHaveAttribute('href', 'https://hivelab.ca');
   prototype.aiWork.items.filter(({ name }) => name !== 'The Hive').forEach(({ name, href }) => {
     expect(href).toMatch(/^https:\/\/github\.com\/ihsan-sa\/[\w.-]+$/);
     expect(screen.getAllByRole('link', { name }).map((a) => a.getAttribute('href'))).toContain(href);
@@ -760,13 +760,13 @@ test('a row name that links out ends in a hidden arrow, and an essay title does 
   expect(essay.querySelector('span')).toBeNull();
 });
 
-test('the Hive essay carries a banner that sends the reader to hive.ihsan.cc, under its title', () => {
+test('the Hive essay carries a banner that sends the reader to hivelab.ca, under its title', () => {
   window.history.pushState({}, '', '/writing/the-hive');
   const { container } = render(<App />);
   const banner = container.querySelector('a.wr-try');
-  expect(banner).toHaveAttribute('href', 'https://hive.ihsan.cc');
+  expect(banner).toHaveAttribute('href', 'https://hivelab.ca');
   expect(banner).toHaveAttribute('target', '_blank');
-  expect(banner).toHaveTextContent('Use The Hive at hive.ihsan.cc');
+  expect(banner).toHaveTextContent('Use The Hive at hivelab.ca');
   expect(banner.previousElementSibling).toBe(container.querySelector('header.wr-head'));
   expect(banner.nextElementSibling).toHaveClass('wr-body');
 });

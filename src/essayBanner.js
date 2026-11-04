@@ -22,6 +22,6 @@ const ESSAY_BANNERS = [
 // scripts/build-static.js): a banner under the title, by slug, linking the address. It is
 // here, not in the essay's front matter, because publishing an essay from the library
 // rewrites that.
-const ESSAY_TRY = { 'the-hive': 'https://hive.ihsan.cc' };
+const ESSAY_TRY = { 'the-hive': 'https://hivelab.ca' };
 
 module.exports = { ESSAY_BANNERS, ESSAY_TRY };
