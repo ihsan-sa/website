@@ -278,7 +278,7 @@ test('the prototype orders AI work the Hive, hwde, autobox, lesson-builder, then
   // Every AI name links out: the Hive to its site, the rest to their public repos.
   prototype.aiWork.items.forEach(({ name, href }) => {
     expect(screen.getAllByRole('link', { name }).map((a) => a.getAttribute('href'))).toContain(href);
-    expect(href).toMatch(name === 'The Hive' ? /^https:\/\/hive\.ihsan\.cc$/ : /^https:\/\/github\.com\/ihsan-sa\//);
+    expect(href).toMatch(name === 'The Hive' ? /^https:\/\/hivelab\.ca$/ : /^https:\/\/github\.com\/ihsan-sa\//);
   });
 });
 

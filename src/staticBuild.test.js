@@ -152,7 +152,7 @@ test('the Hive essay page carries the banner to hivelab.ca, under its title, and
   const { loadEssays } = require('../scripts/writing');
   const pages = renderWriting(loadEssays().filter((e) => !e.draft), shell, { preview: false });
   const hive = decode(pages.find((p) => p.rel === 'writing/the-hive').html);
-  expect(hive).toMatch(/<\/header>\n<a class="wr-try" href="https:\/\/hive\.ihsan\.cc" target="_blank" rel="noopener noreferrer">[^]*Use The Hive at hive\.ihsan\.cc[^]*<\/a>\n<div class="wr-body">/);
+  expect(hive).toMatch(/<\/header>\n<a class="wr-try" href="https:\/\/hivelab\.ca" target="_blank" rel="noopener noreferrer">[^]*Use The Hive at hivelab\.ca[^]*<\/a>\n<div class="wr-body">/);
   pages.filter((p) => p.rel.startsWith('writing/') && p.rel !== 'writing/the-hive').forEach((p) => expect(p.html).not.toContain('wr-try"'));
 });
 
