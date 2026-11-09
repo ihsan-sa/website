@@ -6,14 +6,14 @@
 // page's essays is skipped. A clip is an animated WebP rather than an .mp4 because it is an
 // image, so it autoplays everywhere, Safari's Low Power Mode included (Safari has played it
 // since 14), which blocks muted video autoplay. A still image works the same way, with itself
-// as its poster: The Hive's is its diagram in notation (public/writing/the-hive/hive.tex
-// draws it). To change it, point `gif` and `poster` at new files here; nothing else names
+// as its poster. The Hive's clip is the LinkedIn highlight reel (hive-reel-linkedin-16x9-name.mp4),
+// at 10 fps and 736x414, with the frame at 1.5 s as the poster. To change it, point `gif` and `poster` at new files here; nothing else names
 // them. CommonJS, like fillStats.js, so the static build can require it.
 const ESSAY_BANNERS = [
   {
     site: 'hivelab',
-    gif: '/writing/the-hive/hive-thumb.svg',
-    poster: '/writing/the-hive/hive-thumb.svg',
+    gif: '/writing/the-hive/hive-reel.webp',
+    poster: '/writing/the-hive/hive-reel-poster.webp',
     width: 368,
     height: 207,
   },
