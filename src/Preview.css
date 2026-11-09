@@ -391,6 +391,8 @@ a.pv-strong:hover { text-decoration: underline; text-underline-offset: 3px; }
    stretches to the clip's height (.pv-banner--apart), so the date sits at its bottom.
    The line box is tight and trimmed 3px, so the baseline, not the line's edge, meets the clip's bottom. */
 .pv-proto .pv-banner__date { margin: auto 0 -3px; line-height: 1; }
+/* A site banner's foot is its address (a <span>, not an essay's <time>): kept lowercase, as typed. */
+.pv-proto span.pv-banner__date { text-transform: none; letter-spacing: 0.02em; }
 
 /* A visual in an AI row's fold, under its result: a GIF clip (a <picture> with its
    poster for reduced motion) or an image, lazy, with its width and height set so
