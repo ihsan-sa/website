@@ -72,8 +72,8 @@ const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
 // Safari's Low Power Mode included (Safari has played it since 14), which refuses muted
 // video autoplay. It loads lazily, after the text, and its width and height hold its
 // 16:9 box so nothing shifts, and the still poster is the <img>'s own background, so it
-// shows at once and the clip paints over it once loaded. With reduced motion asked for,
-// <picture> swaps in the poster and the clip never loads. It is decorative (alt=""): the
+// shows at once and the clip paints over it once loaded. It plays even with reduced motion
+// asked for, by the owner's choice: the banner always autoplays. It is decorative (alt=""): the
 // link's own text names the essay. A banner with no clip is its text alone.
 // A clip's still as its <img>'s CSS background: it shows the moment the box is laid
 // out, and the loaded clip covers it. No script, and the static build writes the same.
@@ -84,7 +84,6 @@ function EssayBanner({ href, external, label, title, stand, foot, date, gif, pos
     <a className={`pv-banner pv-banner--apart${gif ? '' : ' pv-banner--text'}`} href={href} {...(external ? NEW_TAB : {})}>
       {gif && (
         <picture className="pv-banner__media">
-          <source media="(prefers-reduced-motion: reduce)" srcSet={poster} />
           <img
             className="pv-banner__video"
             src={gif}

@@ -553,11 +553,8 @@ test('the draft banner shows the Hive diagram as a lazy, sized image, and opens 
   expect(ESSAY_BANNER.width / ESSAY_BANNER.height).toBeCloseTo(16 / 9, 2);
   // Decorative: the link's text names the essay.
   expect(img).toHaveAttribute('alt', '');
-  // With reduced motion asked for, the still poster stands in and the GIF never loads.
-  const sources = picture.querySelectorAll('source');
-  expect(sources).toHaveLength(1);
-  expect(sources[0]).toHaveAttribute('media', '(prefers-reduced-motion: reduce)');
-  expect(sources[0]).toHaveAttribute('srcset', ESSAY_BANNER.poster);
+  // It autoplays even with reduced motion asked for (the owner's choice): no poster <source> swaps it out.
+  expect(picture.querySelectorAll('source')).toHaveLength(0);
   expect(picture.lastElementChild).toBe(img);
   // The poster is also the <img>'s background, so it shows until the GIF loads.
   expect(img.style.backgroundImage).toBe(`url(${ESSAY_BANNER.poster})`);
