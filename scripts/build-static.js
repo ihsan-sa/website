@@ -211,7 +211,7 @@ function banners(pt, essays, writing) {
       foot = `<time class="pv-banner__date" datetime="${esc(e.date)}">${esc(e.dateLabel)}</time>`;
     }
     const media = b.gif
-      ? `<picture class="pv-banner__media"><source media="(prefers-reduced-motion: reduce)" srcset="${esc(b.poster)}" /><img class="pv-banner__video" src="${esc(b.gif)}" alt="" width="${b.width}" height="${b.height}" loading="lazy" decoding="async"${stillAttr(b.poster)} /></picture>`
+      ? `<picture class="pv-banner__media"><img class="pv-banner__video" src="${esc(b.gif)}" alt="" width="${b.width}" height="${b.height}" loading="lazy" decoding="async"${stillAttr(b.poster)} /></picture>`
       : '';
     return `<a class="pv-banner pv-banner--apart${b.gif ? '' : ' pv-banner--text'}" href="${esc(href)}"${attrs}>${media}<span class="pv-banner__text"><span class="pv-banner__label">${esc(label)}</span><span class="pv-banner__title">${esc(title)}</span><span class="pv-banner__stand">${esc(stand)}</span>${foot}</span></a>\n`;
   }).join('');
