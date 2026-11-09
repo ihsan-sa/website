@@ -118,11 +118,11 @@
       "items": [
         {
           "name": "The Hive",
-          "text": "an autonomous, self‑improving agentic system.",
-          "sub": "Agents take an ask from Slack to a merged PR, in each project’s own repo. {hive.prs}+ PRs merged across {hive.repos} repos from 12 October to {hive.day}.",
-          "short": "self‑improving agents.",
+          "text": "agents that build your projects, and the tools to check them.",
+          "sub": "Agents take an ask from Slack to a checked result, in each project’s own repo, and build the deterministic tools they check it with, from rule checks to full‑wave field solvers.",
+          "short": "agents that build your projects.",
           "href": "https://hivelab.ca",
-          "result": "The successor to autobox, built around a small core that stays simple so the system can keep improving itself as models do. Agents work in their own worktrees and Unix users, and an effects process holds every credential and acts on their behalf. They spawn one another, message agents on other projects and share modules such as Slack, the knowledge base and the library. Risks are weighed by tier: workers take the ones scoped to the hive, wardens the ones that reach outside it, and a tribunal of models votes when a warden can’t decide. Sweeps over the whole hive catch failures and file the fixes.",
+          "result": "The successor to autobox, built around a small core that stays simple so the system can keep improving itself as models do. Agents work in their own worktrees and Unix users, and an effects process holds every credential and acts on their behalf. They spawn one another, message agents on other projects and share modules such as Slack, the knowledge base and the library. Risks are weighed by tier: workers take the ones scoped to the hive, wardens the ones that reach outside it, and a tribunal of models votes when a warden can’t decide. Sweeps over the whole hive catch failures and file the fixes. How the agents know a design will work before it is built is at hivelab.ca/results.",
           "note": {
             "text": "For more details, read ",
             "label": "the essay",
@@ -211,6 +211,15 @@
     "essays": {
       "heading": "Essays",
       "banner": "New essay"
+    },
+    "banners": {
+      "hivelab": {
+        "label": "Try it",
+        "title": "The Hive",
+        "stand": "A hive of agents that builds your projects while you sleep, and the tools it needs to get them done.",
+        "foot": "hivelab.ca",
+        "href": "https://hivelab.ca"
+      }
     },
     "projects": {
       "heading": "Projects",

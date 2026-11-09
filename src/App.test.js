@@ -480,7 +480,8 @@ const AUTOBOX_ESSAY = {
 const HIVE_ESSAY = {
   slug: 'the-hive', title: 'The Hive', summary: 'the design.', standfirst: 'On long-horizon agentic architecture.', date: '2026-10-21', dateLabel: '21 October 2026', draft: false,
 };
-// The one banner, The Hive's, with its clip.
+// The one banner: The Hive's diagram, opening hivelab.ca.
+const SITE = prototype.banners.hivelab;
 const [ESSAY_BANNER] = ESSAY_BANNERS;
 const h2s = () => screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
 
@@ -497,7 +498,7 @@ test('the draft puts AI work above Experience', () => {
   prototype.experience.items.forEach(({ name }) => expect(rowButton(name)).toHaveAttribute('aria-expanded', 'false'));
 });
 
-test('the front page is the draft: Essays then AI work, the banner to the published essay, Show more and the row visuals, but no documents', () => {
+test('the front page is the draft: Essays then AI work, the banner to hivelab.ca, Show more and the row visuals, but no documents', () => {
   const { container } = render(<App essays={[HIVE_ESSAY]} />);
   expect(h2s()).toEqual([
     prototype.essays.heading,
@@ -506,7 +507,7 @@ test('the front page is the draft: Essays then AI work, the banner to the publis
     `${prototype.projects.heading} ${prototype.projects.headLink.label}`,
   ]);
   const banner = container.querySelector('a.pv-banner');
-  expect(banner).toHaveAttribute('href', '/writing/the-hive');
+  expect(banner).toHaveAttribute('href', 'https://hivelab.ca');
   expect(banner.querySelector('img.pv-banner__video')).toHaveAttribute('src', ESSAY_BANNER.gif);
   expect(screen.getByRole('button', { name: prototype.aboutFold.more })).toHaveAttribute('aria-expanded', 'false');
   expect(container.querySelector('.pv-docs, .pv-pending, .pv-start, .pv-doc')).toBeNull();
@@ -520,23 +521,25 @@ test('the front page is the draft: Essays then AI work, the banner to the publis
   ROWS().forEach(({ name, result }) => expect(rowPanel(name)).toHaveTextContent(result));
 });
 
-test('the draft banner shows the essay clip as a lazy, sized GIF, and links the draft essay', () => {
+test('the draft banner shows the Hive diagram as a lazy, sized image, and opens hivelab.ca in a new tab', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   const { container } = render(<Prototype essays={[HIVE_ESSAY]} />);
   const banner = container.querySelector('a.pv-banner');
-  expect(banner).toHaveAttribute('href', `${PREVIEW_PATH}/writing/the-hive`);
+  expect(banner).toHaveAttribute('href', 'https://hivelab.ca');
+  expect(SITE.href).toBe('https://hivelab.ca');
+  expect(banner).toHaveAttribute('target', '_blank');
+  expect(banner).toHaveAttribute('rel', 'noopener noreferrer');
   expect(banner.previousElementSibling).toHaveClass('pv-intro');
   expect(banner.nextElementSibling.tagName).toBe('SECTION');
-  expect(banner).toHaveTextContent(prototype.essays[ESSAY_BANNER.label]);
-  // The label stays "New essay"; the essay's date, as its page writes it, closes the text, after the standfirst.
-  expect(banner.querySelector('.pv-banner__label')).toHaveTextContent(new RegExp(`^${prototype.essays[ESSAY_BANNER.label]}$`));
-  const date = banner.querySelector('time.pv-banner__date');
-  expect(date).toHaveAttribute('dateTime', '2026-10-21');
-  expect(date).toHaveTextContent('21 October 2026');
-  expect(banner.querySelector('.pv-banner__stand').compareDocumentPosition(date) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  expect(date.nextElementSibling).toBeNull();
-  expect(banner).toHaveTextContent(HIVE_ESSAY.title);
-  expect(banner).toHaveTextContent(HIVE_ESSAY.standfirst);
+  // Label, title and tagline, then the address closes the text, where an essay's date would.
+  expect(banner.querySelector('.pv-banner__label')).toHaveTextContent(new RegExp(`^${SITE.label}$`));
+  expect(banner.querySelector('.pv-banner__title')).toHaveTextContent(SITE.title);
+  expect(banner.querySelector('.pv-banner__stand')).toHaveTextContent(SITE.stand);
+  const foot = banner.querySelector('.pv-banner__date');
+  expect(foot.tagName).toBe('SPAN');
+  expect(foot).toHaveTextContent('hivelab.ca');
+  expect(banner.querySelector('.pv-banner__stand').compareDocumentPosition(foot) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(foot.nextElementSibling).toBeNull();
   // An image (a GIF or a still), never a <video>: an image autoplays where Low Power Mode refuses muted video.
   expect(banner.querySelector('video')).toBeNull();
   const picture = banner.querySelector('picture.pv-banner__media');
@@ -567,27 +570,28 @@ test('the draft banner shows the essay clip as a lazy, sized GIF, and links the 
   expect(fs.statSync(path.join(__dirname, '..', 'public', ESSAY_BANNER.gif)).size).toBeLessThanOrEqual(4 * 1024 * 1024);
 });
 
-test('the front page features The Hive alone, with its clip; Autobox stays in the essay list with no banner', () => {
+test('the front page features The Hive alone, with its diagram, to hivelab.ca; the essays stay in their list with no banner', () => {
   const { container } = render(<Prototype front essays={[HIVE_ESSAY, { ...AUTOBOX_ESSAY, draft: false }]} />);
   const banners = container.querySelectorAll('a.pv-banner');
   expect(banners).toHaveLength(1);
   const [hive] = banners;
-  expect(hive).toHaveAttribute('href', '/writing/the-hive');
+  expect(hive).toHaveAttribute('href', 'https://hivelab.ca');
   expect(hive.previousElementSibling).toHaveClass('pv-intro');
   expect(hive.nextElementSibling.tagName).toBe('SECTION');
   expect(hive).not.toHaveClass('pv-banner--text');
   expect(hive.querySelector('img.pv-banner__video')).toHaveAttribute('src', ESSAY_BANNER.gif);
-  expect(hive.querySelector('.pv-banner__label')).toHaveTextContent(prototype.essays.banner);
-  expect(prototype.essays.banner).toBe('New essay');
-  expect(container.querySelector('a[href="/writing/autobox"]')).not.toHaveClass('pv-banner');
+  expect(hive.querySelector('.pv-banner__label')).toHaveTextContent(SITE.label);
+  expect(SITE.stand).toBe('A hive of agents that builds your projects while you sleep, and the tools it needs to get them done.');
+  ['/writing/the-hive', '/writing/autobox'].forEach((href) => expect(container.querySelector(`a[href="${href}"]`)).not.toHaveClass('pv-banner'));
 });
 
-test('the static front page writes the same banners as the app, and skips a missing essay the same way', () => {
+test('the static front page writes the same banners as the app, with or without the essays', () => {
   const shape = (root) => [...root.querySelectorAll('a.pv-banner')].map((a) => {
     const img = a.querySelector('img');
     return {
       cls: a.className,
-      slug: a.getAttribute('href').split('/').filter(Boolean).pop(),
+      href: a.getAttribute('href'),
+      tab: a.getAttribute('target'),
       text: [...a.querySelectorAll('.pv-banner__text > *')].map((s) => `${s.className}: ${s.textContent}`),
       source: a.querySelector('source')?.getAttribute('srcset') ?? null,
       img: img && { ...Object.fromEntries(['class', 'src', 'alt', 'width', 'height', 'loading', 'decoding'].map((k) => [k, img.getAttribute(k)])), still: img.style.backgroundImage },
@@ -600,15 +604,15 @@ test('the static front page writes the same banners as the app, and skips a miss
     unmount();
     const html = document.createElement('div');
     html.innerHTML = renderFront(content, essays);
-    expect(app.map((b) => b.slug)).toEqual(list.filter((e) => e.slug === 'the-hive').map((e) => e.slug));
+    expect(app.map((b) => b.href)).toEqual(['https://hivelab.ca']);
     expect(shape(html)).toEqual(app);
   });
 });
 
-test('with neither listed essay the draft shows no banner', () => {
+test('without the Hive essay the draft still shows the hivelab.ca banner, and no essay banner', () => {
   window.history.pushState({}, '', PREVIEW_PATH);
   const { container } = render(<Prototype essays={ONE_ESSAY} />);
-  expect(container.querySelector('.pv-banner')).toBeNull();
+  expect([...container.querySelectorAll('a.pv-banner')].map((a) => a.getAttribute('href'))).toEqual(['https://hivelab.ca']);
 });
 
 test('the draft about folds behind a Show more button that says whether it is open', () => {
