@@ -75,13 +75,13 @@ Class academic rep and WEEF engineering fund rep. GPA 87%. <!-- prototype.experi
 
 ### The Hive <!-- prototype.aiWork.items.0.name -->
 
-an autonomous, self‑improving agentic system. <!-- prototype.aiWork.items.0.text -->
+agents that build your projects, and the tools to check them. <!-- prototype.aiWork.items.0.text -->
 
-*Under the name:* Agents take an ask from Slack to a merged PR, in each project’s own repo. {hive.prs}+ PRs merged across {hive.repos} repos from 12 October to {hive.day}. <!-- prototype.aiWork.items.0.sub -->
+*Under the name:* Agents take an ask from Slack to a checked result, in each project’s own repo, and build the deterministic tools they check it with, from rule checks to full‑wave field solvers. <!-- prototype.aiWork.items.0.sub -->
 
-*On a phone:* self‑improving agents. <!-- prototype.aiWork.items.0.short -->
+*On a phone:* agents that build your projects. <!-- prototype.aiWork.items.0.short -->
 
-The successor to autobox, built around a small core that stays simple so the system can keep improving itself as models do. Agents work in their own worktrees and Unix users, and an effects process holds every credential and acts on their behalf. They spawn one another, message agents on other projects and share modules such as Slack, the knowledge base and the library. Risks are weighed by tier: workers take the ones scoped to the hive, wardens the ones that reach outside it, and a tribunal of models votes when a warden can’t decide. Sweeps over the whole hive catch failures and file the fixes. <!-- prototype.aiWork.items.0.result -->
+The successor to autobox, built around a small core that stays simple so the system can keep improving itself as models do. Agents work in their own worktrees and Unix users, and an effects process holds every credential and acts on their behalf. They spawn one another, message agents on other projects and share modules such as Slack, the knowledge base and the library. Risks are weighed by tier: workers take the ones scoped to the hive, wardens the ones that reach outside it, and a tribunal of models votes when a warden can’t decide. Sweeps over the whole hive catch failures and file the fixes. How the agents know a design will work before it is built is at hivelab.ca/results. <!-- prototype.aiWork.items.0.result -->
 
 *Note:* For more details, read&#32; <!-- prototype.aiWork.items.0.note.text -->
 
@@ -152,6 +152,14 @@ Three pipelines in the form of Claude Code skills aimed at digital, analog, and 
 ## Essays <!-- prototype.essays.heading -->
 
 *Banner:* New essay <!-- prototype.essays.banner -->
+
+*Link:* Try it <!-- prototype.banners.hivelab.label -->
+
+*Title:* The Hive <!-- prototype.banners.hivelab.title -->
+
+A hive of agents that builds your projects while you sleep, and the tools it needs to get them done. <!-- prototype.banners.hivelab.stand -->
+
+hivelab.ca <!-- prototype.banners.hivelab.foot -->
 
 ## Projects <!-- prototype.projects.heading -->
 

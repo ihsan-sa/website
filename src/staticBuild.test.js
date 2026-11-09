@@ -140,12 +140,15 @@ test('the draft lists the essays it is given, and leaves the link and section ou
   expect(none).not.toContain(`href="${STATIC_PATH}writing/"`);
 });
 
-test('the banner\'s date closes its text, after the standfirst, in a <time>, as the React page does', () => {
+test('the banner opens hivelab.ca in a new tab, its address closing its text after the tagline, as the React page does', () => {
   const { parseEssay } = require('../scripts/writing');
   const { essay } = parseEssay('---\ntitle: The Hive\ndate: 2026-10-21\nsummary: The design.\nstandfirst: On agents.\n---\n\nText.\n', 'the-hive');
   const html = decode(renderFront(content, [essay]));
-  expect(html).toContain(`<span class="pv-banner__label">${content.prototype.essays.banner}</span>`);
-  expect(html).toMatch(/<span class="pv-banner__stand">On agents\.<\/span><time class="pv-banner__date" datetime="2026-10-21">21 October 2026<\/time><\/span><\/a>/);
+  const site = content.prototype.banners.hivelab;
+  expect(html).toContain('<a class="pv-banner pv-banner--apart" href="https://hivelab.ca" target="_blank" rel="noopener noreferrer">');
+  expect(html).toContain(`<span class="pv-banner__label">${site.label}</span><span class="pv-banner__title">${site.title}</span>`);
+  expect(html).toContain(`<span class="pv-banner__stand">${site.stand}</span><span class="pv-banner__date">hivelab.ca</span></span></a>`);
+  expect(html).not.toContain('<time class="pv-banner__date"');
 });
 
 test('the Hive essay page carries the banner to hivelab.ca, under its title, and no other essay does', () => {

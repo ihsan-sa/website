@@ -79,9 +79,9 @@ const NEW_TAB = { target: '_blank', rel: 'noopener noreferrer' };
 // out, and the loaded clip covers it. No script, and the static build writes the same.
 const stillStyle = (poster) => (poster ? { backgroundImage: `url(${poster})`, backgroundSize: 'cover' } : undefined);
 
-function EssayBanner({ essay, href, label, gif, poster, width, height }) {
+function EssayBanner({ href, external, label, title, stand, foot, date, gif, poster, width, height }) {
   return (
-    <a className={`pv-banner pv-banner--apart${gif ? '' : ' pv-banner--text'}`} href={href}>
+    <a className={`pv-banner pv-banner--apart${gif ? '' : ' pv-banner--text'}`} href={href} {...(external ? NEW_TAB : {})}>
       {gif && (
         <picture className="pv-banner__media">
           <source media="(prefers-reduced-motion: reduce)" srcSet={poster} />
@@ -99,12 +99,35 @@ function EssayBanner({ essay, href, label, gif, poster, width, height }) {
       )}
       <span className="pv-banner__text">
         <span className="pv-banner__label">{label}</span>
-        <span className="pv-banner__title">{essay.title}</span>
-        <span className="pv-banner__stand">{essay.standfirst || essay.summary}</span>
-        <time className="pv-banner__date" dateTime={essay.date}>{essay.dateLabel}</time>
+        <span className="pv-banner__title">{title}</span>
+        <span className="pv-banner__stand">{stand}</span>
+        {date
+          ? <time className="pv-banner__date" dateTime={date}>{foot}</time>
+          : <span className="pv-banner__date">{foot}</span>}
       </span>
     </a>
   );
+}
+
+// A listed banner's link and words: a site banner's from the page's `banners` block
+// (it always shows and opens its site in a new tab), an essay banner's from the essay,
+// or null when the page doesn't have that essay. scripts/build-static.js does the same.
+function bannerProps(b, block, essays, writing) {
+  if (b.site) {
+    const { href, label, title, stand, foot } = block.banners[b.site];
+    return { ...b, href, external: true, label, title, stand, foot };
+  }
+  const essay = essays.find((e) => e.slug === b.slug);
+  if (!essay) return null;
+  return {
+    ...b,
+    href: `${writing}/${essay.slug}`,
+    label: block.essays[b.label],
+    title: essay.title,
+    stand: essay.standfirst || essay.summary,
+    foot: essay.dateLabel,
+    date: essay.date,
+  };
 }
 
 // The intro. A phone shows the name and subtitle with the about paragraphs
@@ -416,7 +439,7 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
   const block = isFront ? front : prototype;
   const sections = [block.aiWork, block.experience];
   const writing = isFront ? '/writing' : `${PREVIEW_PATH}/writing`;
-  const banners = ESSAY_BANNERS.map((b) => ({ ...b, essay: essays.find((e) => e.slug === b.slug) })).filter((b) => b.essay);
+  const banners = ESSAY_BANNERS.map((b) => bannerProps(b, block, essays, writing)).filter(Boolean);
 
   return (
     <main ref={mainRef} className="pv pv-proto pv-proto--photos">
@@ -453,7 +476,7 @@ export function Prototype({ front: isFront = false, essays = isFront ? published
       <Intro block={block} />
 
       {banners.map((b) => (
-        <EssayBanner key={b.slug} {...b} href={`${writing}/${b.slug}`} label={block.essays[b.label]} />
+        <EssayBanner key={b.site || b.slug} {...b} />
       ))}
 
       {essays.length > 0 && (

@@ -192,17 +192,28 @@ function rowVisual({ src, poster, video, width, height, alt, caption }) {
   return `<figure class="pv-visual">${linked}${caption ? `<figcaption>${esc(caption)}</figcaption>` : ''}</figure>`;
 }
 
-// The banners under the intro, as App.js's EssayBanner writes them: one link per listed
-// essay the page has, its clip (lazy, sized, the poster under reduced motion and until it
-// loads) beside its label, title, standfirst and the essay's date, or the text alone with no clip.
+// The banners under the intro, as App.js's EssayBanner writes them: a site banner (from
+// the page's `banners` block, always shown, opening its site in a new tab), or one link per
+// listed essay the page has. Each is its clip (lazy, sized, the poster under reduced motion
+// and until it loads) beside its label, title, standfirst and foot (an essay's date), or the
+// text alone with no clip.
 function banners(pt, essays, writing) {
   return ESSAY_BANNERS.map((b) => {
-    const e = essays.find((x) => x.slug === b.slug);
-    if (!e) return '';
+    let href; let label; let title; let stand; let foot; let attrs = '';
+    if (b.site) {
+      ({ href, label, title, stand } = pt.banners[b.site]);
+      foot = `<span class="pv-banner__date">${esc(pt.banners[b.site].foot)}</span>`;
+      attrs = NEW_TAB;
+    } else {
+      const e = essays.find((x) => x.slug === b.slug);
+      if (!e) return '';
+      href = `${writing}${e.slug}/`; label = pt.essays[b.label]; title = e.title; stand = e.standfirst || e.summary;
+      foot = `<time class="pv-banner__date" datetime="${esc(e.date)}">${esc(e.dateLabel)}</time>`;
+    }
     const media = b.gif
       ? `<picture class="pv-banner__media"><source media="(prefers-reduced-motion: reduce)" srcset="${esc(b.poster)}" /><img class="pv-banner__video" src="${esc(b.gif)}" alt="" width="${b.width}" height="${b.height}" loading="lazy" decoding="async"${stillAttr(b.poster)} /></picture>`
       : '';
-    return `<a class="pv-banner pv-banner--apart${b.gif ? '' : ' pv-banner--text'}" href="${writing}${e.slug}/">${media}<span class="pv-banner__text"><span class="pv-banner__label">${esc(pt.essays[b.label])}</span><span class="pv-banner__title">${esc(e.title)}</span><span class="pv-banner__stand">${esc(e.standfirst || e.summary)}</span><time class="pv-banner__date" datetime="${esc(e.date)}">${esc(e.dateLabel)}</time></span></a>\n`;
+    return `<a class="pv-banner pv-banner--apart${b.gif ? '' : ' pv-banner--text'}" href="${esc(href)}"${attrs}>${media}<span class="pv-banner__text"><span class="pv-banner__label">${esc(label)}</span><span class="pv-banner__title">${esc(title)}</span><span class="pv-banner__stand">${esc(stand)}</span>${foot}</span></a>\n`;
   }).join('');
 }
 

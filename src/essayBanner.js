@@ -1,6 +1,8 @@
-// The essay banners under the intro (App.js, EssayBanner, and scripts/build-static.js), in
-// order: which essay each opens, the site-text key under `essays` that labels it, and the
-// clip it plays, if any. A banner with no `gif` is text only. A slug that is not one of the
+// The banners under the intro (App.js, EssayBanner, and scripts/build-static.js), in
+// order. A site banner names its block under content.json's `banners` (`site`), which holds
+// its link and words, and always shows. An essay banner names the essay it opens (`slug`)
+// and the site-text key under `essays` that labels it. Either carries the clip it plays, if any.
+// A banner with no `gif` is text only. A slug that is not one of the
 // page's essays is skipped. A clip is an animated WebP rather than an .mp4 because it is an
 // image, so it autoplays everywhere, Safari's Low Power Mode included (Safari has played it
 // since 14), which blocks muted video autoplay. A still image works the same way, with itself
@@ -9,8 +11,7 @@
 // them. CommonJS, like fillStats.js, so the static build can require it.
 const ESSAY_BANNERS = [
   {
-    slug: 'the-hive',
-    label: 'banner',
+    site: 'hivelab',
     gif: '/writing/the-hive/hive-thumb.svg',
     poster: '/writing/the-hive/hive-thumb.svg',
     width: 368,
