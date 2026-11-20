@@ -1,0 +1,45 @@
+# Ihsan Salari
+
+> UWaterloo EE student building AI systems, after co-ops in signal integrity, datacenter optics and RF for chip manufacturing.
+
+Every role he has held was in a field new to him, and each time he owned critical deliverables within weeks. A server of his runs autonomous AI agents (the Hive) that he talks to over Slack; they build and manage his projects and his learning, from AI PCB and chip design tools to lesson-builder.
+
+Contact: hi@ihsan.cc
+
+## Experience
+
+- [Fab2 (Atomic Semi)](https://fab2.com/), RF Plasma Generation, San Francisco, Summer 2026: designed a 200 W Class DE RF inverter in one day and reached first plasma in three weeks; designed the Rogowski-coil current sensor for a tens-of-MHz RF V-I probe from a first-principles model and characterized the coils on a VNA; built an end-to-end AI PCB design workflow.
+- [Arista Networks](https://www.arista.com/), Optics and Signal Integrity, Santa Clara, Fall 2025: worked with founder Andy Bechtolsheim on power architecture and PMIC selection for next-gen co-packaged optics and 1.6T XPO pluggable modules; debugged 224G PAM4 signal integrity on 70 GHz VNAs, which cleared two 102.4T switches for fabrication.
+- [aiRadar](https://airadar.com/), High-frequency Power Electronics, Vancouver, Winter 2025: redesigned a 3.5 MHz multi-stage GaN dc-dc converter end to end, from topology choice to STM32 firmware and bring-up.
+- [University of Waterloo](https://uwaterloo.ca/), BASc Electrical Engineering, 2024-2029.
+
+## AI work
+
+- [The Hive](https://hivelab.ca): agents that build your projects, and the tools to check them. Agents take an ask from Slack to a checked result in each project's own repo, and build the deterministic tools they check it with, from rule checks to full-wave field solvers. How they know a design will work: https://hivelab.ca/results/
+- [hwde](https://github.com/ihsan-sa/hwde): an AI PCB engineer, from brief to fabricated board. A Claude Code skill takes a simple brief and produces a PCB design and fab package, with deterministic checks; its latest board, a stereo amplifier, has been made.
+- [autobox](https://github.com/ihsan-sa/autobox): autonomous agent orchestration on a remote server, the Hive's predecessor.
+- [lesson-builder](https://github.com/ihsan-sa/lesson-builder): course material into interactive lessons, each with its own tutor, videos, demos and graphs.
+- [chip design flow](https://github.com/ihsan-sa/chip-flow): AI chip design for digital, analog and mixed-signal tiles on Tiny Tapeout GF180.
+
+## Writing
+
+- [The Hive](https://ihsan.cc/writing/the-hive): the design of his autonomous, self-improving agentic system
+- [AI PCB Design](https://ihsan.cc/writing/ai-pcb-design): how his AI PCB design flow works, and the working amplifier board it designed
+- [Autobox](https://ihsan.cc/writing/autobox): how he built and uses his agentic orchestration system
+
+## Hardware projects
+
+- [Ionic thruster](https://docs.ihsan.cc/Projects/IonicThruster/overview/): 1.5 m/s of ionic wind and 40 mN of thrust
+- [3.5 MHz GaN converter](https://docs.ihsan.cc/Projects/GaN_DCDC_Converter/overview/): 10-50 V in, 20 V out
+- [Lorentz E&M solver](https://docs.ihsan.cc/Projects/LorentzSolver/overview/): C++ that traces charged particles through electric and magnetic fields
+- [USB-C trigger board](https://docs.ihsan.cc/Projects/USB-CTriggerBoards/Rev1/overview/): 140 W USB-C Power Delivery on a 6-layer board
+- [All boards the agents designed](https://boards.ihsan.cc/)
+
+## Links
+
+- [AI résumé](https://ihsan.cc/airesume)
+- [Hardware résumé](https://ihsan.cc/hwresume)
+- [Hardware portfolio](https://ihsan.cc/hwportfolio)
+- [GitHub](https://github.com/ihsan-sa)
+- [LinkedIn](https://linkedin.com/in/ihsan-sa)
+- [X](https://x.com/ihsansalari)
